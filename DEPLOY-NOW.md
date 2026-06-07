@@ -11,7 +11,7 @@
 2. **Generate new token → Classic**
 3. Scope: chọn **`repo`** (full control)
 4. Expiration: 90 days (hoặc No expiration)
-5. **Copy token** (chỉ hiện 1 lần)
+5. **Copy token** (chỉ hiện 1 lần, KHÔNG share với AI)
 
 ### Supabase Access Token
 1. Vào https://supabase.com/dashboard/account/tokens

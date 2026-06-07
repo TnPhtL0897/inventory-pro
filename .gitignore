@@ -32,6 +32,10 @@ obj/
 !.env.example
 !.env.production.example
 
+# Deploy secrets (LOCAL ONLY - chứa API tokens)
+deploy-secrets.ps1
+deploy-secrets*.ps1
+
 # Logs
 logs/
 *.log
