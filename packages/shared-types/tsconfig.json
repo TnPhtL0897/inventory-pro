@@ -1,0 +1,9 @@
+{
+  "extends": "../../packages/tsconfig/library.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "composite": false,
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"]
+}

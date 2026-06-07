@@ -1,0 +1,12 @@
+{
+  "name": "@inventorypro/tsconfig",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared TypeScript base configs cho monorepo (Next.js, library, node).",
+  "files": [
+    "base.json",
+    "nextjs.json",
+    "library.json",
+    "node.json"
+  ]
+}

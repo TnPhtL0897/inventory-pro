@@ -1,0 +1,62 @@
+﻿# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Turbo cache (regenerated on build)
+.turbo/
+
+# Real hospital data (BV Trường ĐHYD Cần Thơ) - sensitive, not for commit
+Dữ liệu Demo/
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.local
+.env.*.local
+.env.production
+!.env.example
+!.env.production.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Coverage
+coverage/
+*.lcov
+.nyc_output/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# Local SQLite (desktop)
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+*.swp
+*.swo

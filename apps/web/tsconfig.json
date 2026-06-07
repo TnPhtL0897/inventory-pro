@@ -1,0 +1,26 @@
+﻿{
+  "extends": "../../packages/tsconfig/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@inventorypro/shared-types": ["../../packages/shared-types/src"],
+      "@inventorypro/shared-types/*": ["../../packages/shared-types/src/*"],
+      "@inventorypro/validation": ["../../packages/validation/src"],
+      "@inventorypro/validation/*": ["../../packages/validation/src/*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "e2e",
+    "playwright.config.ts",
+    "scripts"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@inventorypro/shared-types": ["../../packages/shared-types/src"],
+      "@inventorypro/shared-types/*": ["../../packages/shared-types/src/*"],
+      "@inventorypro/validation": ["../../packages/validation/src"],
+      "@inventorypro/validation/*": ["../../packages/validation/src/*"]
+    },
+    "jsx": "preserve",
+    "module": "esnext",
+    "target": "es2022",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "exclude": ["node_modules", ".next"]
+}

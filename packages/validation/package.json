@@ -1,0 +1,33 @@
+{
+  "name": "@inventorypro/validation",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./common": "./src/common.ts",
+    "./product": "./src/product.ts",
+    "./warehouse": "./src/warehouse.ts",
+    "./stock": "./src/stock.ts",
+    "./stock-transfer": "./src/stock-transfer.ts",
+    "./stock-take": "./src/stock-take.ts",
+    "./party": "./src/party.ts",
+    "./purchase-order": "./src/purchase-order.ts",
+    "./goods-receipt": "./src/goods-receipt.ts",
+    "./stock-issue": "./src/stock-issue.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "lint": "echo 'no lint config yet'",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.4"
+  }
+}

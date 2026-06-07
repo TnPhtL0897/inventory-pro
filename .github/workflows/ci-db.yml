@@ -1,0 +1,35 @@
+﻿name: CI - Database
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - "infrastructure/supabase/**"
+
+jobs:
+  lint-sql:
+    name: Lint SQL Migrations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SQLFluff
+        uses: docker://sqlfluff/sqlfluff:latest
+        with:
+          args: lint infrastructure/supabase/migrations/
+
+  check-migration-format:
+    name: Check migration naming
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify naming convention
+        run: |
+          # Migrations phải theo format: NNNN_description.sql
+          ls infrastructure/supabase/migrations/ | while read f; do
+            if [[ ! "$f" =~ ^[0-9]{4}_[a-z0-9_]+\.sql$ ]]; then
+              echo "❌ Migration '$f' không đúng format (NNNN_description.sql)"
+              exit 1
+            fi
+          done
+          echo "✅ All migrations follow naming convention"
