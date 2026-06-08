@@ -64,3 +64,6 @@ supabase/.temp/
 # IDE
 *.swp
 *.swo
+deploy-package/
+
+# Deploy package (chứa source code cho upload GitHub qua web UI)
