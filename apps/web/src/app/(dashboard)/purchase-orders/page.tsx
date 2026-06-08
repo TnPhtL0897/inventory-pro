@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { PoTable } from "@/features/purchase-orders/po-table";
@@ -8,6 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import type { PurchaseOrder } from "@/features/purchase-orders/api";
+
+
+// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
+export const dynamic = "force-dynamic"
 
 export default function PurchaseOrdersPage() {
   const [open, setOpen] = useState(false);
@@ -21,16 +25,16 @@ export default function PurchaseOrdersPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Đơn mua hàng</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Purchase Order — workflow DRAFT → APPROVED → POSTED</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">ÄÆ¡n mua hÃ ng</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Purchase Order â€” workflow DRAFT â†’ APPROVED â†’ POSTED</p>
         </div>
         <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : close())}>
           <DialogTrigger asChild>
-            <Button onClick={handleNew}><Plus className="mr-2 h-4 w-4" /> Tạo PO</Button>
+            <Button onClick={handleNew}><Plus className="mr-2 h-4 w-4" /> Táº¡o PO</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-5xl">
             <DialogHeader>
-              <DialogTitle>{editing ? `Sửa: ${editing.poNumber}` : "Tạo đơn mua hàng"}</DialogTitle>
+              <DialogTitle>{editing ? `Sá»­a: ${editing.poNumber}` : "Táº¡o Ä‘Æ¡n mua hÃ ng"}</DialogTitle>
             </DialogHeader>
             <PoForm initial={editing ?? undefined} onSuccess={close} onCancel={close} />
           </DialogContent>
@@ -38,7 +42,7 @@ export default function PurchaseOrdersPage() {
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Danh sách</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Danh sÃ¡ch</CardTitle></CardHeader>
         <CardContent>
           <PoTable onEdit={handleEdit} onNew={handleNew} />
         </CardContent>
@@ -46,3 +50,4 @@ export default function PurchaseOrdersPage() {
     </div>
   );
 }
+

@@ -1,4 +1,8 @@
-import Link from "next/link";
+﻿import Link from "next/link";
+
+// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
+export const dynamic = "force-dynamic"
+
 import { cookies } from "next/headers";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, Warehouse, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
@@ -18,7 +22,7 @@ async function fetchTotal(path: string): Promise<number> {
 }
 
 export default async function DashboardPage() {
-  // DEV MODE: lấy email từ cookie, tránh gọi Supabase khi env placeholder
+  // DEV MODE: láº¥y email tá»« cookie, trÃ¡nh gá»i Supabase khi env placeholder
   const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL ||
     process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder") ||
     process.env.NEXT_PUBLIC_SUPABASE_URL.includes("abcdefghij");
@@ -39,7 +43,7 @@ export default async function DashboardPage() {
     userEmail = user?.email ?? null;
   }
 
-  // Fetch song song tất cả counters
+  // Fetch song song táº¥t cáº£ counters
   const [productsTotal, warehousesTotal, branchesTotal, partiesTotal, purchaseOrdersTotal, goodsReceiptsTotal, transfersTotal, stockTakesTotal] = await Promise.all([
     fetchTotal("/api/v1/products?pageSize=1"),
     fetchTotal("/api/v1/warehouses?pageSize=1"),
@@ -52,29 +56,29 @@ export default async function DashboardPage() {
   ]);
 
   const cards = [
-    { title: "Tổng vật tư", value: productsTotal, href: "/inventory/products", icon: Package, color: "text-blue-600" },
-    { title: "Số kho", value: warehousesTotal, href: "/warehouses", icon: Warehouse, color: "text-purple-600" },
-    { title: "Chi nhánh", value: branchesTotal, href: null, icon: null, color: "text-indigo-600" },
-    { title: "Đối tác", value: partiesTotal, href: "/parties", icon: null, color: "text-cyan-600" },
+    { title: "Tá»•ng váº­t tÆ°", value: productsTotal, href: "/inventory/products", icon: Package, color: "text-blue-600" },
+    { title: "Sá»‘ kho", value: warehousesTotal, href: "/warehouses", icon: Warehouse, color: "text-purple-600" },
+    { title: "Chi nhÃ¡nh", value: branchesTotal, href: null, icon: null, color: "text-indigo-600" },
+    { title: "Äá»‘i tÃ¡c", value: partiesTotal, href: "/parties", icon: null, color: "text-cyan-600" },
   ];
 
   const modules = [
-    { title: "Vật tư", description: "Danh mục sản phẩm", href: "/inventory/products", count: productsTotal },
-    { title: "Tồn kho", description: "Tồn hiện tại + lịch sử", href: "/inventory/stock", count: null },
-    { title: "Kho", description: "Quản lý kho vật lý", href: "/warehouses", count: warehousesTotal },
-    { title: "Mua hàng (PO)", description: "Đơn đặt hàng", href: "/purchase-orders", count: purchaseOrdersTotal },
-    { title: "Nhập kho (GRN)", description: "Phiếu nhập kho", href: "/goods-receipts", count: goodsReceiptsTotal },
-    { title: "Chuyển kho", description: "Chuyển kho nội bộ", href: "/transfers", count: transfersTotal },
-    { title: "Kiểm kê", description: "Phiếu kiểm kê", href: "/stock-takes", count: stockTakesTotal },
-    { title: "Đối tác", description: "NCC + Khách hàng", href: "/parties", count: partiesTotal },
+    { title: "Váº­t tÆ°", description: "Danh má»¥c sáº£n pháº©m", href: "/inventory/products", count: productsTotal },
+    { title: "Tá»“n kho", description: "Tá»“n hiá»‡n táº¡i + lá»‹ch sá»­", href: "/inventory/stock", count: null },
+    { title: "Kho", description: "Quáº£n lÃ½ kho váº­t lÃ½", href: "/warehouses", count: warehousesTotal },
+    { title: "Mua hÃ ng (PO)", description: "ÄÆ¡n Ä‘áº·t hÃ ng", href: "/purchase-orders", count: purchaseOrdersTotal },
+    { title: "Nháº­p kho (GRN)", description: "Phiáº¿u nháº­p kho", href: "/goods-receipts", count: goodsReceiptsTotal },
+    { title: "Chuyá»ƒn kho", description: "Chuyá»ƒn kho ná»™i bá»™", href: "/transfers", count: transfersTotal },
+    { title: "Kiá»ƒm kÃª", description: "Phiáº¿u kiá»ƒm kÃª", href: "/stock-takes", count: stockTakesTotal },
+    { title: "Äá»‘i tÃ¡c", description: "NCC + KhÃ¡ch hÃ ng", href: "/parties", count: partiesTotal },
   ];
 
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tổng quan</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tá»•ng quan</h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Xin chào <span className="font-medium break-all">{userEmail}</span> — chọn module bên dưới để bắt đầu.
+          Xin chÃ o <span className="font-medium break-all">{userEmail}</span> â€” chá»n module bÃªn dÆ°á»›i Ä‘á»ƒ báº¯t Ä‘áº§u.
         </p>
       </div>
 
@@ -89,7 +93,7 @@ export default async function DashboardPage() {
               </CardHeader>
               <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
                 <div className="text-xl sm:text-2xl font-bold tabular-nums">{c.value.toLocaleString("vi-VN")}</div>
-                {c.href && <p className="text-xs text-muted-foreground mt-1 flex items-center">Xem chi tiết <ArrowRight className="h-3 w-3 ml-1" /></p>}
+                {c.href && <p className="text-xs text-muted-foreground mt-1 flex items-center">Xem chi tiáº¿t <ArrowRight className="h-3 w-3 ml-1" /></p>}
               </CardContent>
             </Card>
           );
@@ -98,7 +102,7 @@ export default async function DashboardPage() {
       </div>
 
       <div>
-        <h2 className="text-base sm:text-lg font-semibold mb-3">Module nghiệp vụ</h2>
+        <h2 className="text-base sm:text-lg font-semibold mb-3">Module nghiá»‡p vá»¥</h2>
         <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {modules.map((m) => (
             <Link key={m.title} href={m.href} className="block">
@@ -111,7 +115,7 @@ export default async function DashboardPage() {
                   {m.count !== null ? (
                     <div className="text-lg sm:text-xl font-semibold tabular-nums">{m.count.toLocaleString("vi-VN")}</div>
                   ) : (
-                    <div className="text-sm text-muted-foreground">Truy cập →</div>
+                    <div className="text-sm text-muted-foreground">Truy cáº­p â†’</div>
                   )}
                 </CardContent>
               </Card>
@@ -126,16 +130,17 @@ export default async function DashboardPage() {
         </CardHeader>
         <CardContent>
           <ul className="text-sm space-y-1 text-muted-foreground">
-            <li>✅ <strong>Phase 0</strong> — Foundation: monorepo, Next.js, ASP.NET Core, Supabase</li>
-            <li>✅ <strong>Phase 1</strong> — Core MVP: products, warehouses, stock, manual IN/OUT</li>
-            <li>✅ <strong>Phase 2</strong> — Operations: PO, GRN, Issue, Transfer, Stock-take</li>
-            <li>⏳ <strong>Phase 3</strong> — Reports & Export: Excel, PDF, in phiếu</li>
-            <li>⏳ <strong>Phase 4</strong> — WPF Desktop offline</li>
-            <li>⏳ <strong>Phase 5</strong> — Mobile + Realtime</li>
-            <li>⏳ <strong>Phase 6</strong> — VN Compliance: HĐ điện tử, chữ ký số, sổ sách</li>
+            <li>âœ… <strong>Phase 0</strong> â€” Foundation: monorepo, Next.js, ASP.NET Core, Supabase</li>
+            <li>âœ… <strong>Phase 1</strong> â€” Core MVP: products, warehouses, stock, manual IN/OUT</li>
+            <li>âœ… <strong>Phase 2</strong> â€” Operations: PO, GRN, Issue, Transfer, Stock-take</li>
+            <li>â³ <strong>Phase 3</strong> â€” Reports & Export: Excel, PDF, in phiáº¿u</li>
+            <li>â³ <strong>Phase 4</strong> â€” WPF Desktop offline</li>
+            <li>â³ <strong>Phase 5</strong> â€” Mobile + Realtime</li>
+            <li>â³ <strong>Phase 6</strong> â€” VN Compliance: HÄ Ä‘iá»‡n tá»­, chá»¯ kÃ½ sá»‘, sá»• sÃ¡ch</li>
           </ul>
         </CardContent>
       </Card>
     </div>
   );
 }
+

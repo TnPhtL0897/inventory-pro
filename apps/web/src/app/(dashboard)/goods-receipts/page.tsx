@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -10,6 +10,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
+
+// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
+export const dynamic = "force-dynamic"
+
 export default function GoodsReceiptsPage() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -18,7 +22,7 @@ export default function GoodsReceiptsPage() {
   const handleNew = () => setOpen(true);
   const close = () => setOpen(false);
   const handlePost = (g: GoodsReceipt) => {
-    if (confirm(`Post GRN ${g.grnNumber}? Hành động này sẽ ghi stock_movements và cập nhật tồn kho.`)) {
+    if (confirm(`Post GRN ${g.grnNumber}? HÃ nh Ä‘á»™ng nÃ y sáº½ ghi stock_movements vÃ  cáº­p nháº­t tá»“n kho.`)) {
       post.mutate(g.id, { onSuccess: () => router.push(`/goods-receipts/${g.id}`) });
     }
   };
@@ -27,24 +31,25 @@ export default function GoodsReceiptsPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Phiếu nhập kho</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">GRN — tạo từ PO hoặc nhập tay. Post để ghi stock_movements.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Phiáº¿u nháº­p kho</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">GRN â€” táº¡o tá»« PO hoáº·c nháº­p tay. Post Ä‘á»ƒ ghi stock_movements.</p>
         </div>
         <Dialog open={open} onOpenChange={(v) => (v ? setOpen(true) : close())}>
           <DialogTrigger asChild>
-            <Button onClick={handleNew}><Plus className="mr-2 h-4 w-4" /> Tạo GRN</Button>
+            <Button onClick={handleNew}><Plus className="mr-2 h-4 w-4" /> Táº¡o GRN</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-5xl">
-            <DialogHeader><DialogTitle>Tạo phiếu nhập kho mới</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Táº¡o phiáº¿u nháº­p kho má»›i</DialogTitle></DialogHeader>
             <GrnForm onSuccess={close} onCancel={close} />
           </DialogContent>
         </Dialog>
       </div>
 
       <Card>
-        <CardHeader><CardTitle>Danh sách</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Danh sÃ¡ch</CardTitle></CardHeader>
         <CardContent><GrnTable onNew={handleNew} onPost={handlePost} /></CardContent>
       </Card>
     </div>
   );
 }
+

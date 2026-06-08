@@ -4,6 +4,10 @@ import { use } from "react";
 import { useParty } from "@/features/parties/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+
+// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
+export const dynamic = "force-dynamic"
+
 export default function PartyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { data: party, isLoading } = useParty(id);

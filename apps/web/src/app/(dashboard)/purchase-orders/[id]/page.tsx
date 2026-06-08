@@ -9,6 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ArrowLeft, Check, Send, X } from "lucide-react";
 
+
+// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
+export const dynamic = "force-dynamic"
+
 export default function PoDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();

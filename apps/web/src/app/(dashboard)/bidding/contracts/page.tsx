@@ -1,15 +1,19 @@
-// Server component - fetch data trên server
+﻿// Server component - fetch data trÃªn server
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/api";
 import { BidContract, BidContractListParams } from "@/features/bid-contracts/api";
 import { BidContractListClient } from "./list-client";
+
+
+// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
+export const dynamic = "force-dynamic"
 
 export default async function BidContractsPage({
   searchParams,
 }: {
   searchParams: Promise<{ status?: string; expiringSoon?: string }>;
 }) {
-  // Next.js 15: searchParams là async, phải await
+  // Next.js 15: searchParams lÃ  async, pháº£i await
   const sp = await searchParams;
   const params: BidContractListParams = {
     pageSize: 100,
@@ -29,14 +33,14 @@ export default async function BidContractsPage({
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Hợp đồng thầu</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Há»£p Ä‘á»“ng tháº§u</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Quản lý hợp đồng đã ký với nhà thầu trúng • <strong>{total}</strong> hợp đồng
+            Quáº£n lÃ½ há»£p Ä‘á»“ng Ä‘Ã£ kÃ½ vá»›i nhÃ  tháº§u trÃºng â€¢ <strong>{total}</strong> há»£p Ä‘á»“ng
           </p>
         </div>
       </div>
       <Card>
-        <CardHeader><CardTitle>Danh sách hợp đồng thầu</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Danh sÃ¡ch há»£p Ä‘á»“ng tháº§u</CardTitle></CardHeader>
         <CardContent>
           <BidContractListClient initialData={{ items: contracts, total }} />
         </CardContent>
@@ -44,3 +48,4 @@ export default async function BidContractsPage({
     </div>
   );
 }
+

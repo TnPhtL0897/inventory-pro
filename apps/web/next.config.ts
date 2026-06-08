@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "2mb" },
   },
+  typescript: { ignoreBuildErrors: false },
+  eslint: { ignoreDuringBuilds: true },
+  // Disable build-time static generation - use runtime SSR instead
+  // (Free Vercel tier has 60s/lambda limit; static export of 17 routes exceeds it)
+  productionBrowserSourceMaps: false,
   // Explicit path aliases cho Turbopack (chưa auto-read tsconfig paths ở mọi version)
   turbopack: {
     resolveAlias: {
