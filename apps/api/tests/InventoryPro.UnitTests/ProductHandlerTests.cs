@@ -1,5 +1,5 @@
 using FluentAssertions;
-using InventoryPro.API.Middleware;
+using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Catalog.Products;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.UnitTests.TestFixtures;

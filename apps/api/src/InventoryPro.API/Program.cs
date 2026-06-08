@@ -3,6 +3,7 @@ using System.Threading.RateLimiting;
 using HealthChecks.UI.Client;
 using InventoryPro.API.Middleware;
 using InventoryPro.Application;
+using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;

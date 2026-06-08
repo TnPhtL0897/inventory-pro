@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using InventoryPro.Application.Common.Tenancy;
 
 namespace InventoryPro.API.Middleware;
 
@@ -54,26 +55,5 @@ public class TenantScopeMiddleware
         }
 
         await _next(context);
-    }
-}
-
-/// <summary>
-/// Scoped service chứa thông tin tenant hiện tại.
-/// Inject vào bất kỳ service nào cần biết đang xử lý cho tenant nào.
-/// </summary>
-public class TenantContext
-{
-    public Guid? TenantId { get; set; }
-    public Guid? UserId { get; set; }
-    public List<Guid>? BranchIds { get; set; }
-    public string? Role { get; set; }
-
-    public bool IsAuthenticated => TenantId.HasValue && UserId.HasValue;
-    public bool IsAdmin => Role == "ADMIN";
-
-    public void EnsureAuthenticated()
-    {
-        if (!IsAuthenticated)
-            throw new UnauthorizedException("User chưa đăng nhập");
     }
 }

@@ -1,5 +1,5 @@
 using FluentAssertions;
-using InventoryPro.API.Middleware;
+using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Purchasing;
 using InventoryPro.Domain.Bidding;

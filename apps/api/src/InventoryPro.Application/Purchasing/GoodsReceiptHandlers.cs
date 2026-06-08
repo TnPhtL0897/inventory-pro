@@ -1,4 +1,4 @@
-using InventoryPro.API.Middleware;
+using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Inventory;

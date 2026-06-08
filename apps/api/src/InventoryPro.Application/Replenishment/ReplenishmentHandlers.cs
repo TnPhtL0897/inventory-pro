@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventoryPro.Application.Replenishment;
 
-using InventoryPro.API.Middleware;
+using InventoryPro.Application.Common.Tenancy;
 
 // =============================================================================
 // REPLENISHMENT HANDLERS (Dự trù cuối tháng cho kho chẵn)

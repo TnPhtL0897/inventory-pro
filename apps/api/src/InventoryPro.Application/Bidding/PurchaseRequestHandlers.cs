@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace InventoryPro.Application.Bidding;
 
-using InventoryPro.API.Middleware;
+using InventoryPro.Application.Common.Tenancy;
 
 // =============================================================================
 // PURCHASE REQUEST HANDLERS (Dự trù mua sắm)

@@ -1,4 +1,5 @@
 using Cronos;
+using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Replenishment;
 using InventoryPro.Domain.Replenishment;
 using InventoryPro.Domain.Tenancy;
