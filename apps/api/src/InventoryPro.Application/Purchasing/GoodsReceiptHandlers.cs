@@ -111,8 +111,8 @@ public class GoodsReceiptQueryHandler :
             .Where(l => locationIds.Contains(l.Id))
             .ToDictionaryAsync(l => l.Id, l => l.Code, ct);
 
-        return lines.Select(l => (l.Id, products.GetValueOrDefault(l.ProductId, ""), locations.GetValueOrDefault(l.LocationId, "")))
-            .ToDictionary(x => x.Id, x => (x.Item2, x.Item3));
+        return lines.Select(l => (Id: l.Id, Sku: products.GetValueOrDefault(l.ProductId, ""), LocationCode: locations.GetValueOrDefault(l.LocationId, "")))
+            .ToDictionary(x => x.Id, x => (Sku: x.Item2, LocationCode: x.Item3));
     }
 
     private static GoodsReceiptDto ToDto(GoodsReceipt g,
@@ -135,7 +135,7 @@ public class GoodsReceiptQueryHandler :
             g.WarehouseId, g.Warehouse?.Code,
             g.ReceiptDate, g.SupplierInvoiceNo, g.SupplierInvoiceDate, g.Notes,
             g.Status.ToString().ToUpperInvariant(),
-            g.PostedBy, g.PostedAt, lineDtos.Count,
+            g.PostedBy, g.PostedAt, (int)lineDtos.Count,
             g.BidContractId, g.BidContract?.ContractNo,
             g.BidLotId, g.BidLot?.LotName,
             g.CreatedAt, g.UpdatedAt);

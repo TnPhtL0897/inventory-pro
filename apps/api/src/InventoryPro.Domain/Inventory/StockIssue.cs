@@ -26,6 +26,7 @@ public class StockIssue : BranchScopedEntity
     public string? ReferenceNo { get; set; }
     public string? Notes { get; set; }
     public GoodsReceiptStatus Status { get; set; } = GoodsReceiptStatus.Draft;  // tái sử dụng enum
+    public Guid? CreatedBy { get; set; }
     public Guid? PostedBy { get; set; }
     public DateTime? PostedAt { get; set; }
     public DateTime? CancelledAt { get; set; }

@@ -336,9 +336,10 @@ internal static class ReplenishmentCalculator
         var outboundByProduct = await db.StockMovements.AsNoTracking()
             .Where(m => m.TenantId == tenantId
                 && warehouseIds.Contains(m.WarehouseId)
-                && (m.MovementType == StockMovementType.Out
-                    || m.MovementType == StockMovementType.TransferOut
-                    || m.MovementType == StockMovementType.Issue)
+                && (m.MovementType == StockMovementType.OUT
+                    || m.MovementType == StockMovementType.TRANSFER_OUT
+                    || m.MovementType == StockMovementType.ADJUST_OUT
+                    || m.MovementType == StockMovementType.RETURN_OUT)
                 && m.PostedAt >= fromDate
                 && m.PostedAt < asOfDate)
             .GroupBy(m => m.ProductId)

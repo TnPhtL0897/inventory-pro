@@ -35,6 +35,7 @@ public class GoodsReceipt : BranchScopedEntity
     public DateTime? SupplierInvoiceDate { get; set; }
     public string? Notes { get; set; }
     public GoodsReceiptStatus Status { get; set; } = GoodsReceiptStatus.Draft;
+    public Guid? CreatedBy { get; set; }
     public Guid? PostedBy { get; set; }
     public DateTime? PostedAt { get; set; }
     public DateTime? CancelledAt { get; set; }

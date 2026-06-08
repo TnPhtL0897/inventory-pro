@@ -50,6 +50,7 @@ public class PurchaseOrder : BranchScopedEntity
     public decimal PaidAmount { get; set; } = 0;
     public PurchaseOrderStatus Status { get; set; } = PurchaseOrderStatus.Draft;
     public int PaymentTerms { get; set; } = 0;
+    public Guid? CreatedBy { get; set; }
     public string? ShippingAddress { get; set; }
     public string? Notes { get; set; }
     public string? InternalNotes { get; set; }

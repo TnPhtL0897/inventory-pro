@@ -109,8 +109,8 @@ public class StockIssueQueryHandler :
         var locations = await _db.Locations.AsNoTracking()
             .Where(l => locationIds.Contains(l.Id))
             .ToDictionaryAsync(l => l.Id, l => l.Code, ct);
-        return lines.Select(l => (l.Id, products.GetValueOrDefault(l.ProductId, ""), locations.GetValueOrDefault(l.LocationId, "")))
-            .ToDictionary(x => x.Id, x => (x.Item2, x.Item3));
+        return lines.Select(l => (Id: l.Id, Sku: products.GetValueOrDefault(l.ProductId, ""), LocationCode: locations.GetValueOrDefault(l.LocationId, "")))
+            .ToDictionary(x => x.Id, x => (Sku: x.Item2, LocationCode: x.Item3));
     }
 
     private static StockIssueDto ToDto(StockIssue i, Dictionary<Guid, (string Sku, string LocationCode)> lineInfo)
@@ -132,7 +132,7 @@ public class StockIssueQueryHandler :
             i.Purpose.ToString().ToUpperInvariant(),
             i.IssueDate, i.ReferenceNo, i.Notes,
             i.Status.ToString().ToUpperInvariant(),
-            i.PostedBy, i.PostedAt, lineDtos.Count, i.CreatedAt, i.UpdatedAt);
+            i.PostedBy, i.PostedAt, (int)lineDtos.Count, i.CreatedAt, i.UpdatedAt);
     }
 }
 
@@ -255,7 +255,7 @@ public class StockIssueCommandHandler :
         // Táº¡o stock_movements OUT
         for (int i = 0; i < entity.Lines.Count; i++)
         {
-            var line = entity.Lines[i];
+            var line = entity.Lines.ElementAt(i);
             if (line.Status != GoodsReceiptLineStatus.Open) continue;
 
             // Láº¥y idempotency_key tá»« request â€” cáº§n lÆ°u trong line.Notes? Táº¡m thá»i sinh má»›i

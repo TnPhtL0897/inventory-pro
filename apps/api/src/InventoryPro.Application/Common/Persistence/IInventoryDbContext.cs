@@ -68,4 +68,5 @@ public interface IInventoryDbContext
     // EF Core operations
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     int SaveChanges();
+    Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;
 }

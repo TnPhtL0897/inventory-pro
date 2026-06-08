@@ -1,6 +1,7 @@
 ﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
+using InventoryPro.Domain.Bidding;
 using InventoryPro.Domain.Catalog;
 using InventoryPro.Domain.Parties;
 using InventoryPro.Domain.Purchasing;
@@ -157,7 +158,7 @@ public class PurchaseOrderQueryHandler :
             p.Status.ToString().ToUpperInvariant(), p.PaymentTerms,
             p.ShippingAddress, p.Notes, p.InternalNotes,
             p.ApprovedBy, p.ApprovedAt, p.PostedBy, p.PostedAt, p.CompletedAt, p.CancelledAt, p.CancelReason,
-            lineDtos.Count,
+            (int)lineDtos.Count,
             // ThÃ´ng tin tháº§u
             p.BidContractId, contract?.ContractNo,
             contract?.ContractValue, contract?.UsedValue, remaining,

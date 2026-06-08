@@ -139,26 +139,26 @@ public class LocationCommandHandler :
         _tenant.EnsureAuthenticated();
         var l = await _db.Locations.FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("Location", req.Id);
-        if (!string.IsNullOrEmpty(req.Name)) l.Name = req.Name;
-        if (!string.IsNullOrEmpty(req.Code) && req.Code != l.Code)
+        if (!string.IsNullOrEmpty(req.Request.Name)) l.Name = req.Request.Name;
+        if (!string.IsNullOrEmpty(req.Request.Code) && req.Request.Code != l.Code)
         {
-            var exists = await _db.Locations.AnyAsync(x => x.WarehouseId == l.WarehouseId && x.Code == req.Code && x.Id != req.Id, ct);
-            if (exists) throw new ConflictException($"MÃ£ vá»‹ trÃ­ '{req.Code}' Ä‘Ã£ tá»“n táº¡i");
-            l.Code = req.Code;
+            var exists = await _db.Locations.AnyAsync(x => x.WarehouseId == l.WarehouseId && x.Code == req.Request.Code && x.Id != req.Id, ct);
+            if (exists) throw new ConflictException($"MÃ£ vá»‹ trÃ­ '{req.Request.Code}' Ä‘Ã£ tá»“n táº¡i");
+            l.Code = req.Request.Code;
         }
-        if (req.Barcode != null) l.Barcode = req.Barcode;
-        if (req.PickSequence.HasValue) l.PickSequence = req.PickSequence.Value;
-        if (req.IsPickable.HasValue) l.IsPickable = req.IsPickable.Value;
-        if (!string.IsNullOrEmpty(req.LocationType))
+        if (req.Request.Barcode != null) l.Barcode = req.Request.Barcode;
+        if (req.Request.PickSequence.HasValue) l.PickSequence = req.Request.PickSequence.Value;
+        if (req.Request.IsPickable.HasValue) l.IsPickable = req.Request.IsPickable.Value;
+        if (!string.IsNullOrEmpty(req.Request.LocationType))
         {
-            if (!Enum.TryParse<LocationType>(req.LocationType, true, out var lt))
-                throw new ValidationException($"LocationType '{req.LocationType}' khÃ´ng há»£p lá»‡");
+            if (!Enum.TryParse<LocationType>(req.Request.LocationType, true, out var lt))
+                throw new ValidationException($"LocationType '{req.Request.LocationType}' khÃ´ng há»£p lá»‡");
             l.LocationType = lt;
         }
-        if (!string.IsNullOrEmpty(req.Status))
+        if (!string.IsNullOrEmpty(req.Request.Status))
         {
-            if (!Enum.TryParse<LocationStatus>(req.Status, true, out var st))
-                throw new ValidationException($"Status '{req.Status}' khÃ´ng há»£p lá»‡");
+            if (!Enum.TryParse<LocationStatus>(req.Request.Status, true, out var st))
+                throw new ValidationException($"Status '{req.Request.Status}' khÃ´ng há»£p lá»‡");
             l.Status = st;
         }
         await _db.SaveChangesAsync(ct);

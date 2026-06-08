@@ -75,11 +75,7 @@ public class WarehouseQueryHandler :
     {
         if (Enum.TryParse<WarehouseType>(raw, ignoreCase: true, out var t))
             return t;
-        throw new ValidationException(new[]
-        {
-            new FluentValidation.Results.ValidationFailure(nameof(WarehouseDto.Type),
-                $"warehouse_type khÃ´ng há»£p lá»‡: '{raw}'. Chá»‰ cháº¥p nháº­n: RECEIVING, ISSUE.")
-        });
+        throw new ValidationException($"warehouse_type khÃ´ng há»£p lá»‡: '{raw}'. Chá»‰ cháº¥p nháº­n: RECEIVING, ISSUE.");
     }
 
     private static WarehouseDto ToDto(Warehouse w) => new(

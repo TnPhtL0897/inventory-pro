@@ -315,7 +315,7 @@ public class BidLotCommandHandler :
         lot.BidLotStatus = BidLotStatus.Awarded;
 
         // Auto-create BidContract
-        var year = (request.Request.AwardedDate ?? DateTime.UtcNow).Year;
+        var year = request.Request.AwardedDate.Year;
         var prefix = $"HÄ-{year}-";
         var count = await _db.BidContracts.CountAsync(c => c.TenantId == _tenant.TenantId && c.ContractNo.StartsWith(prefix), ct);
         var contractNo = $"{prefix}{(count + 1).ToString("D4")}";

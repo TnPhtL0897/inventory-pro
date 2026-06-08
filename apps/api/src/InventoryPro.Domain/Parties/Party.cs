@@ -45,6 +45,7 @@ public class Party : TenantScopedEntity
     public string? Notes { get; set; }
     public PartyStatus Status { get; set; } = PartyStatus.Active;
     public string Attributes { get; set; } = "{}";
+    public Guid? CreatedBy { get; set; }
 
     // Navigation
     public ICollection<SupplierProduct> SupplierProducts { get; set; } = new List<SupplierProduct>();

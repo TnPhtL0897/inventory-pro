@@ -102,7 +102,7 @@ public class PurchaseRequestQueryHandler :
             .Where(u => unitIds.Contains(u.Id))
             .ToDictionaryAsync(u => u.Id, u => u.Code, ct);
 
-        var result = new Dictionary<Guid, (string, string, string)>();
+        var result = new Dictionary<Guid, (string Sku, string Name, string UnitCode)>();
         foreach (var id in productIds)
         {
             products.TryGetValue(id, out var p);
@@ -307,7 +307,7 @@ public class PurchaseRequestCommandHandler :
             .Where(u => unitIds.Contains(u.Id))
             .ToDictionaryAsync(u => u.Id, u => u.Code, ct);
 
-        var result = new Dictionary<Guid, (string, string, string)>();
+        var result = new Dictionary<Guid, (string Sku, string Name, string UnitCode)>();
         foreach (var id in productIds)
         {
             products.TryGetValue(id, out var p);
