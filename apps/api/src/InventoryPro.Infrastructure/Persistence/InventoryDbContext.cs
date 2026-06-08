@@ -1,9 +1,11 @@
 using System.Reflection;
 using InventoryPro.Application.Common.Persistence;
+using InventoryPro.Domain.Bidding;
 using InventoryPro.Domain.Catalog;
 using InventoryPro.Domain.Inventory;
 using InventoryPro.Domain.Parties;
 using InventoryPro.Domain.Purchasing;
+using InventoryPro.Domain.Replenishment;
 using InventoryPro.Domain.Tenancy;
 using Microsoft.EntityFrameworkCore;
 
@@ -54,17 +56,17 @@ public class InventoryDbContext : DbContext, IInventoryDbContext
     public DbSet<StockIssueLine> StockIssueLines => Set<StockIssueLine>();
 
     // Bidding (Đấu thầu - đơn vị công lập)
-    public DbSet<Bidding.BidPlan> BidPlans => Set<Bidding.BidPlan>();
-    public DbSet<Bidding.PurchaseRequest> PurchaseRequests => Set<Bidding.PurchaseRequest>();
-    public DbSet<Bidding.PurchaseRequestLine> PurchaseRequestLines => Set<Bidding.PurchaseRequestLine>();
-    public DbSet<Bidding.BidPackage> BidPackages => Set<Bidding.BidPackage>();
-    public DbSet<Bidding.BidLot> BidLots => Set<Bidding.BidLot>();
-    public DbSet<Bidding.BidLotLine> BidLotLines => Set<Bidding.BidLotLine>();
-    public DbSet<Bidding.BidBidder> BidBidders => Set<Bidding.BidBidder>();
-    public DbSet<Bidding.BidContract> BidContracts => Set<Bidding.BidContract>();
+    public DbSet<BidPlan> BidPlans => Set<BidPlan>();
+    public DbSet<PurchaseRequest> PurchaseRequests => Set<PurchaseRequest>();
+    public DbSet<PurchaseRequestLine> PurchaseRequestLines => Set<PurchaseRequestLine>();
+    public DbSet<BidPackage> BidPackages => Set<BidPackage>();
+    public DbSet<BidLot> BidLots => Set<BidLot>();
+    public DbSet<BidLotLine> BidLotLines => Set<BidLotLine>();
+    public DbSet<BidBidder> BidBidders => Set<BidBidder>();
+    public DbSet<BidContract> BidContracts => Set<BidContract>();
 
     // Replenishment (Dự trù cuối tháng)
-    public DbSet<Replenishment.MonthEndForecastRun> MonthEndForecastRuns => Set<Replenishment.MonthEndForecastRun>();
+    public DbSet<MonthEndForecastRun> MonthEndForecastRuns => Set<MonthEndForecastRun>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

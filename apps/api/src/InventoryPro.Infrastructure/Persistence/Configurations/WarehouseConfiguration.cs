@@ -71,7 +71,6 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .HasMaxLength(20)
             .IsRequired();
         b.Property(x => x.Attributes).HasColumnName("attributes").HasColumnType("jsonb").HasDefaultValue("{}");
-        b.Property(x => x.IsActive).HasColumnName("is_active").HasDefaultValue(true);
         b.Property(x => x.CreatedAt).HasColumnName("created_at");
         b.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 

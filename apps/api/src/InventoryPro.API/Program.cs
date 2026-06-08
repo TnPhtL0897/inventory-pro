@@ -4,7 +4,9 @@ using HealthChecks.UI.Client;
 using InventoryPro.API.Middleware;
 using InventoryPro.Application;
 using InventoryPro.Application.Common.Tenancy;
+using InventoryPro.Application.DependencyInjection;
 using InventoryPro.Infrastructure;
+using InventoryPro.Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.RateLimiting;
 using Serilog;
@@ -176,7 +178,7 @@ builder.Services.AddRateLimiter(options =>
 // =============================================================================
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy())
-    .AddDbContextCheck<InventoryPro.Infrastructure.Persistence.IInventoryDbContext>(
+    .AddDbContextCheck<InventoryPro.Infrastructure.Persistence.InventoryDbContext>(
         name: "database",
         tags: new[] { "ready", "db" });
 
