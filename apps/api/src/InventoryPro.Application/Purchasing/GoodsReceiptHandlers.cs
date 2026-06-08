@@ -135,7 +135,7 @@ public class GoodsReceiptQueryHandler :
             g.WarehouseId, g.Warehouse?.Code,
             g.ReceiptDate, g.SupplierInvoiceNo, g.SupplierInvoiceDate, g.Notes,
             g.Status.ToString().ToUpperInvariant(),
-            g.PostedBy, g.PostedAt, (int)lineDtos.Count,
+            g.PostedBy, g.PostedAt, lineDtos.Count(),
             g.BidContractId, g.BidContract?.ContractNo,
             g.BidLotId, g.BidLot?.LotName,
             g.CreatedAt, g.UpdatedAt);

@@ -158,7 +158,7 @@ public class PurchaseOrderQueryHandler :
             p.Status.ToString().ToUpperInvariant(), p.PaymentTerms,
             p.ShippingAddress, p.Notes, p.InternalNotes,
             p.ApprovedBy, p.ApprovedAt, p.PostedBy, p.PostedAt, p.CompletedAt, p.CancelledAt, p.CancelReason,
-            (int)lineDtos.Count,
+            lineDtos.Count(),
             // ThÃ´ng tin tháº§u
             p.BidContractId, contract?.ContractNo,
             contract?.ContractValue, contract?.UsedValue, remaining,
@@ -525,6 +525,59 @@ public class PurchaseOrderCommandHandler :
         return await _db.PurchaseOrders.AsNoTracking()
             .Include(p => p.Party).Include(p => p.Lines)
             .FirstAsync(p => p.Id == id, ct);
+    }
+
+    private async Task<Dictionary<Guid, (string Sku, string UnitCode)>> LoadProductInfoAsync(
+        IEnumerable<PurchaseOrderLine> lines, CancellationToken ct)
+    {
+        var productIds = lines.Select(l => l.ProductId).Distinct().ToList();
+        var unitIds = lines.Select(l => l.UnitId).Distinct().ToList();
+
+        var products = await _db.Products.AsNoTracking()
+            .Where(p => productIds.Contains(p.Id))
+            .ToDictionaryAsync(p => p.Id, p => p.Sku, ct);
+        var units = await _db.UnitsOfMeasure.AsNoTracking()
+            .Where(u => unitIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, u => u.Code, ct);
+
+        return lines.Select(l =>
+        {
+            var sku = products.GetValueOrDefault(l.ProductId, "");
+            return (l.Id, Sku: sku, UnitCode: units.GetValueOrDefault(l.UnitId, l.UnitCode));
+        }).ToDictionary(x => x.Id, x => (x.Sku, x.UnitCode));
+    }
+
+    private static PurchaseOrderDto ToDto(PurchaseOrder p,
+        Dictionary<Guid, (string Sku, string UnitCode)> productInfo)
+    {
+        var lineDtos = p.Lines.OrderBy(l => l.LineNo).Select(l =>
+        {
+            var info = productInfo.GetValueOrDefault(l.Id, ("", l.UnitCode));
+            return new PurchaseOrderLineDto(
+                l.Id, l.LineNo, l.ProductId, info.Sku, l.ProductName,
+                l.UnitId, info.UnitCode,
+                l.Quantity, l.ReceivedQty, l.UnitPrice, l.DiscountPct, l.TaxPct,
+                l.LineTotal, l.Status.ToString().ToUpperInvariant(), l.Notes);
+        }).ToList();
+
+        var contract = p.BidContract;
+        var lot = p.BidLot;
+        var remaining = contract != null ? contract.ContractValue - contract.UsedValue : (decimal?)null;
+        var daysToExpiry = contract != null ? (int)(contract.ContractEndDate - DateTime.UtcNow.Date).TotalDays : (int?)null;
+
+        return new PurchaseOrderDto(
+            p.Id, p.PoNumber, p.BranchId, p.PartyId, p.Party?.Name, p.Party?.Code,
+            p.OrderDate, p.ExpectedDate, p.Currency, p.ExchangeRate,
+            p.Subtotal, p.DiscountAmount, p.TaxAmount, p.ShippingAmount, p.Total, p.PaidAmount,
+            p.Status.ToString().ToUpperInvariant(), p.PaymentTerms,
+            p.ShippingAddress, p.Notes, p.InternalNotes,
+            p.ApprovedBy, p.ApprovedAt, p.PostedBy, p.PostedAt, p.CompletedAt, p.CancelledAt, p.CancelReason,
+            lineDtos.Count(),
+            p.BidContractId, contract?.ContractNo,
+            contract?.ContractValue, contract?.UsedValue, remaining,
+            contract?.ContractEndDate, daysToExpiry,
+            p.BidLotId, lot?.LotName,
+            p.CreatedAt, p.UpdatedAt);
     }
 }
 

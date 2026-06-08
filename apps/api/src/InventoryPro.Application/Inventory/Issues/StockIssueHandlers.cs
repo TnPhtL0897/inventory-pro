@@ -132,7 +132,7 @@ public class StockIssueQueryHandler :
             i.Purpose.ToString().ToUpperInvariant(),
             i.IssueDate, i.ReferenceNo, i.Notes,
             i.Status.ToString().ToUpperInvariant(),
-            i.PostedBy, i.PostedAt, (int)lineDtos.Count, i.CreatedAt, i.UpdatedAt);
+            i.PostedBy, i.PostedAt, lineDtos.Count(), i.CreatedAt, i.UpdatedAt);
     }
 }
 
