@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Mapster;
+using MapsterMapper;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;

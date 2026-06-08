@@ -29,6 +29,9 @@ public class NotFoundException : AppException
 {
     public NotFoundException(string entity, object key)
         : base($"Không tìm thấy {entity} với id = {key}") { }
+
+    public NotFoundException(string message)
+        : base(message) { }
 }
 
 public class ForbiddenException : AppException
