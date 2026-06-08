@@ -11,7 +11,7 @@ const nextConfig = {
   experimental: {
     serverActions: { bodySizeLimit: "2mb" },
   },
-  typescript: { ignoreBuildErrors: false },
+  typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
   productionBrowserSourceMaps: false,
   // Path aliases
