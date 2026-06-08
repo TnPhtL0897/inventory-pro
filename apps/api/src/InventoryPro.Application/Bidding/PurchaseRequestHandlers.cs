@@ -120,7 +120,7 @@ public class PurchaseRequestQueryHandler :
     {
         var lineDtos = pr.Lines.Select(l =>
         {
-            var info = productInfo.GetValueOrDefault(l.ProductId, ("", "", ""));
+            var info = productInfo.GetValueOrDefault(l.ProductId, default((string Sku, string Name, string UnitCode)));
             return new PurchaseRequestLineDto(
                 l.Id, l.ProductId, info.Sku, info.Name, l.UnitId, info.UnitCode,
                 l.Quantity, l.EstimatedUnitPrice,

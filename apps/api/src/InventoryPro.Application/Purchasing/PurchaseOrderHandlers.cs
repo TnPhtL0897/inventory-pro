@@ -137,7 +137,7 @@ public class PurchaseOrderQueryHandler :
         // Build lines tá»« navigation
         var lineDtos = p.Lines.OrderBy(l => l.LineNo).Select(l =>
         {
-            var info = productInfo.GetValueOrDefault(l.Id, ("", l.UnitCode));
+            var info = productInfo.GetValueOrDefault(l.Id, default((string Sku, string UnitCode)));
             return new PurchaseOrderLineDto(
                 l.Id, l.LineNo, l.ProductId, info.Sku, l.ProductName,
                 l.UnitId, info.UnitCode,
@@ -552,7 +552,7 @@ public class PurchaseOrderCommandHandler :
     {
         var lineDtos = p.Lines.OrderBy(l => l.LineNo).Select(l =>
         {
-            var info = productInfo.GetValueOrDefault(l.Id, ("", l.UnitCode));
+            var info = productInfo.GetValueOrDefault(l.Id, default((string Sku, string UnitCode)));
             return new PurchaseOrderLineDto(
                 l.Id, l.LineNo, l.ProductId, info.Sku, l.ProductName,
                 l.UnitId, info.UnitCode,

@@ -120,7 +120,7 @@ public class GoodsReceiptQueryHandler :
     {
         var lineDtos = g.Lines.OrderBy(l => l.LineNo).Select(l =>
         {
-            var info = lineInfo.GetValueOrDefault(l.Id, ("", ""));
+            var info = lineInfo.GetValueOrDefault(l.Id, default((string Sku, string LocationCode)));
             return new GoodsReceiptLineDto(
                 l.Id, l.LineNo, l.PoLineId, l.ProductId, info.Sku, l.ProductName,
                 l.UnitId, l.UnitCode, l.LocationId, info.LocationCode,
