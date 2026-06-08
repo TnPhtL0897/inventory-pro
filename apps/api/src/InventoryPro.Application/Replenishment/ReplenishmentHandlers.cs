@@ -515,13 +515,4 @@ internal static class ReplenishmentCalculator
         }
         return (result, monthlyConsumption);
     }
-
-    /// <summary>
-    /// Helper record Ä‘á»ƒ group consumption theo thÃ¡ng (chá»‰ dÃ¹ng cho V4).
-    /// </summary>
-    private record MonthlyConsumption(
-        Guid ProductId,
-        DateTime Month,
-        decimal TotalOut,
-        int EventCount);
 }
