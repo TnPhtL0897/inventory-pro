@@ -3,6 +3,7 @@ namespace InventoryPro.Domain.Inventory;
 using InventoryPro.Domain.Catalog;
 using InventoryPro.Domain.Common;
 using InventoryPro.Domain.Parties;
+using InventoryPro.Domain.Purchasing;
 
 public enum StockIssuePurpose
 {
