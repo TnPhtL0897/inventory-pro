@@ -1,7 +1,7 @@
-using InventoryPro.Application.Common.Exceptions;
+﻿using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Bidding;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -29,17 +29,17 @@ public class BidPlanQueryHandler :
     IRequestHandler<GetBidPlanByIdQuery, BidPlanDto>,
     IRequestHandler<ListBidPlansQuery, PaginatedResult<BidPlanDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BidPlanQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BidPlanQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BidPlanDto> Handle(GetBidPlanByIdQuery request, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var p = await _db.BidPlans.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPlan {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidPlan {request.Id} khÃ´ng tá»“n táº¡i");
         var packageCount = await _db.BidPackages.CountAsync(x => x.BidPlanId == p.Id, ct);
         return ToDto(p, packageCount);
     }
@@ -84,22 +84,22 @@ public class BidPlanCommandHandler :
     IRequestHandler<DeleteBidPlanCommand, Unit>,
     IRequestHandler<ApproveBidPlanCommand, BidPlanDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BidPlanCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BidPlanCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BidPlanDto> Handle(CreateBidPlanCommand request, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = request.Request;
         if (string.IsNullOrWhiteSpace(r.Title))
-            throw new ValidationException("Tiêu đề KHĐT không được trống");
+            throw new ValidationException("TiÃªu Ä‘á» KHÄT khÃ´ng Ä‘Æ°á»£c trá»‘ng");
         if (r.FiscalYear < 2000 || r.FiscalYear > 2100)
-            throw new ValidationException("Năm tài chính không hợp lệ");
+            throw new ValidationException("NÄƒm tÃ i chÃ­nh khÃ´ng há»£p lá»‡");
 
         // Generate plan_no
-        var prefix = $"KHĐT-{r.FiscalYear}-";
+        var prefix = $"KHÄT-{r.FiscalYear}-";
         var count = await _db.BidPlans.CountAsync(p => p.TenantId == _tenant.TenantId && p.PlanNo.StartsWith(prefix), ct);
         var planNo = $"{prefix}{(count + 1).ToString("D4")}";
 
@@ -123,8 +123,8 @@ public class BidPlanCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var p = await _db.BidPlans.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPlan {request.Id} không tồn tại");
-        if (p.Status != "DRAFT") throw new BusinessRuleException("Chỉ KHĐT ở trạng thái DRAFT mới sửa được");
+            ?? throw new NotFoundException($"BidPlan {request.Id} khÃ´ng tá»“n táº¡i");
+        if (p.Status != "DRAFT") throw new BusinessRuleException("Chá»‰ KHÄT á»Ÿ tráº¡ng thÃ¡i DRAFT má»›i sá»­a Ä‘Æ°á»£c");
 
         p.Title = request.Request.Title;
         p.TotalEstimatedValue = request.Request.TotalEstimatedValue;
@@ -138,8 +138,8 @@ public class BidPlanCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var p = await _db.BidPlans.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPlan {request.Id} không tồn tại");
-        if (p.Status != "DRAFT") throw new BusinessRuleException("Chỉ xóa được KHĐT ở trạng thái DRAFT");
+            ?? throw new NotFoundException($"BidPlan {request.Id} khÃ´ng tá»“n táº¡i");
+        if (p.Status != "DRAFT") throw new BusinessRuleException("Chá»‰ xÃ³a Ä‘Æ°á»£c KHÄT á»Ÿ tráº¡ng thÃ¡i DRAFT");
         _db.BidPlans.Remove(p);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -149,8 +149,8 @@ public class BidPlanCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var p = await _db.BidPlans.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPlan {request.Id} không tồn tại");
-        if (p.Status != "DRAFT") throw new BusinessRuleException("Chỉ duyệt KHĐT ở trạng thái DRAFT");
+            ?? throw new NotFoundException($"BidPlan {request.Id} khÃ´ng tá»“n táº¡i");
+        if (p.Status != "DRAFT") throw new BusinessRuleException("Chá»‰ duyá»‡t KHÄT á»Ÿ tráº¡ng thÃ¡i DRAFT");
 
         p.Status = "APPROVED";
         p.ApprovedBy = _tenant.UserId;

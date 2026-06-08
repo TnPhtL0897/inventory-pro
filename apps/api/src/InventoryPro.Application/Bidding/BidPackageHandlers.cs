@@ -1,7 +1,7 @@
-using InventoryPro.Application.Common.Exceptions;
+﻿using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Bidding;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -30,10 +30,10 @@ public class BidPackageQueryHandler :
     IRequestHandler<GetBidPackageByIdQuery, BidPackageDto>,
     IRequestHandler<ListBidPackagesQuery, PaginatedResult<BidPackageDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BidPackageQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BidPackageQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BidPackageDto> Handle(GetBidPackageByIdQuery request, CancellationToken ct)
     {
@@ -41,7 +41,7 @@ public class BidPackageQueryHandler :
         var p = await _db.BidPackages.AsNoTracking()
             .Include(x => x.BidPlan)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPackage {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidPackage {request.Id} khÃ´ng tá»“n táº¡i");
         var lotCount = await _db.BidLots.CountAsync(x => x.BidPackageId == p.Id, ct);
         return ToDto(p, lotCount);
     }
@@ -100,17 +100,17 @@ public class BidPackageCommandHandler :
     IRequestHandler<DeleteBidPackageCommand, Unit>,
     IRequestHandler<PublishBidPackageCommand, BidPackageDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BidPackageCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BidPackageCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BidPackageDto> Handle(CreateBidPackageCommand request, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = request.Request;
         if (string.IsNullOrWhiteSpace(r.PackageName))
-            throw new ValidationException("Tên gói thầu không được trống");
+            throw new ValidationException("TÃªn gÃ³i tháº§u khÃ´ng Ä‘Æ°á»£c trá»‘ng");
 
         // Auto-generate package_no
         var count = await _db.BidPackages.CountAsync(p => p.TenantId == _tenant.TenantId, ct);
@@ -143,9 +143,9 @@ public class BidPackageCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var p = await _db.BidPackages.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPackage {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidPackage {request.Id} khÃ´ng tá»“n táº¡i");
         if (p.BidPackageStatus != BidPackageStatus.Draft)
-            throw new BusinessRuleException("Chỉ gói thầu ở trạng thái DRAFT mới sửa được");
+            throw new BusinessRuleException("Chá»‰ gÃ³i tháº§u á»Ÿ tráº¡ng thÃ¡i DRAFT má»›i sá»­a Ä‘Æ°á»£c");
 
         p.PackageName = request.Request.PackageName;
         p.PublishDate = request.Request.PublishDate;
@@ -165,9 +165,9 @@ public class BidPackageCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var p = await _db.BidPackages.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPackage {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidPackage {request.Id} khÃ´ng tá»“n táº¡i");
         if (p.BidPackageStatus != BidPackageStatus.Draft)
-            throw new BusinessRuleException("Chỉ xóa được gói thầu ở trạng thái DRAFT");
+            throw new BusinessRuleException("Chá»‰ xÃ³a Ä‘Æ°á»£c gÃ³i tháº§u á»Ÿ tráº¡ng thÃ¡i DRAFT");
         _db.BidPackages.Remove(p);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -177,12 +177,12 @@ public class BidPackageCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var p = await _db.BidPackages.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPackage {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidPackage {request.Id} khÃ´ng tá»“n táº¡i");
         if (p.BidPackageStatus != BidPackageStatus.Draft && p.BidPackageStatus != BidPackageStatus.Approved)
-            throw new BusinessRuleException("Chỉ publish gói thầu ở trạng thái DRAFT hoặc APPROVED");
+            throw new BusinessRuleException("Chá»‰ publish gÃ³i tháº§u á»Ÿ tráº¡ng thÃ¡i DRAFT hoáº·c APPROVED");
 
         var lotCount = await _db.BidLots.CountAsync(x => x.BidPackageId == p.Id, ct);
-        if (lotCount == 0) throw new BusinessRuleException("Gói thầu phải có ít nhất 1 lô/phần trước khi publish");
+        if (lotCount == 0) throw new BusinessRuleException("GÃ³i tháº§u pháº£i cÃ³ Ã­t nháº¥t 1 lÃ´/pháº§n trÆ°á»›c khi publish");
 
         p.BidPackageStatus = BidPackageStatus.Published;
         p.PublishDate = request.Request.PublishDate;

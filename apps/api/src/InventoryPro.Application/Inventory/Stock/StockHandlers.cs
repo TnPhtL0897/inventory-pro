@@ -1,9 +1,9 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Catalog;
 using InventoryPro.Domain.Inventory;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,10 +42,10 @@ public class StockQueryHandler :
     IRequestHandler<ListStockQuery, PaginatedResult<StockLevelDto>>,
     IRequestHandler<ListMovementsQuery, PaginatedResult<StockMovementDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public StockQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public StockQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<PaginatedResult<StockLevelDto>> Handle(ListStockQuery req, CancellationToken ct)
     {
@@ -124,17 +124,17 @@ public class StockQueryHandler :
 
 public class StockCommandHandler : IRequestHandler<RecordMovementCommand, StockMovementDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public StockCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public StockCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<StockMovementDto> Handle(RecordMovementCommand req, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = req.Request;
 
-        // 1. Idempotency check: đã có movement với key này chưa?
+        // 1. Idempotency check: Ä‘Ã£ cÃ³ movement vá»›i key nÃ y chÆ°a?
         var existing = await _db.StockMovements
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.TenantId == _tenant.TenantId && m.IdempotencyKey == req.IdempotencyKey, ct);
@@ -145,30 +145,30 @@ public class StockCommandHandler : IRequestHandler<RecordMovementCommand, StockM
 
         // 2. Validate referenced entities
         var productOk = await _db.Products.AnyAsync(p => p.Id == r.ProductId && p.TenantId == _tenant.TenantId, ct);
-        if (!productOk) throw new NotFoundException("Product không tồn tại");
+        if (!productOk) throw new NotFoundException("Product khÃ´ng tá»“n táº¡i");
         var unitOk = await _db.UnitsOfMeasure.AnyAsync(u => u.Id == r.UnitId && u.TenantId == _tenant.TenantId, ct);
-        if (!unitOk) throw new NotFoundException("Unit không tồn tại");
+        if (!unitOk) throw new NotFoundException("Unit khÃ´ng tá»“n táº¡i");
         var warehouseOk = await _db.Warehouses.AnyAsync(w => w.Id == r.WarehouseId && w.TenantId == _tenant.TenantId, ct);
-        if (!warehouseOk) throw new NotFoundException("Warehouse không tồn tại");
+        if (!warehouseOk) throw new NotFoundException("Warehouse khÃ´ng tá»“n táº¡i");
         var locationOk = await _db.Locations.AnyAsync(l => l.Id == r.LocationId && l.WarehouseId == r.WarehouseId, ct);
-        if (!locationOk) throw new NotFoundException("Location không thuộc warehouse");
+        if (!locationOk) throw new NotFoundException("Location khÃ´ng thuá»™c warehouse");
 
         // 3. Validate movement type
         if (!Enum.TryParse<StockMovementType>(r.MovementType, true, out var mt))
-            throw new ValidationException($"MovementType '{r.MovementType}' không hợp lệ");
+            throw new ValidationException($"MovementType '{r.MovementType}' khÃ´ng há»£p lá»‡");
 
         // 4. Validate quantity > 0
         if (r.Quantity <= 0)
-            throw new ValidationException("Quantity phải > 0");
+            throw new ValidationException("Quantity pháº£i > 0");
 
-        // 5. Validate batch/serial nếu product yêu cầu
+        // 5. Validate batch/serial náº¿u product yÃªu cáº§u
         var product = await _db.Products.AsNoTracking().FirstAsync(p => p.Id == r.ProductId, ct);
         if (product.IsBatchTracked && string.IsNullOrEmpty(r.BatchNo))
-            throw new ValidationException("Product yêu cầu batch_no");
+            throw new ValidationException("Product yÃªu cáº§u batch_no");
         if (product.IsSerialTracked && string.IsNullOrEmpty(r.SerialNo))
-            throw new ValidationException("Product yêu cầu serial_no");
+            throw new ValidationException("Product yÃªu cáº§u serial_no");
 
-        // 6. Tạo movement. Trigger trong DB sẽ tự update stock.
+        // 6. Táº¡o movement. Trigger trong DB sáº½ tá»± update stock.
         var movement = new StockMovement
         {
             Id = Guid.NewGuid(),
@@ -196,12 +196,12 @@ public class StockCommandHandler : IRequestHandler<RecordMovementCommand, StockM
         }
         catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("check_violation", StringComparison.OrdinalIgnoreCase) == true)
         {
-            // Trigger từ chối vì stock âm
-            throw new ConflictException("Không thể xuất: tồn kho không đủ (warehouse không cho phép âm)");
+            // Trigger tá»« chá»‘i vÃ¬ stock Ã¢m
+            throw new ConflictException("KhÃ´ng thá»ƒ xuáº¥t: tá»“n kho khÃ´ng Ä‘á»§ (warehouse khÃ´ng cho phÃ©p Ã¢m)");
         }
         catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true)
         {
-            // Race: 2 request cùng idempotency_key
+            // Race: 2 request cÃ¹ng idempotency_key
             existing = await _db.StockMovements.AsNoTracking()
                 .FirstOrDefaultAsync(m => m.TenantId == _tenant.TenantId && m.IdempotencyKey == req.IdempotencyKey, ct);
             if (existing != null) return await ToDtoAsync(existing, ct);

@@ -1,20 +1,20 @@
-using Cronos;
+﻿using Cronos;
 using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Replenishment;
 using InventoryPro.Domain.Replenishment;
 using InventoryPro.Domain.Tenancy;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace InventoryPro.API.BackgroundServices;
 
 /// <summary>
-/// BackgroundService chạy dự trù cuối tháng tự động theo cron config.
+/// BackgroundService cháº¡y dá»± trÃ¹ cuá»‘i thÃ¡ng tá»± Ä‘á»™ng theo cron config.
 /// - Config trong appsettings: Replenishment:Enabled (bool), Replenishment:Cron (string, default "0 2 25 * *")
-/// - Với mỗi tick: loop qua tất cả active tenants, với mỗi tenant tạo 1 scope → resolve scoped services → chạy ReplenishmentCommand
-/// - Idempotency: handler tự throw nếu tháng đó đã chạy (DB UNIQUE constraint + handler check)
-/// - Lỗi 1 tenant không ảnh hưởng tenants khác
+/// - Vá»›i má»—i tick: loop qua táº¥t cáº£ active tenants, vá»›i má»—i tenant táº¡o 1 scope â†’ resolve scoped services â†’ cháº¡y ReplenishmentCommand
+/// - Idempotency: handler tá»± throw náº¿u thÃ¡ng Ä‘Ã³ Ä‘Ã£ cháº¡y (DB UNIQUE constraint + handler check)
+/// - Lá»—i 1 tenant khÃ´ng áº£nh hÆ°á»Ÿng tenants khÃ¡c
 /// </summary>
 public class ReplenishmentBackgroundService : BackgroundService
 {
@@ -45,7 +45,7 @@ public class ReplenishmentBackgroundService : BackgroundService
         CronExpression cron;
         try
         {
-            // Cronos mặc định format 5-field (phút giờ ngày tháng thứ). Nếu user muốn 6-field có thể dùng CronFormat.IncludeSeconds.
+            // Cronos máº·c Ä‘á»‹nh format 5-field (phÃºt giá» ngÃ y thÃ¡ng thá»©). Náº¿u user muá»‘n 6-field cÃ³ thá»ƒ dÃ¹ng CronFormat.IncludeSeconds.
             cron = CronExpression.Parse(cronExpr);
         }
         catch (Exception ex)
@@ -78,12 +78,12 @@ public class ReplenishmentBackgroundService : BackgroundService
 
     private async Task RunOnceForAllTenantsAsync(CancellationToken ct)
     {
-        // Lấy danh sách tenant active (sử dụng scope riêng, không cần TenantContext)
+        // Láº¥y danh sÃ¡ch tenant active (sá»­ dá»¥ng scope riÃªng, khÃ´ng cáº§n TenantContext)
         List<Guid> tenantIds;
         try
         {
             using var scope = _scopeFactory.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<IInventoryDbContext>();
             tenantIds = await db.Branches.AsNoTracking()
                 .Select(b => b.TenantId)
                 .Distinct()
@@ -108,7 +108,7 @@ public class ReplenishmentBackgroundService : BackgroundService
             try
             {
                 using var tenantScope = _scopeFactory.CreateScope();
-                var db = tenantScope.ServiceProvider.GetRequiredService<InventoryDbContext>();
+                var db = tenantScope.ServiceProvider.GetRequiredService<IInventoryDbContext>();
                 var mediator = tenantScope.ServiceProvider.GetRequiredService<IMediator>();
                 var tenantContext = tenantScope.ServiceProvider.GetRequiredService<TenantContext>();
                 tenantContext.TenantId = tenantId;
@@ -119,12 +119,12 @@ public class ReplenishmentBackgroundService : BackgroundService
                     FiscalMonth: fiscalMonth,
                     AsOfDate: asOfDate,
                     SaveAsPurchaseRequest: true,
-                    Notes: $"[SCHEDULED] Dự trù cuối tháng tự động {fiscalMonth}/{fiscalYear}");
+                    Notes: $"[SCHEDULED] Dá»± trÃ¹ cuá»‘i thÃ¡ng tá»± Ä‘á»™ng {fiscalMonth}/{fiscalYear}");
                 var result = await mediator.Send(new RunReplenishmentCommand(req, ReplenishmentRunType.Scheduled), ct);
                 _logger.LogInformation("Replenishment: tenant {Tenant} completed. Lines={Lines}, TotalValue={Total}, PRs={PrCount}",
                     tenantId, result.ProductCount, result.TotalEstimatedValue, result.CreatedPurchaseRequestIds.Count);
             }
-            catch (Exception ex) when (ex.Message.Contains("Đã chạy dự trù") || ex.Message.Contains("race condition"))
+            catch (Exception ex) when (ex.Message.Contains("ÄÃ£ cháº¡y dá»± trÃ¹") || ex.Message.Contains("race condition"))
             {
                 _logger.LogInformation("Replenishment: tenant {Tenant} skipped - {Reason}", tenantId, ex.Message);
             }

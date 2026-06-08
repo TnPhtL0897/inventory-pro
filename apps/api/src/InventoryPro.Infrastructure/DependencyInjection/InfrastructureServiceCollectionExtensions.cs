@@ -1,4 +1,5 @@
-﻿using InventoryPro.Infrastructure.Persistence;
+﻿using InventoryPro.Application.Common.Persistence;
+using InventoryPro.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,6 +30,10 @@ public static class InfrastructureServiceCollectionExtensions
                 options.EnableSensitiveDataLogging();
             }
         });
+
+        // Bind IInventoryDbContext → InventoryDbContext (cùng scoped lifetime)
+        // Application handlers inject interface, không reference tới concrete class.
+        services.AddScoped<IInventoryDbContext>(sp => sp.GetRequiredService<InventoryDbContext>());
 
         return services;
     }

@@ -1,7 +1,7 @@
-using InventoryPro.Application.Common.Exceptions;
+﻿using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Bidding;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ namespace InventoryPro.Application.Bidding;
 using InventoryPro.Application.Common.Tenancy;
 
 // =============================================================================
-// PURCHASE REQUEST HANDLERS (Dự trù mua sắm)
+// PURCHASE REQUEST HANDLERS (Dá»± trÃ¹ mua sáº¯m)
 // =============================================================================
 
 public record GetPurchaseRequestByIdQuery(Guid Id) : IRequest<PurchaseRequestDto>;
@@ -32,10 +32,10 @@ public class PurchaseRequestQueryHandler :
     IRequestHandler<GetPurchaseRequestByIdQuery, PurchaseRequestDto>,
     IRequestHandler<ListPurchaseRequestsQuery, PaginatedResult<PurchaseRequestDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public PurchaseRequestQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public PurchaseRequestQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<PurchaseRequestDto> Handle(GetPurchaseRequestByIdQuery request, CancellationToken ct)
     {
@@ -44,7 +44,7 @@ public class PurchaseRequestQueryHandler :
             .Include(p => p.Lines)
             .Include(p => p.BidPlan)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseRequest {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseRequest {request.Id} khÃ´ng tá»“n táº¡i");
         var branch = await _db.Branches.AsNoTracking().FirstOrDefaultAsync(b => b.Id == pr.BranchId, ct);
         var productInfo = await LoadProductInfoAsync(pr.Lines, ct);
         return ToDto(pr, branch?.Name, productInfo);
@@ -144,20 +144,20 @@ public class PurchaseRequestCommandHandler :
     IRequestHandler<SubmitPurchaseRequestCommand, PurchaseRequestDto>,
     IRequestHandler<ApprovePurchaseRequestCommand, PurchaseRequestDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public PurchaseRequestCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public PurchaseRequestCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<PurchaseRequestDto> Handle(CreatePurchaseRequestCommand request, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = request.Request;
         if (r.Lines == null || r.Lines.Count == 0)
-            throw new ValidationException("Dự trù phải có ít nhất 1 dòng");
+            throw new ValidationException("Dá»± trÃ¹ pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
 
         var branch = await _db.Branches.FirstOrDefaultAsync(b => b.Id == r.BranchId && b.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Branch {r.BranchId} không tồn tại");
+            ?? throw new NotFoundException($"Branch {r.BranchId} khÃ´ng tá»“n táº¡i");
 
         // Generate pr_number
         var year = r.RequestedDate?.Year ?? DateTime.UtcNow.Year;
@@ -193,9 +193,9 @@ public class PurchaseRequestCommandHandler :
         foreach (var line in r.Lines)
         {
             if (!products.ContainsKey(line.ProductId))
-                throw new NotFoundException($"Product {line.ProductId} không tồn tại");
+                throw new NotFoundException($"Product {line.ProductId} khÃ´ng tá»“n táº¡i");
             if (!units.ContainsKey(line.UnitId))
-                throw new NotFoundException($"Unit {line.UnitId} không tồn tại");
+                throw new NotFoundException($"Unit {line.UnitId} khÃ´ng tá»“n táº¡i");
 
             entity.Lines.Add(new PurchaseRequestLine
             {
@@ -220,9 +220,9 @@ public class PurchaseRequestCommandHandler :
         var pr = await _db.PurchaseRequests
             .Include(p => p.Lines)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseRequest {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseRequest {request.Id} khÃ´ng tá»“n táº¡i");
         if (pr.Status != PurchaseRequestStatus.Draft)
-            throw new BusinessRuleException("Chỉ dự trù ở trạng thái DRAFT mới sửa được");
+            throw new BusinessRuleException("Chá»‰ dá»± trÃ¹ á»Ÿ tráº¡ng thÃ¡i DRAFT má»›i sá»­a Ä‘Æ°á»£c");
 
         pr.RequestDept = request.Request.RequestDept;
         pr.Notes = request.Request.Notes;
@@ -252,9 +252,9 @@ public class PurchaseRequestCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var pr = await _db.PurchaseRequests.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseRequest {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseRequest {request.Id} khÃ´ng tá»“n táº¡i");
         if (pr.Status != PurchaseRequestStatus.Draft)
-            throw new BusinessRuleException("Chỉ xóa được dự trù ở trạng thái DRAFT");
+            throw new BusinessRuleException("Chá»‰ xÃ³a Ä‘Æ°á»£c dá»± trÃ¹ á»Ÿ tráº¡ng thÃ¡i DRAFT");
         _db.PurchaseRequests.Remove(pr);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -265,10 +265,10 @@ public class PurchaseRequestCommandHandler :
         _tenant.EnsureAuthenticated();
         var pr = await _db.PurchaseRequests.Include(p => p.Lines)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseRequest {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseRequest {request.Id} khÃ´ng tá»“n táº¡i");
         if (pr.Status != PurchaseRequestStatus.Draft)
-            throw new BusinessRuleException("Chỉ gửi duyệt dự trù ở trạng thái DRAFT");
-        if (pr.Lines.Count == 0) throw new BusinessRuleException("Dự trù phải có ít nhất 1 dòng");
+            throw new BusinessRuleException("Chá»‰ gá»­i duyá»‡t dá»± trÃ¹ á»Ÿ tráº¡ng thÃ¡i DRAFT");
+        if (pr.Lines.Count == 0) throw new BusinessRuleException("Dá»± trÃ¹ pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
 
         pr.Status = PurchaseRequestStatus.Submitted;
         await _db.SaveChangesAsync(ct);
@@ -282,9 +282,9 @@ public class PurchaseRequestCommandHandler :
         _tenant.EnsureAuthenticated();
         var pr = await _db.PurchaseRequests.Include(p => p.Lines)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseRequest {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseRequest {request.Id} khÃ´ng tá»“n táº¡i");
         if (pr.Status != PurchaseRequestStatus.Submitted)
-            throw new BusinessRuleException("Chỉ duyệt dự trù ở trạng thái SUBMITTED");
+            throw new BusinessRuleException("Chá»‰ duyá»‡t dá»± trÃ¹ á»Ÿ tráº¡ng thÃ¡i SUBMITTED");
 
         pr.Status = PurchaseRequestStatus.Approved;
         pr.ApprovedBy = _tenant.UserId;

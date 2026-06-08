@@ -1,9 +1,9 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Inventory;
 using InventoryPro.Domain.Parties;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -39,10 +39,10 @@ public class StockIssueQueryHandler :
     IRequestHandler<GetStockIssueByIdQuery, StockIssueDto>,
     IRequestHandler<ListStockIssuesQuery, PaginatedResult<StockIssueDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public StockIssueQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public StockIssueQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<StockIssueDto> Handle(GetStockIssueByIdQuery request, CancellationToken ct)
     {
@@ -51,7 +51,7 @@ public class StockIssueQueryHandler :
             .AsNoTracking()
             .Include(i => i.Party).Include(i => i.Warehouse).Include(i => i.Lines)
             .FirstOrDefaultAsync(i => i.Id == request.Id && i.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"StockIssue {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"StockIssue {request.Id} khÃ´ng tá»“n táº¡i");
         return ToDto(entity, await LoadLineDetailsAsync(entity.Lines, ct));
     }
 
@@ -142,10 +142,10 @@ public class StockIssueCommandHandler :
     IRequestHandler<PostStockIssueCommand, StockIssueDto>,
     IRequestHandler<CancelStockIssueCommand, StockIssueDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public StockIssueCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public StockIssueCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<StockIssueDto> Handle(CreateStockIssueCommand request, CancellationToken ct)
     {
@@ -179,10 +179,10 @@ public class StockIssueCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.StockIssues.Include(i => i.Lines)
             .FirstOrDefaultAsync(i => i.Id == request.Id && i.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"StockIssue {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"StockIssue {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != GoodsReceiptStatus.Draft)
-            throw new BusinessRuleException("Chỉ phiếu xuất ở DRAFT mới sửa được");
+            throw new BusinessRuleException("Chá»‰ phiáº¿u xuáº¥t á»Ÿ DRAFT má»›i sá»­a Ä‘Æ°á»£c");
 
         var r = request.Request;
         entity.PartyId = r.PartyId;
@@ -203,9 +203,9 @@ public class StockIssueCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.StockIssues
             .FirstOrDefaultAsync(i => i.Id == request.Id && i.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"StockIssue {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"StockIssue {request.Id} khÃ´ng tá»“n táº¡i");
         if (entity.Status != GoodsReceiptStatus.Draft)
-            throw new BusinessRuleException("Chỉ phiếu xuất ở DRAFT mới xóa được");
+            throw new BusinessRuleException("Chá»‰ phiáº¿u xuáº¥t á»Ÿ DRAFT má»›i xÃ³a Ä‘Æ°á»£c");
         _db.StockIssues.Remove(entity);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -216,21 +216,21 @@ public class StockIssueCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.StockIssues.Include(i => i.Lines)
             .FirstOrDefaultAsync(i => i.Id == request.Id && i.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"StockIssue {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"StockIssue {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != GoodsReceiptStatus.Draft)
-            throw new BusinessRuleException($"Chỉ phiếu xuất ở DRAFT mới post được. Hiện tại: {entity.Status}");
+            throw new BusinessRuleException($"Chá»‰ phiáº¿u xuáº¥t á»Ÿ DRAFT má»›i post Ä‘Æ°á»£c. Hiá»‡n táº¡i: {entity.Status}");
         if (!entity.Lines.Any())
-            throw new BusinessRuleException("Phiếu xuất phải có ít nhất 1 dòng");
+            throw new BusinessRuleException("Phiáº¿u xuáº¥t pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
 
-        // Pre-check tồn kho (chính xác sẽ do trigger apply_stock_movement enforce, nhưng pre-check để UX tốt hơn)
+        // Pre-check tá»“n kho (chÃ­nh xÃ¡c sáº½ do trigger apply_stock_movement enforce, nhÆ°ng pre-check Ä‘á»ƒ UX tá»‘t hÆ¡n)
         var warehouse = await _db.Warehouses.FirstOrDefaultAsync(w => w.Id == entity.WarehouseId, ct);
-        if (warehouse == null) throw new NotFoundException("Warehouse không tồn tại");
+        if (warehouse == null) throw new NotFoundException("Warehouse khÃ´ng tá»“n táº¡i");
 
-        // Business rule: post phiếu xuất → ghi stock_movements OUT, chỉ cho kho lẻ (ISSUE).
+        // Business rule: post phiáº¿u xuáº¥t â†’ ghi stock_movements OUT, chá»‰ cho kho láº» (ISSUE).
         if (warehouse.Type != WarehouseType.Issue)
             throw new BusinessRuleException(
-                $"Kho '{warehouse.Code}' hiện là kho chẵn (RECEIVING), không thể post phiếu xuất. Vui lòng chọn kho lẻ (ISSUE) khi tạo phiếu.");
+                $"Kho '{warehouse.Code}' hiá»‡n lÃ  kho cháºµn (RECEIVING), khÃ´ng thá»ƒ post phiáº¿u xuáº¥t. Vui lÃ²ng chá»n kho láº» (ISSUE) khi táº¡o phiáº¿u.");
 
         if (!warehouse.AllowNegative)
         {
@@ -247,17 +247,17 @@ public class StockIssueCommandHandler :
                     .FirstOrDefaultAsync(ct) ?? 0;
                 if (stockQty < line.Quantity)
                     throw new BusinessRuleException(
-                        $"Tồn kho không đủ cho sản phẩm {line.ProductName}: cần {line.Quantity}, có {stockQty}");
+                        $"Tá»“n kho khÃ´ng Ä‘á»§ cho sáº£n pháº©m {line.ProductName}: cáº§n {line.Quantity}, cÃ³ {stockQty}");
             }
         }
 
-        // Tạo stock_movements OUT
+        // Táº¡o stock_movements OUT
         for (int i = 0; i < entity.Lines.Count; i++)
         {
             var line = entity.Lines[i];
             if (line.Status != GoodsReceiptLineStatus.Open) continue;
 
-            // Lấy idempotency_key từ request — cần lưu trong line.Notes? Tạm thời sinh mới
+            // Láº¥y idempotency_key tá»« request â€” cáº§n lÆ°u trong line.Notes? Táº¡m thá»i sinh má»›i
             var idempotencyKey = Guid.NewGuid();
 
             var movement = new StockMovement
@@ -271,7 +271,7 @@ public class StockIssueCommandHandler :
                 MovementType = StockMovementType.OUT,
                 Status = StockMovementStatus.Posted,
                 Quantity = line.Quantity,
-                UnitCost = null, // OUT không cập nhật avg cost
+                UnitCost = null, // OUT khÃ´ng cáº­p nháº­t avg cost
                 RefType = StockReferenceType.Issue,
                 RefId = entity.Id,
                 RefLineId = line.Id,
@@ -301,12 +301,12 @@ public class StockIssueCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.StockIssues
             .FirstOrDefaultAsync(i => i.Id == request.Id && i.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"StockIssue {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"StockIssue {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != GoodsReceiptStatus.Draft)
-            throw new BusinessRuleException("Chỉ phiếu xuất ở DRAFT mới hủy được");
+            throw new BusinessRuleException("Chá»‰ phiáº¿u xuáº¥t á»Ÿ DRAFT má»›i há»§y Ä‘Æ°á»£c");
         if (string.IsNullOrWhiteSpace(request.Reason))
-            throw new ValidationException("Phải nhập lý do hủy");
+            throw new ValidationException("Pháº£i nháº­p lÃ½ do há»§y");
 
         entity.Status = GoodsReceiptStatus.Cancelled;
         entity.CancelledAt = DateTime.UtcNow;
@@ -319,21 +319,21 @@ public class StockIssueCommandHandler :
     private async Task ValidateAsync(CreateStockIssueRequest r, CancellationToken ct)
     {
         if (r.Lines == null || r.Lines.Count == 0)
-            throw new ValidationException("Phiếu xuất phải có ít nhất 1 dòng");
+            throw new ValidationException("Phiáº¿u xuáº¥t pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
         if (r.IdempotencyKeys == null || r.IdempotencyKeys.Count != r.Lines.Count)
-            throw new ValidationException("Mỗi dòng cần 1 idempotency_key");
+            throw new ValidationException("Má»—i dÃ²ng cáº§n 1 idempotency_key");
         if (r.IdempotencyKeys.Distinct().Count() != r.IdempotencyKeys.Count)
-            throw new ValidationException("Idempotency keys phải unique");
+            throw new ValidationException("Idempotency keys pháº£i unique");
 
         // Validate warehouse
         var wh = await _db.Warehouses
             .FirstOrDefaultAsync(w => w.Id == r.WarehouseId && w.BranchId == r.BranchId && w.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Warehouse {r.WarehouseId} không thuộc branch {r.BranchId}");
+            ?? throw new NotFoundException($"Warehouse {r.WarehouseId} khÃ´ng thuá»™c branch {r.BranchId}");
 
-        // Business rule: phiếu xuất chỉ cho phép từ kho lẻ (ISSUE).
+        // Business rule: phiáº¿u xuáº¥t chá»‰ cho phÃ©p tá»« kho láº» (ISSUE).
         if (wh.Type != WarehouseType.Issue)
             throw new BusinessRuleException(
-                $"Kho '{wh.Code}' là kho chẵn (RECEIVING), không thể tạo phiếu xuất. Vui lòng chọn kho lẻ (ISSUE).");
+                $"Kho '{wh.Code}' lÃ  kho cháºµn (RECEIVING), khÃ´ng thá»ƒ táº¡o phiáº¿u xuáº¥t. Vui lÃ²ng chá»n kho láº» (ISSUE).");
 
         // Validate locations
         var locationIds = r.Lines.Select(l => l.LocationId).Distinct().ToList();
@@ -341,15 +341,15 @@ public class StockIssueCommandHandler :
             .Where(l => locationIds.Contains(l.Id) && (l.TenantId != _tenant.TenantId || l.WarehouseId != r.WarehouseId))
             .Select(l => l.Id).ToListAsync(ct);
         if (invalidLoc.Any())
-            throw new NotFoundException($"Location {string.Join(", ", invalidLoc)} không thuộc warehouse");
+            throw new NotFoundException($"Location {string.Join(", ", invalidLoc)} khÃ´ng thuá»™c warehouse");
 
-        // Nếu có party và purpose = SALE, validate party là customer
+        // Náº¿u cÃ³ party vÃ  purpose = SALE, validate party lÃ  customer
         if (r.PartyId.HasValue && string.Equals(r.Purpose, "SALE", StringComparison.OrdinalIgnoreCase))
         {
             var party = await _db.Parties.FirstOrDefaultAsync(p => p.Id == r.PartyId && p.TenantId == _tenant.TenantId, ct);
-            if (party == null) throw new NotFoundException($"Party {r.PartyId} không tồn tại");
+            if (party == null) throw new NotFoundException($"Party {r.PartyId} khÃ´ng tá»“n táº¡i");
             if (party.PartyType == PartyType.Supplier)
-                throw new BusinessRuleException("Xuất bán phải là khách hàng (CUSTOMER) hoặc BOTH");
+                throw new BusinessRuleException("Xuáº¥t bÃ¡n pháº£i lÃ  khÃ¡ch hÃ ng (CUSTOMER) hoáº·c BOTH");
         }
     }
 
@@ -368,9 +368,9 @@ public class StockIssueCommandHandler :
         {
             var line = lineReqs[i];
             if (!products.TryGetValue(line.ProductId, out var product))
-                throw new NotFoundException($"Product {line.ProductId} không tồn tại");
+                throw new NotFoundException($"Product {line.ProductId} khÃ´ng tá»“n táº¡i");
             if (!units.TryGetValue(line.UnitId, out var unit))
-                throw new NotFoundException($"Unit {line.UnitId} không tồn tại");
+                throw new NotFoundException($"Unit {line.UnitId} khÃ´ng tá»“n táº¡i");
 
             entity.Lines.Add(new StockIssueLine
             {

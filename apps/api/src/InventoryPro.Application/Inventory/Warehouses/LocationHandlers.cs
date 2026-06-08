@@ -1,8 +1,8 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Inventory;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -30,10 +30,10 @@ public class LocationQueryHandler :
     IRequestHandler<GetLocationByIdQuery, LocationDto>,
     IRequestHandler<ListLocationsQuery, PaginatedResult<LocationDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public LocationQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public LocationQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<LocationDto> Handle(GetLocationByIdQuery req, CancellationToken ct)
     {
@@ -86,10 +86,10 @@ public class LocationCommandHandler :
     IRequestHandler<UpdateLocationCommand, LocationDto>,
     IRequestHandler<DeleteLocationCommand, Unit>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public LocationCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public LocationCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<LocationDto> Handle(CreateLocationCommand req, CancellationToken ct)
     {
@@ -99,7 +99,7 @@ public class LocationCommandHandler :
         if (!warehouseOk) throw new NotFoundException("Warehouse", r.WarehouseId);
 
         var exists = await _db.Locations.AnyAsync(x => x.WarehouseId == r.WarehouseId && x.Code == r.Code, ct);
-        if (exists) throw new ConflictException($"Mã vị trí '{r.Code}' đã tồn tại trong kho này");
+        if (exists) throw new ConflictException($"MÃ£ vá»‹ trÃ­ '{r.Code}' Ä‘Ã£ tá»“n táº¡i trong kho nÃ y");
 
         if (r.ParentId.HasValue)
         {
@@ -111,13 +111,13 @@ public class LocationCommandHandler :
         if (!string.IsNullOrEmpty(r.LocationType))
         {
             if (!Enum.TryParse<LocationType>(r.LocationType, true, out lt))
-                throw new ValidationException($"LocationType '{r.LocationType}' không hợp lệ");
+                throw new ValidationException($"LocationType '{r.LocationType}' khÃ´ng há»£p lá»‡");
         }
 
         var entity = new Location
         {
             TenantId = _tenant.TenantId!.Value,
-            // Branch từ warehouse
+            // Branch tá»« warehouse
             BranchId = (await _db.Warehouses.AsNoTracking().FirstAsync(w => w.Id == r.WarehouseId, ct)).BranchId,
             WarehouseId = r.WarehouseId,
             ParentId = r.ParentId,
@@ -143,7 +143,7 @@ public class LocationCommandHandler :
         if (!string.IsNullOrEmpty(req.Code) && req.Code != l.Code)
         {
             var exists = await _db.Locations.AnyAsync(x => x.WarehouseId == l.WarehouseId && x.Code == req.Code && x.Id != req.Id, ct);
-            if (exists) throw new ConflictException($"Mã vị trí '{req.Code}' đã tồn tại");
+            if (exists) throw new ConflictException($"MÃ£ vá»‹ trÃ­ '{req.Code}' Ä‘Ã£ tá»“n táº¡i");
             l.Code = req.Code;
         }
         if (req.Barcode != null) l.Barcode = req.Barcode;
@@ -152,13 +152,13 @@ public class LocationCommandHandler :
         if (!string.IsNullOrEmpty(req.LocationType))
         {
             if (!Enum.TryParse<LocationType>(req.LocationType, true, out var lt))
-                throw new ValidationException($"LocationType '{req.LocationType}' không hợp lệ");
+                throw new ValidationException($"LocationType '{req.LocationType}' khÃ´ng há»£p lá»‡");
             l.LocationType = lt;
         }
         if (!string.IsNullOrEmpty(req.Status))
         {
             if (!Enum.TryParse<LocationStatus>(req.Status, true, out var st))
-                throw new ValidationException($"Status '{req.Status}' không hợp lệ");
+                throw new ValidationException($"Status '{req.Status}' khÃ´ng há»£p lá»‡");
             l.Status = st;
         }
         await _db.SaveChangesAsync(ct);
@@ -172,9 +172,9 @@ public class LocationCommandHandler :
         var l = await _db.Locations.FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("Location", req.Id);
         var hasChildren = await _db.Locations.AnyAsync(x => x.ParentId == req.Id, ct);
-        if (hasChildren) throw new ConflictException("Không thể xóa: vị trí còn chứa vị trí con");
+        if (hasChildren) throw new ConflictException("KhÃ´ng thá»ƒ xÃ³a: vá»‹ trÃ­ cÃ²n chá»©a vá»‹ trÃ­ con");
         var hasStock = await _db.Stock.AnyAsync(s => s.LocationId == req.Id, ct);
-        if (hasStock) throw new ConflictException("Không thể xóa: vị trí còn tồn kho");
+        if (hasStock) throw new ConflictException("KhÃ´ng thá»ƒ xÃ³a: vá»‹ trÃ­ cÃ²n tá»“n kho");
         _db.Locations.Remove(l);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;

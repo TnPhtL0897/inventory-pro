@@ -1,8 +1,8 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Catalog;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -32,10 +32,10 @@ public class ProductQueryHandler :
     IRequestHandler<GetProductByIdQuery, ProductDto>,
     IRequestHandler<ListProductsQuery, PaginatedResult<ProductDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public ProductQueryHandler(InventoryDbContext db, TenantContext tenant)
+    public ProductQueryHandler(IInventoryDbContext db, TenantContext tenant)
     {
         _db = db;
         _tenant = tenant;
@@ -49,7 +49,7 @@ public class ProductQueryHandler :
             .Include(p => p.BaseUnit)
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Product {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"Product {request.Id} khÃ´ng tá»“n táº¡i");
         return ToDto(entity);
     }
 
@@ -105,10 +105,10 @@ public class ProductCommandHandler :
     IRequestHandler<UpdateProductCommand, ProductDto>,
     IRequestHandler<DeleteProductCommand, Unit>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public ProductCommandHandler(InventoryDbContext db, TenantContext tenant)
+    public ProductCommandHandler(IInventoryDbContext db, TenantContext tenant)
     {
         _db = db;
         _tenant = tenant;
@@ -120,15 +120,15 @@ public class ProductCommandHandler :
         var r = request.Request;
         // Validate unique SKU
         var skuExists = await _db.Products.AnyAsync(p => p.TenantId == _tenant.TenantId && p.Sku == r.Sku, ct);
-        if (skuExists) throw new ConflictException($"SKU '{r.Sku}' đã tồn tại");
+        if (skuExists) throw new ConflictException($"SKU '{r.Sku}' Ä‘Ã£ tá»“n táº¡i");
         if (r.Barcode != null)
         {
             var barcodeExists = await _db.Products.AnyAsync(p => p.TenantId == _tenant.TenantId && p.Barcode == r.Barcode, ct);
-            if (barcodeExists) throw new ConflictException($"Barcode '{r.Barcode}' đã tồn tại");
+            if (barcodeExists) throw new ConflictException($"Barcode '{r.Barcode}' Ä‘Ã£ tá»“n táº¡i");
         }
         // Validate base unit
         var unitExists = await _db.UnitsOfMeasure.AnyAsync(u => u.Id == r.BaseUnitId && u.TenantId == _tenant.TenantId, ct);
-        if (!unitExists) throw new NotFoundException("Base unit không tồn tại");
+        if (!unitExists) throw new NotFoundException("Base unit khÃ´ng tá»“n táº¡i");
 
         var entity = new Product
         {
@@ -163,19 +163,19 @@ public class ProductCommandHandler :
         var entity = await _db.Products
             .Include(p => p.Category).Include(p => p.BaseUnit)
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Product {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"Product {request.Id} khÃ´ng tá»“n táº¡i");
 
         var r = request.Request;
         if (!string.IsNullOrEmpty(r.Sku) && r.Sku != entity.Sku)
         {
             var exists = await _db.Products.AnyAsync(p => p.TenantId == _tenant.TenantId && p.Sku == r.Sku && p.Id != request.Id, ct);
-            if (exists) throw new ConflictException($"SKU '{r.Sku}' đã tồn tại");
+            if (exists) throw new ConflictException($"SKU '{r.Sku}' Ä‘Ã£ tá»“n táº¡i");
             entity.Sku = r.Sku;
         }
         if (r.Barcode != null && r.Barcode != entity.Barcode)
         {
             var exists = await _db.Products.AnyAsync(p => p.TenantId == _tenant.TenantId && p.Barcode == r.Barcode && p.Id != request.Id, ct);
-            if (exists) throw new ConflictException($"Barcode '{r.Barcode}' đã tồn tại");
+            if (exists) throw new ConflictException($"Barcode '{r.Barcode}' Ä‘Ã£ tá»“n táº¡i");
             entity.Barcode = r.Barcode;
         }
         if (!string.IsNullOrEmpty(r.Name)) entity.Name = r.Name;
@@ -199,9 +199,9 @@ public class ProductCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.Products
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Product {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"Product {request.Id} khÃ´ng tá»“n táº¡i");
 
-        // Soft check: nếu đã có stock, archive thay vì xóa
+        // Soft check: náº¿u Ä‘Ã£ cÃ³ stock, archive thay vÃ¬ xÃ³a
         var hasStock = await _db.Stock.AnyAsync(s => s.ProductId == request.Id, ct);
         if (hasStock)
         {

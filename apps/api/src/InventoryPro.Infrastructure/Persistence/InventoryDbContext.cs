@@ -1,4 +1,5 @@
 using System.Reflection;
+using InventoryPro.Application.Common.Persistence;
 using InventoryPro.Domain.Catalog;
 using InventoryPro.Domain.Inventory;
 using InventoryPro.Domain.Parties;
@@ -11,8 +12,11 @@ namespace InventoryPro.Infrastructure.Persistence;
 /// <summary>
 /// DbContext chính cho InventoryPro. Kết nối Supabase Postgres.
 /// Multi-tenancy: Global query filter sẽ được thêm vào các entity trong phase sau.
+/// Implement IInventoryDbContext (defined ở Application layer) để handlers depend
+/// vào abstraction thay vì concrete class — tránh circular dependency khi
+/// Application tham chiếu Infrastructure.
 /// </summary>
-public class InventoryDbContext : DbContext
+public class InventoryDbContext : DbContext, IInventoryDbContext
 {
     public InventoryDbContext(DbContextOptions<InventoryDbContext> options) : base(options)
     {

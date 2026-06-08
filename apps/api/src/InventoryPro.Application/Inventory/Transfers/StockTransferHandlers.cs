@@ -1,8 +1,8 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Inventory;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -32,10 +32,10 @@ public record CreateStockTransferCommand(CreateStockTransferRequest Request) : I
 public record UpdateStockTransferCommand(Guid Id, UpdateStockTransferRequest Request) : IRequest<StockTransferDto>;
 public record DeleteStockTransferCommand(Guid Id) : IRequest<Unit>;
 
-// Ship = tạo TRANSFER_OUT movements (xuất khỏi src)
+// Ship = táº¡o TRANSFER_OUT movements (xuáº¥t khá»i src)
 public record ShipStockTransferCommand(Guid Id) : IRequest<StockTransferDto>;
 
-// Receive = tạo TRANSFER_IN movements (nhập vào dst)
+// Receive = táº¡o TRANSFER_IN movements (nháº­p vÃ o dst)
 public record ReceiveStockTransferCommand(Guid Id, ReceiveStockTransferRequest Request) : IRequest<StockTransferDto>;
 
 // Cancel
@@ -48,9 +48,9 @@ public class StockTransferQueryHandler :
     IRequestHandler<GetStockTransferByIdQuery, StockTransferDto>,
     IRequestHandler<ListStockTransfersQuery, PaginatedResult<StockTransferDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
-    public StockTransferQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public StockTransferQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<StockTransferDto> Handle(GetStockTransferByIdQuery req, CancellationToken ct)
     {
@@ -125,9 +125,9 @@ public class StockTransferCommandHandler :
     IRequestHandler<ReceiveStockTransferCommand, StockTransferDto>,
     IRequestHandler<CancelStockTransferCommand, StockTransferDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
-    public StockTransferCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public StockTransferCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<StockTransferDto> Handle(CreateStockTransferCommand req, CancellationToken ct)
     {
@@ -163,7 +163,7 @@ public class StockTransferCommandHandler :
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTransfer", req.Id);
         if (t.Status != StockTransferStatus.Draft)
-            throw new BusinessRuleException("Chỉ sửa được phiếu DRAFT");
+            throw new BusinessRuleException("Chá»‰ sá»­a Ä‘Æ°á»£c phiáº¿u DRAFT");
 
         var r = req.Request;
         if (r.TransferDate.HasValue) t.TransferDate = r.TransferDate.Value;
@@ -190,7 +190,7 @@ public class StockTransferCommandHandler :
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTransfer", req.Id);
         if (t.Status != StockTransferStatus.Draft)
-            throw new BusinessRuleException("Chỉ xóa được phiếu DRAFT");
+            throw new BusinessRuleException("Chá»‰ xÃ³a Ä‘Æ°á»£c phiáº¿u DRAFT");
         _db.StockTransfers.Remove(t);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -203,9 +203,9 @@ public class StockTransferCommandHandler :
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTransfer", req.Id);
         if (t.Status != StockTransferStatus.Draft)
-            throw new BusinessRuleException($"Chỉ phiếu DRAFT mới ship được. Hiện tại: {t.Status}");
+            throw new BusinessRuleException($"Chá»‰ phiáº¿u DRAFT má»›i ship Ä‘Æ°á»£c. Hiá»‡n táº¡i: {t.Status}");
         if (!t.Lines.Any())
-            throw new BusinessRuleException("Phiếu phải có ít nhất 1 dòng");
+            throw new BusinessRuleException("Phiáº¿u pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
 
         foreach (var line in t.Lines.Where(l => l.Status == StockTransferLineStatus.Open))
         {
@@ -245,7 +245,7 @@ public class StockTransferCommandHandler :
         }
         catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("check_violation", StringComparison.OrdinalIgnoreCase) == true)
         {
-            throw new ConflictException("Không thể ship: tồn kho nguồn không đủ (warehouse không cho phép âm)");
+            throw new ConflictException("KhÃ´ng thá»ƒ ship: tá»“n kho nguá»“n khÃ´ng Ä‘á»§ (warehouse khÃ´ng cho phÃ©p Ã¢m)");
         }
         return await LoadAndMapAsync(t.Id, ct);
     }
@@ -257,20 +257,20 @@ public class StockTransferCommandHandler :
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTransfer", req.Id);
         if (t.Status != StockTransferStatus.InTransit)
-            throw new BusinessRuleException($"Chỉ phiếu IN_TRANSIT mới nhận được. Hiện tại: {t.Status}");
+            throw new BusinessRuleException($"Chá»‰ phiáº¿u IN_TRANSIT má»›i nháº­n Ä‘Æ°á»£c. Hiá»‡n táº¡i: {t.Status}");
 
         var lineUpdates = req.Request.Lines.ToDictionary(x => x.LineId, x => x.ReceivedQty);
         if (lineUpdates.Count == 0)
-            throw new ValidationException("Phải có ít nhất 1 dòng nhận");
+            throw new ValidationException("Pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng nháº­n");
 
         foreach (var line in t.Lines.Where(l => l.Status == StockTransferLineStatus.InTransit))
         {
             if (!lineUpdates.TryGetValue(line.Id, out var receivedQty))
                 continue;
             if (receivedQty < 0)
-                throw new ValidationException($"ReceivedQty dòng {line.LineNo} phải >= 0");
+                throw new ValidationException($"ReceivedQty dÃ²ng {line.LineNo} pháº£i >= 0");
             if (receivedQty > line.ShippedQty)
-                throw new ValidationException($"ReceivedQty dòng {line.LineNo} ({receivedQty}) vượt quá ShippedQty ({line.ShippedQty})");
+                throw new ValidationException($"ReceivedQty dÃ²ng {line.LineNo} ({receivedQty}) vÆ°á»£t quÃ¡ ShippedQty ({line.ShippedQty})");
 
             if (receivedQty > 0)
             {
@@ -304,7 +304,7 @@ public class StockTransferCommandHandler :
                 : StockTransferLineStatus.InTransit; // partial
         }
 
-        // Nếu tất cả lines đã received → đóng phiếu
+        // Náº¿u táº¥t cáº£ lines Ä‘Ã£ received â†’ Ä‘Ã³ng phiáº¿u
         if (t.Lines.All(l => l.Status == StockTransferLineStatus.Received))
         {
             t.Status = StockTransferStatus.Received;
@@ -322,11 +322,11 @@ public class StockTransferCommandHandler :
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTransfer", req.Id);
         if (t.Status == StockTransferStatus.Received || t.Status == StockTransferStatus.Cancelled)
-            throw new BusinessRuleException($"Không thể hủy phiếu đã {t.Status}");
+            throw new BusinessRuleException($"KhÃ´ng thá»ƒ há»§y phiáº¿u Ä‘Ã£ {t.Status}");
         if (string.IsNullOrWhiteSpace(req.Reason))
-            throw new ValidationException("Phải nhập lý do hủy");
+            throw new ValidationException("Pháº£i nháº­p lÃ½ do há»§y");
 
-        // Nếu đã IN_TRANSIT, cần tạo movement TRANSFER_IN ngược để bù lại (compensation)
+        // Náº¿u Ä‘Ã£ IN_TRANSIT, cáº§n táº¡o movement TRANSFER_IN ngÆ°á»£c Ä‘á»ƒ bÃ¹ láº¡i (compensation)
         if (t.Status == StockTransferStatus.InTransit)
         {
             var tWithLines = await _db.StockTransfers.Include(x => x.Lines)
@@ -341,7 +341,7 @@ public class StockTransferCommandHandler :
                     LocationId = line.FromLocationId,
                     ProductId = line.ProductId,
                     UnitId = line.UnitId,
-                    MovementType = StockMovementType.TRANSFER_IN, // ngược lại: nhập lại vào src
+                    MovementType = StockMovementType.TRANSFER_IN, // ngÆ°á»£c láº¡i: nháº­p láº¡i vÃ o src
                     Status = StockMovementStatus.Posted,
                     Quantity = line.ShippedQty,
                     RefType = StockReferenceType.Transfer,
@@ -350,7 +350,7 @@ public class StockTransferCommandHandler :
                     BatchNo = line.BatchNo,
                     SerialNo = line.SerialNo,
                     ExpiryDate = line.ExpiryDate,
-                    Notes = $"Hoàn từ phiếu chuyển kho bị hủy: {req.Reason}",
+                    Notes = $"HoÃ n tá»« phiáº¿u chuyá»ƒn kho bá»‹ há»§y: {req.Reason}",
                     IdempotencyKey = Guid.NewGuid(),
                     CreatedBy = _tenant.UserId,
                 };
@@ -369,20 +369,20 @@ public class StockTransferCommandHandler :
     private async Task ValidateCreateAsync(CreateStockTransferRequest r, CancellationToken ct)
     {
         if (r.FromBranchId == r.ToBranchId && r.FromWarehouseId == r.ToWarehouseId)
-            throw new ValidationException("Kho nguồn và kho đích phải khác nhau");
+            throw new ValidationException("Kho nguá»“n vÃ  kho Ä‘Ã­ch pháº£i khÃ¡c nhau");
         if (r.Lines == null || r.Lines.Count == 0)
-            throw new ValidationException("Phiếu phải có ít nhất 1 dòng");
+            throw new ValidationException("Phiáº¿u pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
         var keys = r.Lines.Select(l => l.IdempotencyKey).ToList();
         if (keys.Distinct().Count() != keys.Count)
-            throw new ValidationException("Idempotency keys phải unique");
+            throw new ValidationException("Idempotency keys pháº£i unique");
 
         // Validate warehouses
         var srcWh = await _db.Warehouses.AsNoTracking()
             .FirstOrDefaultAsync(w => w.Id == r.FromWarehouseId && w.TenantId == _tenant.TenantId && w.BranchId == r.FromBranchId, ct)
-            ?? throw new NotFoundException($"Kho nguồn {r.FromWarehouseId} không thuộc branch {r.FromBranchId}");
+            ?? throw new NotFoundException($"Kho nguá»“n {r.FromWarehouseId} khÃ´ng thuá»™c branch {r.FromBranchId}");
         var dstWh = await _db.Warehouses.AsNoTracking()
             .FirstOrDefaultAsync(w => w.Id == r.ToWarehouseId && w.TenantId == _tenant.TenantId && w.BranchId == r.ToBranchId, ct)
-            ?? throw new NotFoundException($"Kho đích {r.ToWarehouseId} không thuộc branch {r.ToBranchId}");
+            ?? throw new NotFoundException($"Kho Ä‘Ã­ch {r.ToWarehouseId} khÃ´ng thuá»™c branch {r.ToBranchId}");
 
         var locationIds = r.Lines.SelectMany(l => new[] { l.FromLocationId, l.ToLocationId }).Distinct().ToList();
         var locations = await _db.Locations.AsNoTracking()
@@ -393,11 +393,11 @@ public class StockTransferCommandHandler :
         foreach (var (line, i) in r.Lines.Select((l, i) => (l, i)))
         {
             if (line.Quantity <= 0)
-                throw new ValidationException($"Dòng {i + 1}: số lượng phải > 0");
+                throw new ValidationException($"DÃ²ng {i + 1}: sá»‘ lÆ°á»£ng pháº£i > 0");
             if (!locDict.TryGetValue(line.FromLocationId, out var fromLoc) || fromLoc.WarehouseId != r.FromWarehouseId)
-                throw new ValidationException($"Dòng {i + 1}: vị trí nguồn không thuộc kho nguồn");
+                throw new ValidationException($"DÃ²ng {i + 1}: vá»‹ trÃ­ nguá»“n khÃ´ng thuá»™c kho nguá»“n");
             if (!locDict.TryGetValue(line.ToLocationId, out var toLoc) || toLoc.WarehouseId != r.ToWarehouseId)
-                throw new ValidationException($"Dòng {i + 1}: vị trí đích không thuộc kho đích");
+                throw new ValidationException($"DÃ²ng {i + 1}: vá»‹ trÃ­ Ä‘Ã­ch khÃ´ng thuá»™c kho Ä‘Ã­ch");
         }
     }
 
@@ -421,9 +421,9 @@ public class StockTransferCommandHandler :
         {
             var r = lineReqs[i];
             if (!products.TryGetValue(r.ProductId, out var p))
-                throw new NotFoundException($"Product {r.ProductId} không tồn tại");
+                throw new NotFoundException($"Product {r.ProductId} khÃ´ng tá»“n táº¡i");
             if (!units.TryGetValue(r.UnitId, out var u))
-                throw new NotFoundException($"Unit {r.UnitId} không tồn tại");
+                throw new NotFoundException($"Unit {r.UnitId} khÃ´ng tá»“n táº¡i");
             var fromLoc = locations.GetValueOrDefault(r.FromLocationId);
             var toLoc = locations.GetValueOrDefault(r.ToLocationId);
 

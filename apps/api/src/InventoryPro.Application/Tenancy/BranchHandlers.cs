@@ -1,8 +1,8 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Tenancy;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -24,10 +24,10 @@ public class BranchQueryHandler :
     IRequestHandler<GetBranchByIdQuery, BranchDto>,
     IRequestHandler<ListBranchesQuery, PaginatedResult<BranchDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BranchQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BranchQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BranchDto> Handle(GetBranchByIdQuery req, CancellationToken ct)
     {
@@ -68,19 +68,19 @@ public class BranchCommandHandler :
     IRequestHandler<UpdateBranchCommand, BranchDto>,
     IRequestHandler<DeleteBranchCommand, Unit>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BranchCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BranchCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BranchDto> Handle(CreateBranchCommand req, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = req.Request;
         var exists = await _db.Branches.AnyAsync(x => x.TenantId == _tenant.TenantId && x.Code == r.Code, ct);
-        if (exists) throw new ConflictException($"Mã chi nhánh '{r.Code}' đã tồn tại");
+        if (exists) throw new ConflictException($"MÃ£ chi nhÃ¡nh '{r.Code}' Ä‘Ã£ tá»“n táº¡i");
 
-        // Nếu là default thì unset các default khác
+        // Náº¿u lÃ  default thÃ¬ unset cÃ¡c default khÃ¡c
         if (r.IsDefault)
         {
             await _db.Branches
@@ -112,7 +112,7 @@ public class BranchCommandHandler :
         if (!string.IsNullOrEmpty(r.Code) && r.Code != b.Code)
         {
             var exists = await _db.Branches.AnyAsync(x => x.TenantId == _tenant.TenantId && x.Code == r.Code && x.Id != req.Id, ct);
-            if (exists) throw new ConflictException($"Mã chi nhánh '{r.Code}' đã tồn tại");
+            if (exists) throw new ConflictException($"MÃ£ chi nhÃ¡nh '{r.Code}' Ä‘Ã£ tá»“n táº¡i");
             b.Code = r.Code;
         }
         if (r.Address != null) b.Address = r.Address;
@@ -131,7 +131,7 @@ public class BranchCommandHandler :
         if (!string.IsNullOrEmpty(r.Status))
         {
             if (!Enum.TryParse<BranchStatus>(r.Status, true, out var st))
-                throw new ValidationException($"Status '{r.Status}' không hợp lệ");
+                throw new ValidationException($"Status '{r.Status}' khÃ´ng há»£p lá»‡");
             b.Status = st;
         }
         await _db.SaveChangesAsync(ct);
@@ -144,7 +144,7 @@ public class BranchCommandHandler :
         var b = await _db.Branches.FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("Branch", req.Id);
         var hasWarehouses = await _db.Warehouses.AnyAsync(w => w.BranchId == req.Id, ct);
-        if (hasWarehouses) throw new ConflictException("Không thể đóng: chi nhánh còn kho");
+        if (hasWarehouses) throw new ConflictException("KhÃ´ng thá»ƒ Ä‘Ã³ng: chi nhÃ¡nh cÃ²n kho");
         b.Status = BranchStatus.Closed;
         await _db.SaveChangesAsync(ct);
         return Unit.Value;

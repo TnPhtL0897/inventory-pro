@@ -1,7 +1,7 @@
-using InventoryPro.Application.Common.Exceptions;
+﻿using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Bidding;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +11,7 @@ namespace InventoryPro.Application.Bidding;
 using InventoryPro.Application.Common.Tenancy;
 
 // =============================================================================
-// BID LOT HANDLERS (Lô/Phần thầu)
+// BID LOT HANDLERS (LÃ´/Pháº§n tháº§u)
 // =============================================================================
 
 public record GetBidLotByIdQuery(Guid Id) : IRequest<BidLotDto>;
@@ -32,10 +32,10 @@ public class BidLotQueryHandler :
     IRequestHandler<GetBidLotByIdQuery, BidLotDto>,
     IRequestHandler<ListBidLotsQuery, PaginatedResult<BidLotDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BidLotQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BidLotQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BidLotDto> Handle(GetBidLotByIdQuery request, CancellationToken ct)
     {
@@ -47,7 +47,7 @@ public class BidLotQueryHandler :
             .Include(x => x.Lines)
             .Include(x => x.Bidders).ThenInclude(b => b.Party)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidLot {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidLot {request.Id} khÃ´ng tá»“n táº¡i");
         return await ToDtoAsync(lot, ct);
     }
 
@@ -86,7 +86,7 @@ public class BidLotQueryHandler :
         };
     }
 
-    public static async Task<BidLotDto> ToDtoAsync(BidLot lot, InventoryDbContext db)
+    public static async Task<BidLotDto> ToDtoAsync(BidLot lot, IInventoryDbContext db)
     {
         var productIds = lot.Lines.Select(l => l.ProductId).Distinct().ToList();
         var unitIds = lot.Lines.Select(l => l.UnitId).Distinct().ToList();
@@ -135,22 +135,22 @@ public class BidLotCommandHandler :
     IRequestHandler<RemoveBidderCommand, Unit>,
     IRequestHandler<AwardBidLotCommand, BidLotDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BidLotCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BidLotCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BidLotDto> Handle(CreateBidLotCommand request, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = request.Request;
         if (string.IsNullOrWhiteSpace(r.LotName))
-            throw new ValidationException("Tên lô thầu không được trống");
+            throw new ValidationException("TÃªn lÃ´ tháº§u khÃ´ng Ä‘Æ°á»£c trá»‘ng");
 
         var package = await _db.BidPackages.FirstOrDefaultAsync(x => x.Id == r.BidPackageId && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidPackage {r.BidPackageId} không tồn tại");
+            ?? throw new NotFoundException($"BidPackage {r.BidPackageId} khÃ´ng tá»“n táº¡i");
         if (package.BidPackageStatus == BidPackageStatus.Published)
-            throw new BusinessRuleException("Không thể thêm lô vào gói thầu đã publish");
+            throw new BusinessRuleException("KhÃ´ng thá»ƒ thÃªm lÃ´ vÃ o gÃ³i tháº§u Ä‘Ã£ publish");
 
         var entity = new BidLot
         {
@@ -187,9 +187,9 @@ public class BidLotCommandHandler :
         _tenant.EnsureAuthenticated();
         var lot = await _db.BidLots.Include(x => x.Lines)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidLot {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidLot {request.Id} khÃ´ng tá»“n táº¡i");
         if (lot.BidLotStatus != BidLotStatus.Draft)
-            throw new BusinessRuleException("Chỉ lô thầu ở trạng thái DRAFT mới sửa được");
+            throw new BusinessRuleException("Chá»‰ lÃ´ tháº§u á»Ÿ tráº¡ng thÃ¡i DRAFT má»›i sá»­a Ä‘Æ°á»£c");
 
         var r = request.Request;
         lot.LotName = r.LotName;
@@ -223,9 +223,9 @@ public class BidLotCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var lot = await _db.BidLots.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidLot {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidLot {request.Id} khÃ´ng tá»“n táº¡i");
         if (lot.BidLotStatus != BidLotStatus.Draft)
-            throw new BusinessRuleException("Chỉ xóa được lô thầu ở trạng thái DRAFT");
+            throw new BusinessRuleException("Chá»‰ xÃ³a Ä‘Æ°á»£c lÃ´ tháº§u á»Ÿ tráº¡ng thÃ¡i DRAFT");
         _db.BidLots.Remove(lot);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -236,10 +236,10 @@ public class BidLotCommandHandler :
         _tenant.EnsureAuthenticated();
         var lot = await _db.BidLots.Include(x => x.Lines)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidLot {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidLot {request.Id} khÃ´ng tá»“n táº¡i");
         if (lot.BidLotStatus != BidLotStatus.Draft)
-            throw new BusinessRuleException("Chỉ publish lô thầu ở trạng thái DRAFT");
-        if (lot.Lines.Count == 0) throw new BusinessRuleException("Lô thầu phải có ít nhất 1 dòng vật tư");
+            throw new BusinessRuleException("Chá»‰ publish lÃ´ tháº§u á»Ÿ tráº¡ng thÃ¡i DRAFT");
+        if (lot.Lines.Count == 0) throw new BusinessRuleException("LÃ´ tháº§u pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng váº­t tÆ°");
 
         lot.BidLotStatus = BidLotStatus.Published;
         await _db.SaveChangesAsync(ct);
@@ -250,15 +250,15 @@ public class BidLotCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var lot = await _db.BidLots.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidLot {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidLot {request.Id} khÃ´ng tá»“n táº¡i");
         if (lot.BidLotStatus == BidLotStatus.Cancelled || lot.BidLotStatus == BidLotStatus.Awarded)
-            throw new BusinessRuleException("Lô thầu đã đóng hoặc đã trúng");
+            throw new BusinessRuleException("LÃ´ tháº§u Ä‘Ã£ Ä‘Ã³ng hoáº·c Ä‘Ã£ trÃºng");
 
         var party = await _db.Parties.FirstOrDefaultAsync(p => p.Id == request.Request.PartyId && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Party {request.Request.PartyId} không tồn tại");
+            ?? throw new NotFoundException($"Party {request.Request.PartyId} khÃ´ng tá»“n táº¡i");
 
         var existing = await _db.BidBidders.FirstOrDefaultAsync(b => b.BidLotId == lot.Id && b.PartyId == request.Request.PartyId, ct);
-        if (existing != null) throw new BusinessRuleException("Nhà thầu này đã đăng ký dự thầu lô này");
+        if (existing != null) throw new BusinessRuleException("NhÃ  tháº§u nÃ y Ä‘Ã£ Ä‘Äƒng kÃ½ dá»± tháº§u lÃ´ nÃ y");
 
         var bidder = new BidBidder
         {
@@ -283,8 +283,8 @@ public class BidLotCommandHandler :
         _tenant.EnsureAuthenticated();
         var b = await _db.BidBidders
             .FirstOrDefaultAsync(x => x.BidLotId == request.LotId && x.Id == request.BidderId, ct)
-            ?? throw new NotFoundException($"Bidder không tồn tại");
-        if (b.IsWinner) throw new BusinessRuleException("Không thể xóa nhà thầu đã trúng");
+            ?? throw new NotFoundException($"Bidder khÃ´ng tá»“n táº¡i");
+        if (b.IsWinner) throw new BusinessRuleException("KhÃ´ng thá»ƒ xÃ³a nhÃ  tháº§u Ä‘Ã£ trÃºng");
         _db.BidBidders.Remove(b);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -295,16 +295,16 @@ public class BidLotCommandHandler :
         _tenant.EnsureAuthenticated();
         var lot = await _db.BidLots
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidLot {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidLot {request.Id} khÃ´ng tá»“n táº¡i");
         if (lot.BidLotStatus == BidLotStatus.Awarded)
-            throw new BusinessRuleException("Lô thầu đã được chấm trúng rồi");
+            throw new BusinessRuleException("LÃ´ tháº§u Ä‘Ã£ Ä‘Æ°á»£c cháº¥m trÃºng rá»“i");
         if (lot.BidLotStatus == BidLotStatus.Cancelled)
-            throw new BusinessRuleException("Lô thầu đã hủy");
+            throw new BusinessRuleException("LÃ´ tháº§u Ä‘Ã£ há»§y");
 
         var winner = await _db.BidBidders
             .FirstOrDefaultAsync(b => b.Id == request.Request.BidderId && b.BidLotId == lot.Id, ct)
-            ?? throw new NotFoundException("Nhà thầu được chọn không nằm trong danh sách dự thầu");
-        if (winner.IsWinner) throw new BusinessRuleException("Nhà thầu này đã được đánh dấu trúng");
+            ?? throw new NotFoundException("NhÃ  tháº§u Ä‘Æ°á»£c chá»n khÃ´ng náº±m trong danh sÃ¡ch dá»± tháº§u");
+        if (winner.IsWinner) throw new BusinessRuleException("NhÃ  tháº§u nÃ y Ä‘Ã£ Ä‘Æ°á»£c Ä‘Ã¡nh dáº¥u trÃºng");
 
         // Mark winner
         winner.IsWinner = true;
@@ -316,7 +316,7 @@ public class BidLotCommandHandler :
 
         // Auto-create BidContract
         var year = (request.Request.AwardedDate ?? DateTime.UtcNow).Year;
-        var prefix = $"HĐ-{year}-";
+        var prefix = $"HÄ-{year}-";
         var count = await _db.BidContracts.CountAsync(c => c.TenantId == _tenant.TenantId && c.ContractNo.StartsWith(prefix), ct);
         var contractNo = $"{prefix}{(count + 1).ToString("D4")}";
 
@@ -325,19 +325,19 @@ public class BidLotCommandHandler :
             TenantId = _tenant.TenantId.Value,
             BidLotId = lot.Id,
             ContractNo = contractNo,
-            ContractName = $"HĐ thầu cho lô '{lot.LotName}'",
+            ContractName = $"HÄ tháº§u cho lÃ´ '{lot.LotName}'",
             WinningPartyId = winner.PartyId,
             ContractValue = request.Request.AwardedValue,
             ContractStartDate = request.Request.AwardedDate,
-            ContractEndDate = request.Request.AwardedDate.AddYears(1),  // default 1 năm, user có thể sửa
+            ContractEndDate = request.Request.AwardedDate.AddYears(1),  // default 1 nÄƒm, user cÃ³ thá»ƒ sá»­a
             BidContractStatus = BidContractStatus.Active,
             CreatedBy = _tenant.UserId,
         };
         _db.BidContracts.Add(contract);
         await _db.SaveChangesAsync(ct);
 
-        // Trigger DB sẽ auto-set lot.contract_id = contract.id
-        // Nhưng EF cache có thể stale, cần refresh
+        // Trigger DB sáº½ auto-set lot.contract_id = contract.id
+        // NhÆ°ng EF cache cÃ³ thá»ƒ stale, cáº§n refresh
         await _db.Entry(lot).ReloadAsync(ct);
 
         return await GetLotDtoAsync(lot.Id, ct);

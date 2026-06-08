@@ -176,7 +176,7 @@ builder.Services.AddRateLimiter(options =>
 // =============================================================================
 builder.Services.AddHealthChecks()
     .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy())
-    .AddDbContextCheck<InventoryPro.Infrastructure.Persistence.InventoryDbContext>(
+    .AddDbContextCheck<InventoryPro.Infrastructure.Persistence.IInventoryDbContext>(
         name: "database",
         tags: new[] { "ready", "db" });
 

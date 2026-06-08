@@ -1,8 +1,8 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Inventory;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,9 +38,9 @@ public class StockTakeQueryHandler :
     IRequestHandler<GetStockTakeByIdQuery, StockTakeDto>,
     IRequestHandler<ListStockTakesQuery, PaginatedResult<StockTakeDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
-    public StockTakeQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public StockTakeQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<StockTakeDto> Handle(GetStockTakeByIdQuery req, CancellationToken ct)
     {
@@ -112,9 +112,9 @@ public class StockTakeCommandHandler :
     IRequestHandler<CancelStockTakeCommand, StockTakeDto>,
     IRequestHandler<DeleteStockTakeCommand, Unit>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
-    public StockTakeCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public StockTakeCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<StockTakeDto> Handle(CreateStockTakeCommand req, CancellationToken ct)
     {
@@ -122,7 +122,7 @@ public class StockTakeCommandHandler :
         var r = req.Request;
         var wh = await _db.Warehouses.AsNoTracking()
             .FirstOrDefaultAsync(w => w.Id == r.WarehouseId && w.TenantId == _tenant.TenantId && w.BranchId == r.BranchId, ct)
-            ?? throw new NotFoundException($"Warehouse {r.WarehouseId} không thuộc branch {r.BranchId}");
+            ?? throw new NotFoundException($"Warehouse {r.WarehouseId} khÃ´ng thuá»™c branch {r.BranchId}");
 
         var st = new StockTake
         {
@@ -136,12 +136,12 @@ public class StockTakeCommandHandler :
             CreatedBy = _tenant.UserId,
         };
 
-        // Snapshot stock hiện tại
+        // Snapshot stock hiá»‡n táº¡i
         var stockSnapshot = await _db.Stock.AsNoTracking()
             .Where(s => s.TenantId == _tenant.TenantId && s.BranchId == r.BranchId && s.WarehouseId == r.WarehouseId)
             .ToListAsync(ct);
 
-        // Nếu user chỉ định lines, dùng đó. Ngược lại lấy hết stock.
+        // Náº¿u user chá»‰ Ä‘á»‹nh lines, dÃ¹ng Ä‘Ã³. NgÆ°á»£c láº¡i láº¥y háº¿t stock.
         if (r.Lines != null && r.Lines.Count > 0)
         {
             // Validate products/units/locations
@@ -162,13 +162,13 @@ public class StockTakeCommandHandler :
             foreach (var line in r.Lines)
             {
                 if (!products.TryGetValue(line.ProductId, out var p))
-                    throw new NotFoundException($"Product {line.ProductId} không tồn tại");
+                    throw new NotFoundException($"Product {line.ProductId} khÃ´ng tá»“n táº¡i");
                 if (!units.TryGetValue(line.UnitId, out var u))
-                    throw new NotFoundException($"Unit {line.UnitId} không tồn tại");
+                    throw new NotFoundException($"Unit {line.UnitId} khÃ´ng tá»“n táº¡i");
                 if (!locations.TryGetValue(line.LocationId, out var loc))
-                    throw new NotFoundException($"Location {line.LocationId} không thuộc warehouse {r.WarehouseId}");
+                    throw new NotFoundException($"Location {line.LocationId} khÃ´ng thuá»™c warehouse {r.WarehouseId}");
 
-                // Tìm system_qty từ snapshot
+                // TÃ¬m system_qty tá»« snapshot
                 var sysQty = stockSnapshot
                     .FirstOrDefault(s => s.ProductId == line.ProductId
                                        && s.LocationId == line.LocationId
@@ -195,7 +195,7 @@ public class StockTakeCommandHandler :
         }
         else
         {
-            // Auto-snapshot tất cả stock trong warehouse
+            // Auto-snapshot táº¥t cáº£ stock trong warehouse
             int no = 1;
             var productIds = stockSnapshot.Select(s => s.ProductId).Distinct().ToList();
             var locationIds = stockSnapshot.Select(s => s.LocationId).Distinct().ToList();
@@ -245,20 +245,20 @@ public class StockTakeCommandHandler :
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTake", req.Id);
         if (st.Status != StockTakeStatus.Draft && st.Status != StockTakeStatus.Counted)
-            throw new BusinessRuleException($"Chỉ sửa số đếm ở DRAFT/COUNTED. Hiện tại: {st.Status}");
+            throw new BusinessRuleException($"Chá»‰ sá»­a sá»‘ Ä‘áº¿m á»Ÿ DRAFT/COUNTED. Hiá»‡n táº¡i: {st.Status}");
 
         var updates = req.Request.Updates.ToDictionary(u => u.LineId, u => u);
         foreach (var line in st.Lines)
         {
             if (!updates.TryGetValue(line.Id, out var u)) continue;
             if (u.CountedQty.HasValue && u.CountedQty.Value < 0)
-                throw new ValidationException($"CountedQty dòng {line.LineNo} phải >= 0");
+                throw new ValidationException($"CountedQty dÃ²ng {line.LineNo} pháº£i >= 0");
             line.CountedQty = u.CountedQty;
             if (u.Notes != null) line.Notes = u.Notes;
             line.Status = u.CountedQty.HasValue ? StockTakeLineStatus.Counted : StockTakeLineStatus.Pending;
         }
 
-        // Auto-chuyển status nếu có ít nhất 1 line counted
+        // Auto-chuyá»ƒn status náº¿u cÃ³ Ã­t nháº¥t 1 line counted
         if (st.Lines.Any(l => l.Status == StockTakeLineStatus.Counted) && st.Status == StockTakeStatus.Draft)
         {
             st.Status = StockTakeStatus.Counted;
@@ -276,20 +276,20 @@ public class StockTakeCommandHandler :
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTake", req.Id);
         if (st.Status == StockTakeStatus.Posted)
-            throw new BusinessRuleException("Phiếu đã POSTED");
+            throw new BusinessRuleException("Phiáº¿u Ä‘Ã£ POSTED");
         if (st.Status == StockTakeStatus.Cancelled)
-            throw new BusinessRuleException("Phiếu đã CANCELLED");
+            throw new BusinessRuleException("Phiáº¿u Ä‘Ã£ CANCELLED");
         if (st.Status == StockTakeStatus.Draft)
-            throw new BusinessRuleException("Phải nhập số đếm (COUNTED) trước khi POST");
+            throw new BusinessRuleException("Pháº£i nháº­p sá»‘ Ä‘áº¿m (COUNTED) trÆ°á»›c khi POST");
         if (!st.Lines.Any())
-            throw new BusinessRuleException("Phiếu phải có ít nhất 1 dòng");
+            throw new BusinessRuleException("Phiáº¿u pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
 
-        // Với mỗi line có variance != 0, tạo ADJUST movement
+        // Vá»›i má»—i line cÃ³ variance != 0, táº¡o ADJUST movement
         foreach (var line in st.Lines.Where(l => l.Status != StockTakeLineStatus.Adjusted && l.Status != StockTakeLineStatus.Skipped))
         {
             if (!line.CountedQty.HasValue)
             {
-                // Bỏ qua dòng chưa đếm (set Skipped)
+                // Bá» qua dÃ²ng chÆ°a Ä‘áº¿m (set Skipped)
                 line.Status = StockTakeLineStatus.Skipped;
                 continue;
             }
@@ -317,7 +317,7 @@ public class StockTakeCommandHandler :
                 RefLineId = line.Id,
                 BatchNo = line.BatchNo,
                 SerialNo = line.SerialNo,
-                Notes = line.Notes ?? $"Kiểm kê: system={line.SystemQty}, counted={line.CountedQty}",
+                Notes = line.Notes ?? $"Kiá»ƒm kÃª: system={line.SystemQty}, counted={line.CountedQty}",
                 IdempotencyKey = Guid.NewGuid(),
                 CreatedBy = _tenant.UserId,
             };
@@ -335,7 +335,7 @@ public class StockTakeCommandHandler :
         }
         catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("check_violation", StringComparison.OrdinalIgnoreCase) == true)
         {
-            throw new ConflictException("Post thất bại: variance làm tồn kho âm và warehouse không cho phép");
+            throw new ConflictException("Post tháº¥t báº¡i: variance lÃ m tá»“n kho Ã¢m vÃ  warehouse khÃ´ng cho phÃ©p");
         }
         return await LoadAndMapAsync(st.Id, ct);
     }
@@ -346,9 +346,9 @@ public class StockTakeCommandHandler :
         var st = await _db.StockTakes.FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTake", req.Id);
         if (st.Status == StockTakeStatus.Posted)
-            throw new BusinessRuleException("Phiếu đã POSTED - không hủy được. Tạo phiếu kiểm kê mới để bù.");
+            throw new BusinessRuleException("Phiáº¿u Ä‘Ã£ POSTED - khÃ´ng há»§y Ä‘Æ°á»£c. Táº¡o phiáº¿u kiá»ƒm kÃª má»›i Ä‘á»ƒ bÃ¹.");
         if (string.IsNullOrWhiteSpace(req.Reason))
-            throw new ValidationException("Phải nhập lý do hủy");
+            throw new ValidationException("Pháº£i nháº­p lÃ½ do há»§y");
         st.Status = StockTakeStatus.Cancelled;
         st.CancelReason = req.Reason;
         st.CancelledBy = _tenant.UserId;
@@ -363,7 +363,7 @@ public class StockTakeCommandHandler :
         var st = await _db.StockTakes.FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("StockTake", req.Id);
         if (st.Status != StockTakeStatus.Draft && st.Status != StockTakeStatus.Cancelled)
-            throw new BusinessRuleException("Chỉ xóa được phiếu DRAFT/CANCELLED");
+            throw new BusinessRuleException("Chá»‰ xÃ³a Ä‘Æ°á»£c phiáº¿u DRAFT/CANCELLED");
         _db.StockTakes.Remove(st);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;

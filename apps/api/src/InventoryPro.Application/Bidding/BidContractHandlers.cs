@@ -1,7 +1,7 @@
-using InventoryPro.Application.Common.Exceptions;
+﻿using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Bidding;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -33,10 +33,10 @@ public class BidContractQueryHandler :
     IRequestHandler<ListBidContractsQuery, PaginatedResult<BidContractDto>>,
     IRequestHandler<GetActiveBidContractsLookupQuery, List<BidContractLookupDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BidContractQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BidContractQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BidContractDto> Handle(GetBidContractByIdQuery request, CancellationToken ct)
     {
@@ -45,7 +45,7 @@ public class BidContractQueryHandler :
             .Include(x => x.BidLot)
             .Include(x => x.WinningParty)
             .FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidContract {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidContract {request.Id} khÃ´ng tá»“n táº¡i");
         return ToDto(c);
     }
 
@@ -123,28 +123,28 @@ public class BidContractCommandHandler :
     IRequestHandler<DeleteBidContractCommand, Unit>,
     IRequestHandler<TerminateBidContractCommand, BidContractDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public BidContractCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public BidContractCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<BidContractDto> Handle(CreateBidContractCommand request, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = request.Request;
-        if (r.ContractValue <= 0) throw new ValidationException("Giá trị hợp đồng phải > 0");
+        if (r.ContractValue <= 0) throw new ValidationException("GiÃ¡ trá»‹ há»£p Ä‘á»“ng pháº£i > 0");
         if (r.ContractEndDate < r.ContractStartDate)
-            throw new ValidationException("Ngày kết thúc phải sau ngày bắt đầu");
+            throw new ValidationException("NgÃ y káº¿t thÃºc pháº£i sau ngÃ y báº¯t Ä‘áº§u");
 
         var lot = await _db.BidLots.FirstOrDefaultAsync(x => x.Id == r.BidLotId && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidLot {r.BidLotId} không tồn tại");
-        if (lot.ContractId != null) throw new BusinessRuleException("Lô thầu này đã có hợp đồng");
+            ?? throw new NotFoundException($"BidLot {r.BidLotId} khÃ´ng tá»“n táº¡i");
+        if (lot.ContractId != null) throw new BusinessRuleException("LÃ´ tháº§u nÃ y Ä‘Ã£ cÃ³ há»£p Ä‘á»“ng");
 
         var party = await _db.Parties.FirstOrDefaultAsync(p => p.Id == r.WinningPartyId && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Party {r.WinningPartyId} không tồn tại");
+            ?? throw new NotFoundException($"Party {r.WinningPartyId} khÃ´ng tá»“n táº¡i");
 
         var year = r.ContractStartDate.Year;
-        var prefix = $"HĐ-{year}-";
+        var prefix = $"HÄ-{year}-";
         var count = await _db.BidContracts.CountAsync(c => c.TenantId == _tenant.TenantId && c.ContractNo.StartsWith(prefix), ct);
 
         var entity = new BidContract
@@ -168,7 +168,7 @@ public class BidContractCommandHandler :
         };
         _db.BidContracts.Add(entity);
         await _db.SaveChangesAsync(ct);
-        // Trigger sẽ set lot.contract_id
+        // Trigger sáº½ set lot.contract_id
         await _db.Entry(lot).ReloadAsync(ct);
         return BidContractQueryHandler.ToDto(entity);
     }
@@ -177,9 +177,9 @@ public class BidContractCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var c = await _db.BidContracts.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidContract {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidContract {request.Id} khÃ´ng tá»“n táº¡i");
         if (c.BidContractStatus == BidContractStatus.Terminated)
-            throw new BusinessRuleException("HĐ thầu đã bị terminate, không sửa được");
+            throw new BusinessRuleException("HÄ tháº§u Ä‘Ã£ bá»‹ terminate, khÃ´ng sá»­a Ä‘Æ°á»£c");
 
         var r = request.Request;
         c.ContractName = r.ContractName;
@@ -200,10 +200,10 @@ public class BidContractCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var c = await _db.BidContracts.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidContract {request.Id} không tồn tại");
-        if (c.UsedValue > 0) throw new BusinessRuleException("HĐ thầu đã phát sinh PO/GRN, không thể xóa (chỉ terminate)");
+            ?? throw new NotFoundException($"BidContract {request.Id} khÃ´ng tá»“n táº¡i");
+        if (c.UsedValue > 0) throw new BusinessRuleException("HÄ tháº§u Ä‘Ã£ phÃ¡t sinh PO/GRN, khÃ´ng thá»ƒ xÃ³a (chá»‰ terminate)");
         if (c.BidContractStatus == BidContractStatus.Active)
-            throw new BusinessRuleException("HĐ thầu đang ACTIVE, không thể xóa");
+            throw new BusinessRuleException("HÄ tháº§u Ä‘ang ACTIVE, khÃ´ng thá»ƒ xÃ³a");
         _db.BidContracts.Remove(c);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -213,9 +213,9 @@ public class BidContractCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var c = await _db.BidContracts.FirstOrDefaultAsync(x => x.Id == request.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidContract {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"BidContract {request.Id} khÃ´ng tá»“n táº¡i");
         if (c.BidContractStatus == BidContractStatus.Terminated)
-            throw new BusinessRuleException("HĐ thầu đã bị terminate");
+            throw new BusinessRuleException("HÄ tháº§u Ä‘Ã£ bá»‹ terminate");
 
         c.BidContractStatus = BidContractStatus.Terminated;
         c.Notes = (c.Notes ?? "") + $"\n[TERMINATED] {request.Request.Reason}";

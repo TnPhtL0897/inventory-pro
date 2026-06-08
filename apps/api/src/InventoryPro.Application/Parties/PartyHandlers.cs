@@ -1,8 +1,8 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Parties;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -29,10 +29,10 @@ public class PartyQueryHandler :
     IRequestHandler<GetPartyByIdQuery, PartyDto>,
     IRequestHandler<ListPartiesQuery, PaginatedResult<PartyDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public PartyQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public PartyQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<PartyDto> Handle(GetPartyByIdQuery request, CancellationToken ct)
     {
@@ -40,7 +40,7 @@ public class PartyQueryHandler :
         var entity = await _db.Parties
             .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Party {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"Party {request.Id} khÃ´ng tá»“n táº¡i");
         return ToDto(entity);
     }
 
@@ -93,10 +93,10 @@ public class PartyCommandHandler :
     IRequestHandler<UpdatePartyCommand, PartyDto>,
     IRequestHandler<DeletePartyCommand, Unit>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public PartyCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public PartyCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<PartyDto> Handle(CreatePartyCommand request, CancellationToken ct)
     {
@@ -104,12 +104,12 @@ public class PartyCommandHandler :
         var r = request.Request;
 
         var codeExists = await _db.Parties.AnyAsync(p => p.TenantId == _tenant.TenantId && p.Code == r.Code, ct);
-        if (codeExists) throw new ConflictException($"Mã đối tác '{r.Code}' đã tồn tại");
+        if (codeExists) throw new ConflictException($"MÃ£ Ä‘á»‘i tÃ¡c '{r.Code}' Ä‘Ã£ tá»“n táº¡i");
 
         if (!string.IsNullOrEmpty(r.TaxCode))
         {
             var taxExists = await _db.Parties.AnyAsync(p => p.TenantId == _tenant.TenantId && p.TaxCode == r.TaxCode, ct);
-            if (taxExists) throw new ConflictException($"Mã số thuế '{r.TaxCode}' đã tồn tại");
+            if (taxExists) throw new ConflictException($"MÃ£ sá»‘ thuáº¿ '{r.TaxCode}' Ä‘Ã£ tá»“n táº¡i");
         }
 
         var entity = new Party
@@ -142,14 +142,14 @@ public class PartyCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.Parties
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Party {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"Party {request.Id} khÃ´ng tá»“n táº¡i");
 
         var r = request.Request;
         if (!string.IsNullOrEmpty(r.Name)) entity.Name = r.Name;
         if (r.TaxCode != null && r.TaxCode != entity.TaxCode)
         {
             var exists = await _db.Parties.AnyAsync(p => p.TenantId == _tenant.TenantId && p.TaxCode == r.TaxCode && p.Id != request.Id, ct);
-            if (exists) throw new ConflictException($"Mã số thuế '{r.TaxCode}' đã tồn tại");
+            if (exists) throw new ConflictException($"MÃ£ sá»‘ thuáº¿ '{r.TaxCode}' Ä‘Ã£ tá»“n táº¡i");
             entity.TaxCode = r.TaxCode;
         }
         if (r.ContactName != null) entity.ContactName = r.ContactName;
@@ -174,9 +174,9 @@ public class PartyCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.Parties
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Party {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"Party {request.Id} khÃ´ng tá»“n táº¡i");
 
-        // Soft check: nếu đang có supplier mapping, archive thay vì xóa
+        // Soft check: náº¿u Ä‘ang cÃ³ supplier mapping, archive thay vÃ¬ xÃ³a
         var hasLinks = await _db.SupplierProducts.AnyAsync(sp => sp.PartyId == request.Id, ct);
         if (hasLinks)
         {
@@ -202,10 +202,10 @@ public class SupplierProductHandler :
     IRequestHandler<CreateSupplierProductCommand, SupplierProductDto>,
     IRequestHandler<DeleteSupplierProductCommand, Unit>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public SupplierProductHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public SupplierProductHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<PaginatedResult<SupplierProductDto>> Handle(ListSupplierProductsQuery request, CancellationToken ct)
     {
@@ -239,15 +239,15 @@ public class SupplierProductHandler :
         _tenant.EnsureAuthenticated();
         var r = request.Request;
 
-        // Validate party tồn tại và là supplier/both
+        // Validate party tá»“n táº¡i vÃ  lÃ  supplier/both
         var party = await _db.Parties.FirstOrDefaultAsync(p => p.Id == r.PartyId && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Party {r.PartyId} không tồn tại");
+            ?? throw new NotFoundException($"Party {r.PartyId} khÃ´ng tá»“n táº¡i");
         if (party.PartyType == PartyType.Customer)
-            throw new BusinessRuleException("Đối tác này là khách hàng, không thể thêm làm nhà cung cấp");
+            throw new BusinessRuleException("Äá»‘i tÃ¡c nÃ y lÃ  khÃ¡ch hÃ ng, khÃ´ng thá»ƒ thÃªm lÃ m nhÃ  cung cáº¥p");
 
-        // Validate product tồn tại
+        // Validate product tá»“n táº¡i
         var productExists = await _db.Products.AnyAsync(p => p.Id == r.ProductId && p.TenantId == _tenant.TenantId, ct);
-        if (!productExists) throw new NotFoundException($"Product {r.ProductId} không tồn tại");
+        if (!productExists) throw new NotFoundException($"Product {r.ProductId} khÃ´ng tá»“n táº¡i");
 
         var entity = new SupplierProduct
         {
@@ -274,7 +274,7 @@ public class SupplierProductHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.SupplierProducts
             .FirstOrDefaultAsync(sp => sp.Id == request.Id && sp.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"SupplierProduct {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"SupplierProduct {request.Id} khÃ´ng tá»“n táº¡i");
         _db.SupplierProducts.Remove(entity);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;

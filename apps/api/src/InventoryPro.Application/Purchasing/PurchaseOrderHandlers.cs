@@ -1,10 +1,10 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Catalog;
 using InventoryPro.Domain.Parties;
 using InventoryPro.Domain.Purchasing;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -42,10 +42,10 @@ public class PurchaseOrderQueryHandler :
     IRequestHandler<GetPurchaseOrderByIdQuery, PurchaseOrderDto>,
     IRequestHandler<ListPurchaseOrdersQuery, PaginatedResult<PurchaseOrderDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public PurchaseOrderQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public PurchaseOrderQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<PurchaseOrderDto> Handle(GetPurchaseOrderByIdQuery request, CancellationToken ct)
     {
@@ -57,7 +57,7 @@ public class PurchaseOrderQueryHandler :
             .Include(p => p.BidContract)
             .Include(p => p.BidLot)
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseOrder {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseOrder {request.Id} khÃ´ng tá»“n táº¡i");
         return ToDto(entity, await LoadProductInfoAsync(entity.Lines, ct));
     }
 
@@ -125,7 +125,7 @@ public class PurchaseOrderQueryHandler :
         return lines.Select(l =>
         {
             var sku = products.GetValueOrDefault(l.ProductId, "");
-            // Nếu unit_id khác base unit, có thể tìm factor; đơn giản lấy product.sku
+            // Náº¿u unit_id khÃ¡c base unit, cÃ³ thá»ƒ tÃ¬m factor; Ä‘Æ¡n giáº£n láº¥y product.sku
             return (l.Id, Sku: sku, UnitCode: units.GetValueOrDefault(l.UnitId, l.UnitCode));
         }).ToDictionary(x => x.Id, x => (x.Sku, x.UnitCode));
     }
@@ -133,7 +133,7 @@ public class PurchaseOrderQueryHandler :
     private static PurchaseOrderDto ToDto(PurchaseOrder p,
         Dictionary<Guid, (string Sku, string UnitCode)> productInfo)
     {
-        // Build lines từ navigation
+        // Build lines tá»« navigation
         var lineDtos = p.Lines.OrderBy(l => l.LineNo).Select(l =>
         {
             var info = productInfo.GetValueOrDefault(l.Id, ("", l.UnitCode));
@@ -144,7 +144,7 @@ public class PurchaseOrderQueryHandler :
                 l.LineTotal, l.Status.ToString().ToUpperInvariant(), l.Notes);
         }).ToList();
 
-        // Thông tin thầu (nếu có)
+        // ThÃ´ng tin tháº§u (náº¿u cÃ³)
         var contract = p.BidContract;
         var lot = p.BidLot;
         var remaining = contract != null ? contract.ContractValue - contract.UsedValue : (decimal?)null;
@@ -158,7 +158,7 @@ public class PurchaseOrderQueryHandler :
             p.ShippingAddress, p.Notes, p.InternalNotes,
             p.ApprovedBy, p.ApprovedAt, p.PostedBy, p.PostedAt, p.CompletedAt, p.CancelledAt, p.CancelReason,
             lineDtos.Count,
-            // Thông tin thầu
+            // ThÃ´ng tin tháº§u
             p.BidContractId, contract?.ContractNo,
             contract?.ContractValue, contract?.UsedValue, remaining,
             contract?.ContractEndDate, daysToExpiry,
@@ -175,10 +175,10 @@ public class PurchaseOrderCommandHandler :
     IRequestHandler<PostPurchaseOrderCommand, PurchaseOrderDto>,
     IRequestHandler<CancelPurchaseOrderCommand, PurchaseOrderDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public PurchaseOrderCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public PurchaseOrderCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<PurchaseOrderDto> Handle(CreatePurchaseOrderCommand request, CancellationToken ct)
     {
@@ -186,50 +186,50 @@ public class PurchaseOrderCommandHandler :
         var r = request.Request;
 
         if (r.Lines == null || r.Lines.Count == 0)
-            throw new ValidationException("PO phải có ít nhất 1 dòng");
+            throw new ValidationException("PO pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
 
-        // Validate party là supplier
+        // Validate party lÃ  supplier
         var party = await _db.Parties
             .FirstOrDefaultAsync(p => p.Id == r.PartyId && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Party {r.PartyId} không tồn tại");
+            ?? throw new NotFoundException($"Party {r.PartyId} khÃ´ng tá»“n táº¡i");
         if (party.PartyType == PartyType.Customer)
-            throw new BusinessRuleException("Đối tác này là khách hàng, không thể tạo PO");
+            throw new BusinessRuleException("Äá»‘i tÃ¡c nÃ y lÃ  khÃ¡ch hÃ ng, khÃ´ng thá»ƒ táº¡o PO");
 
         // ============================================================
-        // ⭐ VALIDATION HỢP ĐỒNG THẦU (BẮT BUỘC)
+        // â­ VALIDATION Há»¢P Äá»’NG THáº¦U (Báº®T BUá»˜C)
         // ============================================================
         if (r.BidContractId == Guid.Empty)
-            throw new BusinessRuleException("PO phải gắn với 1 hợp đồng thầu (BidContract)");
+            throw new BusinessRuleException("PO pháº£i gáº¯n vá»›i 1 há»£p Ä‘á»“ng tháº§u (BidContract)");
 
         var bidContract = await _db.BidContracts
             .Include(c => c.BidLot)
             .FirstOrDefaultAsync(c => c.Id == r.BidContractId && c.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"BidContract {r.BidContractId} không tồn tại");
+            ?? throw new NotFoundException($"BidContract {r.BidContractId} khÃ´ng tá»“n táº¡i");
 
         if (bidContract.BidContractStatus != BidContractStatus.Active)
             throw new BusinessRuleException(
-                $"Hợp đồng thầu '{bidContract.ContractNo}' đang ở trạng thái {bidContract.BidContractStatus}, không thể tạo PO.");
+                $"Há»£p Ä‘á»“ng tháº§u '{bidContract.ContractNo}' Ä‘ang á»Ÿ tráº¡ng thÃ¡i {bidContract.BidContractStatus}, khÃ´ng thá»ƒ táº¡o PO.");
 
-        // Check NCC khớp
+        // Check NCC khá»›p
         if (r.PartyId != bidContract.WinningPartyId)
             throw new BusinessRuleException(
-                $"PO phải gắn với đúng nhà thầu trúng thầu ({party.Code} → {bidContract.ContractNo}). " +
-                $"Nhà thầu trúng của HĐ này là khác.");
+                $"PO pháº£i gáº¯n vá»›i Ä‘Ãºng nhÃ  tháº§u trÃºng tháº§u ({party.Code} â†’ {bidContract.ContractNo}). " +
+                $"NhÃ  tháº§u trÃºng cá»§a HÄ nÃ y lÃ  khÃ¡c.");
 
         // Check date range
         if (r.OrderDate.Date < bidContract.ContractStartDate)
             throw new BusinessRuleException(
-                $"Ngày đặt hàng ({r.OrderDate:yyyy-MM-dd}) sớm hơn ngày bắt đầu HĐ thầu ({bidContract.ContractStartDate:yyyy-MM-dd}).");
+                $"NgÃ y Ä‘áº·t hÃ ng ({r.OrderDate:yyyy-MM-dd}) sá»›m hÆ¡n ngÃ y báº¯t Ä‘áº§u HÄ tháº§u ({bidContract.ContractStartDate:yyyy-MM-dd}).");
         if (r.OrderDate.Date > bidContract.ContractEndDate)
             throw new BusinessRuleException(
-                $"Ngày đặt hàng ({r.OrderDate:yyyy-MM-dd}) vượt quá ngày kết thúc HĐ thầu ({bidContract.ContractEndDate:yyyy-MM-dd}). HĐ thầu đã hết hạn.");
+                $"NgÃ y Ä‘áº·t hÃ ng ({r.OrderDate:yyyy-MM-dd}) vÆ°á»£t quÃ¡ ngÃ y káº¿t thÃºc HÄ tháº§u ({bidContract.ContractEndDate:yyyy-MM-dd}). HÄ tháº§u Ä‘Ã£ háº¿t háº¡n.");
 
-        // Nếu có bid_lot_id → check lot_id khớp với contract
+        // Náº¿u cÃ³ bid_lot_id â†’ check lot_id khá»›p vá»›i contract
         if (r.BidLotId.HasValue && r.BidLotId != bidContract.BidLotId)
             throw new BusinessRuleException(
-                $"BidLotId không khớp với HĐ thầu. HĐ này thuộc lô thầu khác.");
+                $"BidLotId khÃ´ng khá»›p vá»›i HÄ tháº§u. HÄ nÃ y thuá»™c lÃ´ tháº§u khÃ¡c.");
 
-        // Check vật tư có nằm trong lô thầu không (nếu lô có lines)
+        // Check váº­t tÆ° cÃ³ náº±m trong lÃ´ tháº§u khÃ´ng (náº¿u lÃ´ cÃ³ lines)
         if (bidContract.BidLot != null)
         {
             var lotLineProductIds = await _db.BidLotLines
@@ -242,11 +242,11 @@ public class PurchaseOrderCommandHandler :
                 var invalidProducts = lineProductIds.Except(lotLineProductIds).ToList();
                 if (invalidProducts.Any())
                     throw new BusinessRuleException(
-                        $"Có {invalidProducts.Count} sản phẩm trong PO không thuộc danh mục lô thầu '{bidContract.BidLot.LotName}'.");
+                        $"CÃ³ {invalidProducts.Count} sáº£n pháº©m trong PO khÃ´ng thuá»™c danh má»¥c lÃ´ tháº§u '{bidContract.BidLot.LotName}'.");
             }
         }
 
-        // Sẽ check used_value overflow SAU khi tính total (cuối hàm)
+        // Sáº½ check used_value overflow SAU khi tÃ­nh total (cuá»‘i hÃ m)
 
         var entity = new PurchaseOrder
         {
@@ -280,14 +280,14 @@ public class PurchaseOrderCommandHandler :
             .Where(u => unitIds.Contains(u.Id) && u.TenantId == _tenant.TenantId)
             .ToDictionaryAsync(u => u.Id, ct);
 
-        // Tính line_no + line_total
+        // TÃ­nh line_no + line_total
         for (int i = 0; i < r.Lines.Count; i++)
         {
             var line = r.Lines[i];
             if (!products.TryGetValue(line.ProductId, out var product))
-                throw new NotFoundException($"Product {line.ProductId} không tồn tại");
+                throw new NotFoundException($"Product {line.ProductId} khÃ´ng tá»“n táº¡i");
             if (!units.TryGetValue(line.UnitId, out var unit))
-                throw new NotFoundException($"Unit {line.UnitId} không tồn tại");
+                throw new NotFoundException($"Unit {line.UnitId} khÃ´ng tá»“n táº¡i");
 
             var lineTotal = line.Quantity * line.UnitPrice
                 * (1 - line.DiscountPct / 100m)
@@ -312,7 +312,7 @@ public class PurchaseOrderCommandHandler :
         }
 
         // ============================================================
-        // ⭐ CHECK used_value overflow (sau khi đã tính total)
+        // â­ CHECK used_value overflow (sau khi Ä‘Ã£ tÃ­nh total)
         // ============================================================
         var poSubtotal = entity.Lines.Sum(l => l.LineTotal);
         var poTotal = poSubtotal + entity.ShippingAmount - entity.DiscountAmount;
@@ -320,15 +320,15 @@ public class PurchaseOrderCommandHandler :
         {
             var remaining = bidContract.ContractValue - bidContract.UsedValue;
             throw new BusinessRuleException(
-                $"HĐ thầu '{bidContract.ContractNo}' đã dùng {bidContract.UsedValue:N0}/{bidContract.ContractValue:N0} VNĐ. " +
-                $"PO này ({poTotal:N0} VNĐ) vượt quá giá trị còn lại ({remaining:N0} VNĐ). " +
-                $"Vui lòng tạo HĐ thầu bổ sung hoặc giảm giá trị PO.");
+                $"HÄ tháº§u '{bidContract.ContractNo}' Ä‘Ã£ dÃ¹ng {bidContract.UsedValue:N0}/{bidContract.ContractValue:N0} VNÄ. " +
+                $"PO nÃ y ({poTotal:N0} VNÄ) vÆ°á»£t quÃ¡ giÃ¡ trá»‹ cÃ²n láº¡i ({remaining:N0} VNÄ). " +
+                $"Vui lÃ²ng táº¡o HÄ tháº§u bá»• sung hoáº·c giáº£m giÃ¡ trá»‹ PO.");
         }
 
         _db.PurchaseOrders.Add(entity);
         await _db.SaveChangesAsync(ct);
 
-        // Reload với Party + BidContract + BidLot nav
+        // Reload vá»›i Party + BidContract + BidLot nav
         entity.Party = party;
         entity.BidContract = bidContract;
         entity.BidLot = bidContract.BidLot;
@@ -349,13 +349,13 @@ public class PurchaseOrderCommandHandler :
         var entity = await _db.PurchaseOrders
             .Include(p => p.Lines)
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseOrder {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseOrder {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != PurchaseOrderStatus.Draft)
-            throw new BusinessRuleException($"Chỉ PO ở trạng thái DRAFT mới sửa được. Hiện tại: {entity.Status}");
+            throw new BusinessRuleException($"Chá»‰ PO á»Ÿ tráº¡ng thÃ¡i DRAFT má»›i sá»­a Ä‘Æ°á»£c. Hiá»‡n táº¡i: {entity.Status}");
 
         if (entity.ReceivedQtyTotal() > 0)
-            throw new BusinessRuleException("PO đã có GRN, không thể sửa");
+            throw new BusinessRuleException("PO Ä‘Ã£ cÃ³ GRN, khÃ´ng thá»ƒ sá»­a");
 
         var r = request.Request;
         entity.PartyId = r.PartyId;
@@ -367,11 +367,11 @@ public class PurchaseOrderCommandHandler :
         entity.Notes = r.Notes;
         entity.InternalNotes = r.InternalNotes;
 
-        // Replace lines nếu có
+        // Replace lines náº¿u cÃ³
         if (r.Lines != null)
         {
             if (r.Lines.Count == 0)
-                throw new ValidationException("PO phải có ít nhất 1 dòng");
+                throw new ValidationException("PO pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
 
             // Validate products
             var productIds = r.Lines.Select(l => l.ProductId).Distinct().ToList();
@@ -390,9 +390,9 @@ public class PurchaseOrderCommandHandler :
             {
                 var line = r.Lines[i];
                 if (!products.TryGetValue(line.ProductId, out var product))
-                    throw new NotFoundException($"Product {line.ProductId} không tồn tại");
+                    throw new NotFoundException($"Product {line.ProductId} khÃ´ng tá»“n táº¡i");
                 if (!units.TryGetValue(line.UnitId, out var unit))
-                    throw new NotFoundException($"Unit {line.UnitId} không tồn tại");
+                    throw new NotFoundException($"Unit {line.UnitId} khÃ´ng tá»“n táº¡i");
 
                 var lineTotal = line.Quantity * line.UnitPrice
                     * (1 - line.DiscountPct / 100m)
@@ -419,7 +419,7 @@ public class PurchaseOrderCommandHandler :
 
         await _db.SaveChangesAsync(ct);
 
-        // Reload với nav
+        // Reload vá»›i nav
         var reloaded = await _db.PurchaseOrders.AsNoTracking()
             .Include(p => p.Party).Include(p => p.Lines)
             .FirstAsync(p => p.Id == entity.Id, ct);
@@ -431,9 +431,9 @@ public class PurchaseOrderCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.PurchaseOrders
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseOrder {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseOrder {request.Id} khÃ´ng tá»“n táº¡i");
         if (entity.Status != PurchaseOrderStatus.Draft)
-            throw new BusinessRuleException("Chỉ PO ở DRAFT mới xóa được");
+            throw new BusinessRuleException("Chá»‰ PO á»Ÿ DRAFT má»›i xÃ³a Ä‘Æ°á»£c");
         _db.PurchaseOrders.Remove(entity);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -443,17 +443,17 @@ public class PurchaseOrderCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         if (!_tenant.IsAdmin && _tenant.Role != "MANAGER")
-            throw new ForbiddenException("Chỉ Admin/Manager mới duyệt PO");
+            throw new ForbiddenException("Chá»‰ Admin/Manager má»›i duyá»‡t PO");
 
         var entity = await _db.PurchaseOrders
             .Include(p => p.Lines)
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseOrder {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseOrder {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != PurchaseOrderStatus.Draft)
-            throw new BusinessRuleException($"Chỉ PO ở DRAFT mới duyệt được. Hiện tại: {entity.Status}");
+            throw new BusinessRuleException($"Chá»‰ PO á»Ÿ DRAFT má»›i duyá»‡t Ä‘Æ°á»£c. Hiá»‡n táº¡i: {entity.Status}");
         if (!entity.Lines.Any())
-            throw new BusinessRuleException("PO không có dòng nào");
+            throw new BusinessRuleException("PO khÃ´ng cÃ³ dÃ²ng nÃ o");
 
         entity.Status = PurchaseOrderStatus.Approved;
         entity.ApprovedBy = _tenant.UserId;
@@ -471,10 +471,10 @@ public class PurchaseOrderCommandHandler :
         var entity = await _db.PurchaseOrders
             .Include(p => p.Lines)
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseOrder {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseOrder {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != PurchaseOrderStatus.Approved)
-            throw new BusinessRuleException($"Chỉ PO ở APPROVED mới post được. Hiện tại: {entity.Status}");
+            throw new BusinessRuleException($"Chá»‰ PO á»Ÿ APPROVED má»›i post Ä‘Æ°á»£c. Hiá»‡n táº¡i: {entity.Status}");
 
         entity.Status = PurchaseOrderStatus.Posted;
         entity.PostedBy = _tenant.UserId;
@@ -489,16 +489,16 @@ public class PurchaseOrderCommandHandler :
         var entity = await _db.PurchaseOrders
             .Include(p => p.Lines)
             .FirstOrDefaultAsync(p => p.Id == request.Id && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"PurchaseOrder {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"PurchaseOrder {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status == PurchaseOrderStatus.Completed || entity.Status == PurchaseOrderStatus.Cancelled)
-            throw new BusinessRuleException($"PO đã ở trạng thái cuối: {entity.Status}, không thể hủy");
+            throw new BusinessRuleException($"PO Ä‘Ã£ á»Ÿ tráº¡ng thÃ¡i cuá»‘i: {entity.Status}, khÃ´ng thá»ƒ há»§y");
 
         if (entity.ReceivedQtyTotal() > 0)
-            throw new BusinessRuleException("PO đã có GRN, không thể hủy (cần xử lý GRN trước)");
+            throw new BusinessRuleException("PO Ä‘Ã£ cÃ³ GRN, khÃ´ng thá»ƒ há»§y (cáº§n xá»­ lÃ½ GRN trÆ°á»›c)");
 
         if (string.IsNullOrWhiteSpace(request.Reason))
-            throw new ValidationException("Phải nhập lý do hủy");
+            throw new ValidationException("Pháº£i nháº­p lÃ½ do há»§y");
 
         entity.Status = PurchaseOrderStatus.Cancelled;
         entity.CancelledAt = DateTime.UtcNow;

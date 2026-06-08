@@ -1,8 +1,8 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Catalog;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -30,10 +30,10 @@ public class CategoryQueryHandler :
     IRequestHandler<GetCategoryByIdQuery, CategoryDto>,
     IRequestHandler<ListCategoriesQuery, PaginatedResult<CategoryDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public CategoryQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public CategoryQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<CategoryDto> Handle(GetCategoryByIdQuery request, CancellationToken ct)
     {
@@ -72,17 +72,17 @@ public class CategoryCommandHandler :
     IRequestHandler<UpdateCategoryCommand, CategoryDto>,
     IRequestHandler<DeleteCategoryCommand, Unit>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public CategoryCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public CategoryCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<CategoryDto> Handle(CreateCategoryCommand req, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = req.Request;
         var exists = await _db.Categories.AnyAsync(x => x.TenantId == _tenant.TenantId && x.Code == r.Code, ct);
-        if (exists) throw new ConflictException($"Mã danh mục '{r.Code}' đã tồn tại");
+        if (exists) throw new ConflictException($"MÃ£ danh má»¥c '{r.Code}' Ä‘Ã£ tá»“n táº¡i");
 
         if (r.ParentId.HasValue)
         {
@@ -115,7 +115,7 @@ public class CategoryCommandHandler :
         if (!string.IsNullOrEmpty(r.Code) && r.Code != c.Code)
         {
             var exists = await _db.Categories.AnyAsync(x => x.TenantId == _tenant.TenantId && x.Code == r.Code && x.Id != req.Id, ct);
-            if (exists) throw new ConflictException($"Mã danh mục '{r.Code}' đã tồn tại");
+            if (exists) throw new ConflictException($"MÃ£ danh má»¥c '{r.Code}' Ä‘Ã£ tá»“n táº¡i");
             c.Code = r.Code;
         }
         if (r.Description != null) c.Description = r.Description;
@@ -132,9 +132,9 @@ public class CategoryCommandHandler :
         var c = await _db.Categories.FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
             ?? throw new NotFoundException("Category", req.Id);
         var hasChildren = await _db.Categories.AnyAsync(x => x.ParentId == req.Id, ct);
-        if (hasChildren) throw new ConflictException("Không thể xóa: danh mục còn chứa danh mục con");
+        if (hasChildren) throw new ConflictException("KhÃ´ng thá»ƒ xÃ³a: danh má»¥c cÃ²n chá»©a danh má»¥c con");
         var hasProducts = await _db.Products.AnyAsync(p => p.CategoryId == req.Id, ct);
-        if (hasProducts) throw new ConflictException("Không thể xóa: danh mục còn chứa sản phẩm");
+        if (hasProducts) throw new ConflictException("KhÃ´ng thá»ƒ xÃ³a: danh má»¥c cÃ²n chá»©a sáº£n pháº©m");
         _db.Categories.Remove(c);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;

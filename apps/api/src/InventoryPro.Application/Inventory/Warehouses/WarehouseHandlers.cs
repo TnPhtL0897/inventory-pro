@@ -1,8 +1,8 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Inventory;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -22,10 +22,10 @@ public class WarehouseQueryHandler :
     IRequestHandler<GetWarehouseByIdQuery, WarehouseDto>,
     IRequestHandler<ListWarehousesQuery, PaginatedResult<WarehouseDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public WarehouseQueryHandler(InventoryDbContext db, TenantContext tenant)
+    public WarehouseQueryHandler(IInventoryDbContext db, TenantContext tenant)
     {
         _db = db; _tenant = tenant;
     }
@@ -37,7 +37,7 @@ public class WarehouseQueryHandler :
             .AsNoTracking()
             .Include(x => x.Locations)
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Warehouse {req.Id} không tồn tại");
+            ?? throw new NotFoundException($"Warehouse {req.Id} khÃ´ng tá»“n táº¡i");
         return ToDto(w);
     }
 
@@ -78,7 +78,7 @@ public class WarehouseQueryHandler :
         throw new ValidationException(new[]
         {
             new FluentValidation.Results.ValidationFailure(nameof(WarehouseDto.Type),
-                $"warehouse_type không hợp lệ: '{raw}'. Chỉ chấp nhận: RECEIVING, ISSUE.")
+                $"warehouse_type khÃ´ng há»£p lá»‡: '{raw}'. Chá»‰ cháº¥p nháº­n: RECEIVING, ISSUE.")
         });
     }
 
@@ -95,16 +95,16 @@ public class WarehouseCommandHandler :
     IRequestHandler<UpdateWarehouseCommand, WarehouseDto>,
     IRequestHandler<DeleteWarehouseCommand, Unit>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public WarehouseCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public WarehouseCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<WarehouseDto> Handle(CreateWarehouseCommand req, CancellationToken ct)
     {
         _tenant.EnsureAuthenticated();
         var r = req.Request;
-        // Branch phải thuộc cùng tenant - FK constraint ở DB sẽ enforce, ở đây cứ try/catch
+        // Branch pháº£i thuá»™c cÃ¹ng tenant - FK constraint á»Ÿ DB sáº½ enforce, á»Ÿ Ä‘Ã¢y cá»© try/catch
         var w = new Warehouse
         {
             TenantId = _tenant.TenantId!.Value,
@@ -127,7 +127,7 @@ public class WarehouseCommandHandler :
         }
         catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("unique", StringComparison.OrdinalIgnoreCase) == true)
         {
-            throw new ConflictException($"Mã kho '{r.Code}' đã tồn tại trong branch này");
+            throw new ConflictException($"MÃ£ kho '{r.Code}' Ä‘Ã£ tá»“n táº¡i trong branch nÃ y");
         }
 
         var created = await _db.Warehouses.Include(x => x.Locations).AsNoTracking()
@@ -140,7 +140,7 @@ public class WarehouseCommandHandler :
         _tenant.EnsureAuthenticated();
         var w = await _db.Warehouses.Include(x => x.Locations)
             .FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Warehouse {req.Id} không tồn tại");
+            ?? throw new NotFoundException($"Warehouse {req.Id} khÃ´ng tá»“n táº¡i");
         var r = req.Request;
         if (!string.IsNullOrEmpty(r.Name)) w.Name = r.Name;
         if (!string.IsNullOrEmpty(r.Code)) w.Code = r.Code;
@@ -159,12 +159,12 @@ public class WarehouseCommandHandler :
     {
         _tenant.EnsureAuthenticated();
         var w = await _db.Warehouses.FirstOrDefaultAsync(x => x.Id == req.Id && x.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Warehouse {req.Id} không tồn tại");
-        // Không cho xóa nếu còn location hoặc stock
+            ?? throw new NotFoundException($"Warehouse {req.Id} khÃ´ng tá»“n táº¡i");
+        // KhÃ´ng cho xÃ³a náº¿u cÃ²n location hoáº·c stock
         var hasLocations = await _db.Locations.AnyAsync(l => l.WarehouseId == req.Id, ct);
-        if (hasLocations) throw new ConflictException("Không thể xóa: kho còn chứa vị trí");
+        if (hasLocations) throw new ConflictException("KhÃ´ng thá»ƒ xÃ³a: kho cÃ²n chá»©a vá»‹ trÃ­");
         var hasStock = await _db.Stock.AnyAsync(s => s.WarehouseId == req.Id, ct);
-        if (hasStock) throw new ConflictException("Không thể xóa: kho còn tồn kho");
+        if (hasStock) throw new ConflictException("KhÃ´ng thá»ƒ xÃ³a: kho cÃ²n tá»“n kho");
         w.Status = WarehouseStatus.Closed;
         await _db.SaveChangesAsync(ct);
         return Unit.Value;

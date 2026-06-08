@@ -1,10 +1,10 @@
-using InventoryPro.Application.Common.Tenancy;
+﻿using InventoryPro.Application.Common.Tenancy;
 using InventoryPro.Application.Common.Exceptions;
 using InventoryPro.Application.Common.Models;
 using InventoryPro.Domain.Inventory;
 using InventoryPro.Domain.Parties;
 using InventoryPro.Domain.Purchasing;
-using InventoryPro.Infrastructure.Persistence;
+using InventoryPro.Application.Common.Persistence;
 using Mapster;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -42,10 +42,10 @@ public class GoodsReceiptQueryHandler :
     IRequestHandler<GetGoodsReceiptByIdQuery, GoodsReceiptDto>,
     IRequestHandler<ListGoodsReceiptsQuery, PaginatedResult<GoodsReceiptDto>>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public GoodsReceiptQueryHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public GoodsReceiptQueryHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<GoodsReceiptDto> Handle(GetGoodsReceiptByIdQuery request, CancellationToken ct)
     {
@@ -55,7 +55,7 @@ public class GoodsReceiptQueryHandler :
             .Include(g => g.Party).Include(g => g.Warehouse).Include(g => g.PurchaseOrder)
             .Include(g => g.Lines)
             .FirstOrDefaultAsync(g => g.Id == request.Id && g.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"GoodsReceipt {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"GoodsReceipt {request.Id} khÃ´ng tá»“n táº¡i");
         return ToDto(entity, await LoadLineDetailsAsync(entity.Lines, ct));
     }
 
@@ -149,10 +149,10 @@ public class GoodsReceiptCommandHandler :
     IRequestHandler<PostGoodsReceiptCommand, GoodsReceiptDto>,
     IRequestHandler<CancelGoodsReceiptCommand, GoodsReceiptDto>
 {
-    private readonly InventoryDbContext _db;
+    private readonly IInventoryDbContext _db;
     private readonly TenantContext _tenant;
 
-    public GoodsReceiptCommandHandler(InventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
+    public GoodsReceiptCommandHandler(IInventoryDbContext db, TenantContext tenant) { _db = db; _tenant = tenant; }
 
     public async Task<GoodsReceiptDto> Handle(CreateGoodsReceiptCommand request, CancellationToken ct)
     {
@@ -160,7 +160,7 @@ public class GoodsReceiptCommandHandler :
         var r = request.Request;
         await ValidateGrnRequestAsync(r, ct, null);
 
-        // ⭐ Auto-fill BidContractId + BidLotId từ PO
+        // â­ Auto-fill BidContractId + BidLotId tá»« PO
         Guid? bidContractId = null;
         Guid? bidLotId = null;
         if (r.PurchaseOrderId.HasValue)
@@ -204,10 +204,10 @@ public class GoodsReceiptCommandHandler :
         var entity = await _db.GoodsReceipts
             .Include(g => g.Lines)
             .FirstOrDefaultAsync(g => g.Id == request.Id && g.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"GoodsReceipt {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"GoodsReceipt {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != GoodsReceiptStatus.Draft)
-            throw new BusinessRuleException("Chỉ GRN ở DRAFT mới sửa được");
+            throw new BusinessRuleException("Chá»‰ GRN á»Ÿ DRAFT má»›i sá»­a Ä‘Æ°á»£c");
 
         var r = request.Request;
         await ValidateGrnRequestAsync(new CreateGoodsReceiptRequest(
@@ -233,9 +233,9 @@ public class GoodsReceiptCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.GoodsReceipts
             .FirstOrDefaultAsync(g => g.Id == request.Id && g.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"GoodsReceipt {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"GoodsReceipt {request.Id} khÃ´ng tá»“n táº¡i");
         if (entity.Status != GoodsReceiptStatus.Draft)
-            throw new BusinessRuleException("Chỉ GRN ở DRAFT mới xóa được");
+            throw new BusinessRuleException("Chá»‰ GRN á»Ÿ DRAFT má»›i xÃ³a Ä‘Æ°á»£c");
         _db.GoodsReceipts.Remove(entity);
         await _db.SaveChangesAsync(ct);
         return Unit.Value;
@@ -247,29 +247,29 @@ public class GoodsReceiptCommandHandler :
         var entity = await _db.GoodsReceipts
             .Include(g => g.Lines)
             .FirstOrDefaultAsync(g => g.Id == request.Id && g.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"GoodsReceipt {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"GoodsReceipt {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != GoodsReceiptStatus.Draft)
-            throw new BusinessRuleException($"Chỉ GRN ở DRAFT mới post được. Hiện tại: {entity.Status}");
+            throw new BusinessRuleException($"Chá»‰ GRN á»Ÿ DRAFT má»›i post Ä‘Æ°á»£c. Hiá»‡n táº¡i: {entity.Status}");
         if (!entity.Lines.Any())
-            throw new BusinessRuleException("GRN phải có ít nhất 1 dòng");
+            throw new BusinessRuleException("GRN pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
 
-        // Business rule: GRN post → ghi stock_movements IN, chỉ cho kho chẵn (RECEIVING).
-        // (Check tại create đã enforce; check lại ở post phòng trường hợp warehouse type đổi sau khi GRN tạo)
+        // Business rule: GRN post â†’ ghi stock_movements IN, chá»‰ cho kho cháºµn (RECEIVING).
+        // (Check táº¡i create Ä‘Ã£ enforce; check láº¡i á»Ÿ post phÃ²ng trÆ°á»ng há»£p warehouse type Ä‘á»•i sau khi GRN táº¡o)
         var postWh = await _db.Warehouses
             .AsNoTracking()
             .FirstOrDefaultAsync(w => w.Id == entity.WarehouseId && w.TenantId == _tenant.TenantId, ct);
         if (postWh == null)
-            throw new NotFoundException($"Warehouse {entity.WarehouseId} không tồn tại");
+            throw new NotFoundException($"Warehouse {entity.WarehouseId} khÃ´ng tá»“n táº¡i");
         if (postWh.Type != WarehouseType.Receiving)
             throw new BusinessRuleException(
-                $"Kho '{postWh.Code}' hiện là kho lẻ (ISSUE), không thể post GRN. Vui lòng chọn kho chẵn (RECEIVING) khi tạo GRN.");
+                $"Kho '{postWh.Code}' hiá»‡n lÃ  kho láº» (ISSUE), khÃ´ng thá»ƒ post GRN. Vui lÃ²ng chá»n kho cháºµn (RECEIVING) khi táº¡o GRN.");
 
-        // Insert stock_movements cho từng line
+        // Insert stock_movements cho tá»«ng line
         foreach (var line in entity.Lines.Where(l => l.Status == GoodsReceiptLineStatus.Open))
         {
-            // Idempotency key đã được lưu từ request (r.IdempotencyKeys[i] khi BuildLinesAsync)
-            // Nếu không có, fallback sang Guid mới (best-effort)
+            // Idempotency key Ä‘Ã£ Ä‘Æ°á»£c lÆ°u tá»« request (r.IdempotencyKeys[i] khi BuildLinesAsync)
+            // Náº¿u khÃ´ng cÃ³, fallback sang Guid má»›i (best-effort)
             var idempotencyKey = line.IdempotencyKey != Guid.Empty
                 ? line.IdempotencyKey
                 : Guid.NewGuid();
@@ -298,7 +298,7 @@ public class GoodsReceiptCommandHandler :
             };
             _db.StockMovements.Add(movement);
 
-            // Cập nhật PO line nếu có
+            // Cáº­p nháº­t PO line náº¿u cÃ³
             if (line.PoLineId.HasValue)
             {
                 var poLine = await _db.PurchaseOrderLines
@@ -306,11 +306,11 @@ public class GoodsReceiptCommandHandler :
                 if (poLine != null)
                 {
                     poLine.ReceivedQty += line.Quantity;
-                    // Status auto-update bởi trigger update_po_line_status
+                    // Status auto-update bá»Ÿi trigger update_po_line_status
                 }
             }
 
-            line.MovementId = movement.Id; // sẽ được set khi SaveChanges
+            line.MovementId = movement.Id; // sáº½ Ä‘Æ°á»£c set khi SaveChanges
             line.Status = GoodsReceiptLineStatus.Posted;
         }
 
@@ -319,12 +319,12 @@ public class GoodsReceiptCommandHandler :
         entity.PostedAt = DateTime.UtcNow;
         await _db.SaveChangesAsync(ct);
 
-        // Update movement_id trên lines sau khi có id thật
-        // (đã set trong loop, SaveChanges sẽ fill Id vào movement.Id)
-        // Reload để lấy movement_id thật
+        // Update movement_id trÃªn lines sau khi cÃ³ id tháº­t
+        // (Ä‘Ã£ set trong loop, SaveChanges sáº½ fill Id vÃ o movement.Id)
+        // Reload Ä‘á»ƒ láº¥y movement_id tháº­t
         await _db.SaveChangesAsync(ct);
 
-        // Check và đóng PO nếu đã nhận đủ
+        // Check vÃ  Ä‘Ã³ng PO náº¿u Ä‘Ã£ nháº­n Ä‘á»§
         if (entity.PurchaseOrderId.HasValue)
         {
             var po = await _db.PurchaseOrders.Include(p => p.Lines)
@@ -345,12 +345,12 @@ public class GoodsReceiptCommandHandler :
         _tenant.EnsureAuthenticated();
         var entity = await _db.GoodsReceipts
             .FirstOrDefaultAsync(g => g.Id == request.Id && g.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"GoodsReceipt {request.Id} không tồn tại");
+            ?? throw new NotFoundException($"GoodsReceipt {request.Id} khÃ´ng tá»“n táº¡i");
 
         if (entity.Status != GoodsReceiptStatus.Draft)
-            throw new BusinessRuleException("Chỉ GRN ở DRAFT mới hủy được (đã POSTED phải dùng reversal)");
+            throw new BusinessRuleException("Chá»‰ GRN á»Ÿ DRAFT má»›i há»§y Ä‘Æ°á»£c (Ä‘Ã£ POSTED pháº£i dÃ¹ng reversal)");
         if (string.IsNullOrWhiteSpace(request.Reason))
-            throw new ValidationException("Phải nhập lý do hủy");
+            throw new ValidationException("Pháº£i nháº­p lÃ½ do há»§y");
 
         entity.Status = GoodsReceiptStatus.Cancelled;
         entity.CancelledAt = DateTime.UtcNow;
@@ -363,44 +363,44 @@ public class GoodsReceiptCommandHandler :
     private async Task ValidateGrnRequestAsync(CreateGoodsReceiptRequest r, CancellationToken ct, Guid? excludeId)
     {
         if (r.Lines == null || r.Lines.Count == 0)
-            throw new ValidationException("GRN phải có ít nhất 1 dòng");
+            throw new ValidationException("GRN pháº£i cÃ³ Ã­t nháº¥t 1 dÃ²ng");
         if (r.IdempotencyKeys == null || r.IdempotencyKeys.Count != r.Lines.Count)
-            throw new ValidationException("Mỗi dòng GRN cần 1 idempotency_key");
+            throw new ValidationException("Má»—i dÃ²ng GRN cáº§n 1 idempotency_key");
         if (r.IdempotencyKeys.Distinct().Count() != r.IdempotencyKeys.Count)
-            throw new ValidationException("Idempotency keys phải unique");
+            throw new ValidationException("Idempotency keys pháº£i unique");
 
-        // Validate party là supplier
+        // Validate party lÃ  supplier
         var party = await _db.Parties
             .FirstOrDefaultAsync(p => p.Id == r.PartyId && p.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Party {r.PartyId} không tồn tại");
+            ?? throw new NotFoundException($"Party {r.PartyId} khÃ´ng tá»“n táº¡i");
         if (party.PartyType == PartyType.Customer)
-            throw new BusinessRuleException("Party phải là SUPPLIER hoặc BOTH");
+            throw new BusinessRuleException("Party pháº£i lÃ  SUPPLIER hoáº·c BOTH");
 
-        // Validate warehouse + location thuộc branch
+        // Validate warehouse + location thuá»™c branch
         var wh = await _db.Warehouses
             .FirstOrDefaultAsync(w => w.Id == r.WarehouseId && w.BranchId == r.BranchId && w.TenantId == _tenant.TenantId, ct)
-            ?? throw new NotFoundException($"Warehouse {r.WarehouseId} không thuộc branch {r.BranchId}");
+            ?? throw new NotFoundException($"Warehouse {r.WarehouseId} khÃ´ng thuá»™c branch {r.BranchId}");
 
-        // Business rule: GRN chỉ cho phép ghi vào kho chẵn (RECEIVING).
+        // Business rule: GRN chá»‰ cho phÃ©p ghi vÃ o kho cháºµn (RECEIVING).
         if (wh.Type != WarehouseType.Receiving)
             throw new BusinessRuleException(
-                $"Kho '{wh.Code}' là kho lẻ (ISSUE), không thể tạo phiếu nhập. Vui lòng chọn kho chẵn (RECEIVING).");
+                $"Kho '{wh.Code}' lÃ  kho láº» (ISSUE), khÃ´ng thá»ƒ táº¡o phiáº¿u nháº­p. Vui lÃ²ng chá»n kho cháºµn (RECEIVING).");
 
         var locationIds = r.Lines.Select(l => l.LocationId).Distinct().ToList();
         var invalidLoc = await _db.Locations
             .Where(l => locationIds.Contains(l.Id) && (l.TenantId != _tenant.TenantId || l.WarehouseId != r.WarehouseId))
             .Select(l => l.Id).ToListAsync(ct);
         if (invalidLoc.Any())
-            throw new NotFoundException($"Location {string.Join(", ", invalidLoc)} không thuộc warehouse {r.WarehouseId}");
+            throw new NotFoundException($"Location {string.Join(", ", invalidLoc)} khÃ´ng thuá»™c warehouse {r.WarehouseId}");
 
-        // Nếu có PO, validate party khớp
+        // Náº¿u cÃ³ PO, validate party khá»›p
         if (r.PurchaseOrderId.HasValue)
         {
             var po = await _db.PurchaseOrders
                 .FirstOrDefaultAsync(p => p.Id == r.PurchaseOrderId.Value && p.TenantId == _tenant.TenantId, ct)
-                ?? throw new NotFoundException($"PO {r.PurchaseOrderId} không tồn tại");
+                ?? throw new NotFoundException($"PO {r.PurchaseOrderId} khÃ´ng tá»“n táº¡i");
             if (po.PartyId != r.PartyId)
-                throw new BusinessRuleException("Party của GRN phải khớp với PO");
+                throw new BusinessRuleException("Party cá»§a GRN pháº£i khá»›p vá»›i PO");
         }
     }
 
@@ -419,21 +419,21 @@ public class GoodsReceiptCommandHandler :
         {
             var line = lineReqs[i];
             if (!products.TryGetValue(line.ProductId, out var product))
-                throw new NotFoundException($"Product {line.ProductId} không tồn tại");
+                throw new NotFoundException($"Product {line.ProductId} khÃ´ng tá»“n táº¡i");
             if (!units.TryGetValue(line.UnitId, out var unit))
-                throw new NotFoundException($"Unit {line.UnitId} không tồn tại");
+                throw new NotFoundException($"Unit {line.UnitId} khÃ´ng tá»“n táº¡i");
 
-            // Validate po_line nếu có
+            // Validate po_line náº¿u cÃ³
             if (line.PoLineId.HasValue)
             {
                 var poLine = await _db.PurchaseOrderLines
                     .Include(pl => pl.PurchaseOrder)
                     .FirstOrDefaultAsync(pl => pl.Id == line.PoLineId.Value, ct)
-                    ?? throw new NotFoundException($"PO Line {line.PoLineId} không tồn tại");
+                    ?? throw new NotFoundException($"PO Line {line.PoLineId} khÃ´ng tá»“n táº¡i");
                 if (poLine.PurchaseOrderId != entity.PurchaseOrderId)
-                    throw new BusinessRuleException("PO line không thuộc PO của GRN");
+                    throw new BusinessRuleException("PO line khÃ´ng thuá»™c PO cá»§a GRN");
                 if (poLine.ProductId != line.ProductId)
-                    throw new BusinessRuleException("Product của GRN line phải khớp với PO line");
+                    throw new BusinessRuleException("Product cá»§a GRN line pháº£i khá»›p vá»›i PO line");
             }
 
             entity.Lines.Add(new GoodsReceiptLine
@@ -452,7 +452,7 @@ public class GoodsReceiptCommandHandler :
                 SerialNo = line.SerialNo,
                 ExpiryDate = line.ExpiryDate,
                 Notes = line.Notes,
-                // Lưu idempotency_key từ request để dùng lúc post tạo movement
+                // LÆ°u idempotency_key tá»« request Ä‘á»ƒ dÃ¹ng lÃºc post táº¡o movement
                 IdempotencyKey = i < idempotencyKeys.Count ? idempotencyKeys[i] : Guid.Empty,
                 Status = GoodsReceiptLineStatus.Open,
             });
