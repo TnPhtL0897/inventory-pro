@@ -1,7 +1,11 @@
-﻿import type { NextConfig } from "next";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
-const nextConfig: NextConfig = {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ["@inventorypro/shared-types", "@inventorypro/validation"],
   experimental: {
@@ -9,10 +13,8 @@ const nextConfig: NextConfig = {
   },
   typescript: { ignoreBuildErrors: false },
   eslint: { ignoreDuringBuilds: true },
-  // Disable build-time static generation - use runtime SSR instead
-  // (Free Vercel tier has 60s/lambda limit; static export of 17 routes exceeds it)
   productionBrowserSourceMaps: false,
-  // Explicit path aliases cho Turbopack (chưa auto-read tsconfig paths ở mọi version)
+  // Path aliases
   turbopack: {
     resolveAlias: {
       "@": path.resolve(__dirname, "./src"),
@@ -21,7 +23,6 @@ const nextConfig: NextConfig = {
     },
   },
   webpack(config) {
-    // Webpack fallback cho production build
     config.resolve.alias = {
       ...config.resolve.alias,
       "@": path.resolve(__dirname, "./src"),
