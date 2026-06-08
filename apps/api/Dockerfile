@@ -48,15 +48,19 @@ COPY --from=build /app/publish .
 RUN chown -R appuser:appuser /app
 USER appuser
 
-# ASP.NET Core trên port 8080 theo convention của cloud providers
-ENV ASPNETCORE_URLS=http://+:8080
+# IMPORTANT: KHÔNG hardcode ASPNETCORE_URLS ở đây.
+# Render free tier inject PORT=10000 và truyền ASPNETCORE_URLS=http://+:$PORT qua env.
+# Nếu Dockerfile set ASPNETCORE_URLS=http://+:8080, env từ Render vẫn override (ưu tiên cao hơn),
+# nhưng để chắc chắn và tránh nhầm lẫn, ta để ASPNETCORE_URLS do Render quyết định.
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 ENV DOTNET_gcServer=1
 
+# EXPOSE 8080 cho local docker run; Render sẽ dùng $PORT=10000 thông qua ASPNETCORE_URLS env.
 EXPOSE 8080
+EXPOSE 10000
 
-# Health check dùng built-in endpoint
+# Health check dùng built-in endpoint. Trỏ vào 8080 (local) - Render sẽ tự health check qua /health.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health/live || exit 1
 
