@@ -152,6 +152,15 @@ public class BidLotConfiguration : IEntityTypeConfiguration<BidLot>
         b.HasIndex(x => x.BidPackageId);
         b.HasIndex(x => new { x.TenantId, x.BidLotStatus });
         b.HasIndex(x => x.AwardedBidderId);
+        b.HasIndex(x => x.ContractId).IsUnique();
+
+        // 1-1: BidContract (principal) ↔ BidLot (dependent via ContractId).
+        // BidContract.BidLotId is the required FK; BidLot.ContractId is the
+        // back-reference that gets set when the contract is awarded.
+        b.HasOne(x => x.Contract)
+            .WithOne(c => c.BidLot)
+            .HasForeignKey<BidLot>(x => x.ContractId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
 
