@@ -199,7 +199,7 @@ export function PoForm({ initial, onSuccess, onCancel }: PoFormProps) {
           </select>
         </Field>
 
-        <Field label="Thanh toán (ngày)">
+        <Field label="Phí vận chuyển">
           <Input type="number" min={0} {...form.register("payment_terms", { valueAsNumber: true })} />
         </Field>
 

@@ -186,7 +186,7 @@ export function ForecastPreviewDialog({ open, onOpenChange, onSuccess }: Forecas
                   <p className="font-medium text-blue-900 dark:text-blue-100">Cách tính:</p>
                   <p className="text-blue-800 dark:text-blue-200">
                     Forecast = (Tổng xuất 90 ngày ÷ 90) × 30. Đề xuất = max(0, forecast + min_stock - tồn).
-                    Nếu {`<`} 3 lần xuất trong 90 ngày, fallback về (max_stock - tồn).
+                    Nếu {`<`} 3 lần xuất trong 90 ngày, quay về (max_stock - tồn).
                   </p>
                 </div>
               </div>

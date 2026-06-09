@@ -19,15 +19,15 @@ export default async function PartiesPage() {
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Äá»‘i tÃ¡c</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">NhÃ  cung cáº¥p, khÃ¡ch hÃ ng â€¢ <strong>{total}</strong> Ä‘á»‘i tÃ¡c</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Đối tác</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Nhà cung cấp, khách hàng • <strong>{total}</strong> đối tác</p>
         </div>
       </div>
       <Card>
-        <CardHeader><CardTitle>Danh sÃ¡ch Ä‘á»‘i tÃ¡c</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Danh sách đối tác</CardTitle></CardHeader>
         <CardContent>
           {parties.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">ChÆ°a cÃ³ Ä‘á»‘i tÃ¡c.</div>
+            <div className="text-center py-8 text-muted-foreground">Chưa có đối tác.</div>
           ) : (
             <PartyTable
               initialData={{ items: parties, total, page: 1, pageSize: 100, hasMore: false }}
