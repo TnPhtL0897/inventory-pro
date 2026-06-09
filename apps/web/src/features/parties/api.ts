@@ -1,9 +1,16 @@
 // =============================================================================
-// Parties feature - hooks + types
+// Parties feature - hooks + types (Supabase PostgREST version)
 // =============================================================================
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  listTable,
+  getById,
+  insertRow,
+  updateRow,
+  deleteRow,
+  type PaginatedResult,
+} from "@/lib/data-access";
 import type { CreatePartyInput, UpdatePartyInput } from "@inventorypro/validation/party";
 
 // =============================================================================
@@ -34,14 +41,6 @@ export interface Party {
   updatedAt: string;
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-}
-
 export type {
   CreatePartyInput,
   UpdatePartyInput,
@@ -58,28 +57,28 @@ export interface PartyListParams {
   status?: PartyStatus;
 }
 
-function buildQuery(p: PartyListParams): string {
-  const qs = new URLSearchParams();
-  if (p.page) qs.set("page", String(p.page));
-  if (p.pageSize) qs.set("pageSize", String(p.pageSize));
-  if (p.search) qs.set("search", p.search);
-  if (p.partyType) qs.set("partyType", p.partyType);
-  if (p.status) qs.set("status", p.status);
-  const s = qs.toString();
-  return s ? `?${s}` : "";
-}
-
 export function useParties(params: PartyListParams = {}) {
   return useQuery({
     queryKey: ["parties", params],
-    queryFn: () => api.get<PaginatedResult<Party>>(`/api/v1/parties${buildQuery(params)}`),
+    queryFn: () =>
+      listTable<Party>("parties", {
+        page: params.page,
+        pageSize: params.pageSize,
+        search: params.search,
+        searchColumns: ["code", "name", "tax_code"],
+        orderBy: "name",
+        filters: {
+          party_type: params.partyType,
+          status: params.status,
+        },
+      }),
   });
 }
 
 export function useParty(id: string | undefined) {
   return useQuery({
     queryKey: ["parties", id],
-    queryFn: () => api.get<Party>(`/api/v1/parties/${id}`),
+    queryFn: () => getById<Party>("parties", id),
     enabled: !!id,
   });
 }
@@ -87,12 +86,12 @@ export function useParty(id: string | undefined) {
 export function useCreateParty() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreatePartyInput) => api.post<Party>("/api/v1/parties", input),
+    mutationFn: (input: CreatePartyInput) => insertRow<Party>("parties", input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["parties"] });
       toast.success("Đã tạo đối tác");
     },
-    onError: (e: ApiError) => toast.error("Lỗi tạo đối tác", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi tạo đối tác", { description: e.message }),
   });
 }
 
@@ -100,23 +99,23 @@ export function useUpdateParty() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdatePartyInput }) =>
-      api.put<Party>(`/api/v1/parties/${id}`, input),
+      updateRow<Party>("parties", id, input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["parties"] });
       toast.success("Đã cập nhật đối tác");
     },
-    onError: (e: ApiError) => toast.error("Lỗi cập nhật", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi cập nhật", { description: e.message }),
   });
 }
 
 export function useDeleteParty() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/api/v1/parties/${id}`),
+    mutationFn: (id: string) => deleteRow("parties", id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["parties"] });
       toast.success("Đã xóa/ngưng đối tác");
     },
-    onError: (e: ApiError) => toast.error("Lỗi xóa", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi xóa", { description: e.message }),
   });
 }

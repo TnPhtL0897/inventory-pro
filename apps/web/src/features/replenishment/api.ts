@@ -1,9 +1,15 @@
 // =============================================================================
 // Replenishment feature - Dự trù cuối tháng cho kho chẵn (RECEIVING)
 // =============================================================================
+// Preview/Run: Edge Function "replenishment" with /preview and /run actions.
+// Runs history: PostgREST (table month_end_forecast_runs).
+// =============================================================================
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  listTable,
+  callActionNoId,
+} from "@/lib/data-access";
 
 export type ReplenishmentRunType = "MANUAL" | "SCHEDULED";
 export type ReplenishmentRunStatus = "COMPLETED" | "FAILED";
@@ -70,21 +76,12 @@ export interface ListReplenishmentRunsParams {
   pageSize?: number;
 }
 
-function buildQuery(p: ListReplenishmentRunsParams): string {
-  const qs = new URLSearchParams();
-  if (p.year) qs.set("year", String(p.year));
-  if (p.page) qs.set("page", String(p.page));
-  if (p.pageSize) qs.set("pageSize", String(p.pageSize));
-  const s = qs.toString();
-  return s ? `?${s}` : "";
-}
-
-function toSnake(input: RunReplenishmentInput) {
+function toPayload(input: RunReplenishmentInput) {
   return {
-    fiscal_year: input.fiscalYear,
-    fiscal_month: input.fiscalMonth,
-    as_of_date: input.asOfDate ?? null,
-    save_as_purchase_request: input.saveAsPurchaseRequest,
+    fiscalYear: input.fiscalYear,
+    fiscalMonth: input.fiscalMonth,
+    asOfDate: input.asOfDate ?? null,
+    saveAsPurchaseRequest: input.saveAsPurchaseRequest,
     notes: input.notes ?? null,
   };
 }
@@ -93,7 +90,8 @@ function toSnake(input: RunReplenishmentInput) {
 export function useReplenishmentPreview() {
   return useMutation({
     mutationFn: (input: RunReplenishmentInput) =>
-      api.post<ForecastPreview>("/api/v1/replenishment/preview", toSnake(input)),
+      // Edge Function: POST /replenishment/preview (single-segment action)
+      callActionNoId<ForecastPreview>("replenishment", "preview", toPayload(input)),
   });
 }
 
@@ -102,7 +100,7 @@ export function useRunReplenishment() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (input: RunReplenishmentInput) =>
-      api.post<ReplenishmentRun>("/api/v1/replenishment/run", toSnake(input)),
+      callActionNoId<ReplenishmentRun>("replenishment", "run", toPayload(input)),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["replenishment-runs"] });
       toast.success(
@@ -110,7 +108,7 @@ export function useRunReplenishment() {
         { description: data.createdPurchaseRequestIds.length > 0 ? `Đã tạo ${data.createdPurchaseRequestIds.length} PurchaseRequest` : undefined },
       );
     },
-    onError: (e: ApiError) =>
+    onError: (e: Error) =>
       toast.error("Lỗi chạy dự trù", { description: e.message }),
   });
 }
@@ -119,9 +117,13 @@ export function useReplenishmentRuns(params: ListReplenishmentRunsParams = {}) {
   return useQuery({
     queryKey: ["replenishment-runs", params],
     queryFn: () =>
-      api.get<{ items: ReplenishmentRun[]; total: number; page: number; pageSize: number; hasMore: boolean }>(
-        `/api/v1/replenishment/runs${buildQuery(params)}`,
-      ),
+      listTable<ReplenishmentRun>("month_end_forecast_runs", {
+        page: params.page,
+        pageSize: params.pageSize,
+        orderBy: "created_at",
+        orderDesc: true,
+        filters: { fiscal_year: params.year },
+      }),
   });
 }
 

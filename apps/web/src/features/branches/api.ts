@@ -1,8 +1,8 @@
 // =============================================================================
-// Branches feature - hooks + types
+// Branches feature - hooks + types (Supabase PostgREST version)
 // =============================================================================
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
+import { listTable, type PaginatedResult } from "@/lib/data-access";
 
 export interface Branch {
   id: string;
@@ -14,38 +14,15 @@ export interface Branch {
   status: string;
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-}
-
 export function useBranches(params: { page?: number; pageSize?: number; status?: string } = {}) {
   return useQuery({
     queryKey: ["branches", params],
-    queryFn: async () => {
-      const qs = new URLSearchParams();
-      Object.entries(params).forEach(([k, v]) => {
-        if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
-      });
-      const s = qs.toString();
-      const res = await api.get<PaginatedResult<any>>(`/api/v1/warehouses${s ? `?${s}` : ""}`);
-      // /api/v1/warehouses trả về warehouse, không phải branch
-      // → Map sang branch shape (tạm thời dùng warehouse làm branch proxy)
-      return {
-        ...res,
-        items: res.items.map((w: any) => ({
-          id: w.id,
-          name: w.name,
-          code: w.code,
-          address: w.address,
-          phone: w.phone,
-          isDefault: w.isDefault,
-          status: w.status,
-        })),
-      } as PaginatedResult<Branch>;
-    },
+    queryFn: () =>
+      listTable<Branch>("branches", {
+        page: params.page,
+        pageSize: params.pageSize,
+        orderBy: "name",
+        filters: { status: params.status },
+      }),
   });
 }

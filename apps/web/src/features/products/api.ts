@@ -1,13 +1,23 @@
 // =============================================================================
-// Products feature - hooks + types
+// Products feature - hooks + types (Supabase PostgREST version)
+//
+// Reads via PostgREST with deepMap (snake_case → camelCase).
+// Writes use PostgREST for simple CRUD (no business logic in product create).
 // =============================================================================
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
+import { toast } from "sonner";
+import {
+  listTable,
+  getById,
+  insertRow,
+  updateRow,
+  deleteRow,
+  type PaginatedResult,
+} from "@/lib/data-access";
 import type {
   CreateProductInput,
   UpdateProductInput,
 } from "@inventorypro/validation/product";
-import { toast } from "sonner";
 
 export type ProductType = "GOODS" | "SERVICE" | "RAW_MATERIAL" | "FINISHED_GOOD" | "CONSUMABLE";
 export type ProductStatus = "ACTIVE" | "INACTIVE" | "ARCHIVED";
@@ -36,14 +46,6 @@ export interface Product {
   updatedAt: string;
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-}
-
 export interface ProductListParams {
   page?: number;
   pageSize?: number;
@@ -52,26 +54,28 @@ export interface ProductListParams {
   status?: string;
 }
 
-function buildQuery(p: ProductListParams): string {
-  const qs = new URLSearchParams();
-  Object.entries(p).forEach(([k, v]) => {
-    if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
-  });
-  const s = qs.toString();
-  return s ? `?${s}` : "";
-}
-
 export function useProducts(params: ProductListParams = {}) {
   return useQuery({
     queryKey: ["products", params],
-    queryFn: () => api.get<PaginatedResult<Product>>(`/api/v1/products${buildQuery(params)}`),
+    queryFn: () =>
+      listTable<Product>("products", {
+        page: params.page,
+        pageSize: params.pageSize,
+        search: params.search,
+        searchColumns: ["sku", "name", "barcode"],
+        orderBy: "name",
+        filters: {
+          category_id: params.categoryId,
+          status: params.status,
+        },
+      }),
   });
 }
 
 export function useProduct(id: string | undefined) {
   return useQuery({
     queryKey: ["products", id],
-    queryFn: () => api.get<Product>(`/api/v1/products/${id}`),
+    queryFn: async () => (id ? getById<Product>("products", id) : null),
     enabled: !!id,
   });
 }
@@ -84,12 +88,12 @@ export type {
 export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateProductInput) => api.post<Product>("/api/v1/products", input),
+    mutationFn: (input: CreateProductInput) => insertRow<Product>("products", input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
       toast.success("Đã tạo vật tư");
     },
-    onError: (e: ApiError) => toast.error("Lỗi tạo vật tư", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi tạo vật tư", { description: e.message }),
   });
 }
 
@@ -97,28 +101,30 @@ export function useUpdateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateProductInput }) =>
-      api.put<Product>(`/api/v1/products/${id}`, input),
+      updateRow<Product>("products", id, input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
       toast.success("Đã cập nhật vật tư");
     },
-    onError: (e: ApiError) => toast.error("Lỗi cập nhật", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi cập nhật", { description: e.message }),
   });
 }
 
 export function useDeleteProduct() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/api/v1/products/${id}`),
+    mutationFn: (id: string) => deleteRow("products", id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["products"] });
       toast.success("Đã xóa/ngưng vật tư");
     },
-    onError: (e: ApiError) => toast.error("Lỗi xóa", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi xóa", { description: e.message }),
   });
 }
 
+// =============================================================================
 // Categories dropdown
+// =============================================================================
 export interface Category {
   id: string;
   name: string;
@@ -129,12 +135,14 @@ export interface Category {
 export function useCategoriesAll() {
   return useQuery({
     queryKey: ["categories", "all"],
-    queryFn: () => api.get<PaginatedResult<Category>>("/api/v1/categories?pageSize=200"),
+    queryFn: () => listTable<Category>("categories", { pageSize: 200, orderBy: "name" }),
     staleTime: 5 * 60_000,
   });
 }
 
+// =============================================================================
 // Units dropdown
+// =============================================================================
 export interface Unit {
   id: string;
   code: string;
@@ -145,7 +153,7 @@ export interface Unit {
 export function useUnitsAll() {
   return useQuery({
     queryKey: ["units", "all"],
-    queryFn: () => api.get<PaginatedResult<Unit>>("/api/v1/units?pageSize=200"),
+    queryFn: () => listTable<Unit>("units_of_measure", { pageSize: 200, orderBy: "code" }),
     staleTime: 5 * 60_000,
   });
 }

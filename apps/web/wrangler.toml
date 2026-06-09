@@ -1,0 +1,11 @@
+name = "inventorypro-web"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./out"
+
+[build]
+command = "npm run build"
+
+[vars]
+NEXT_PUBLIC_SUPABASE_URL = "https://ituyoplyuhbdxkhabcpy.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0dXlvcGx5dWhiZHhraGFiY3B5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MDI3NjAsImV4cCI6MjA5NjQ3ODc2MH0.S9DTQEunvApbhhxJUiLvM4IIs8AW1ZfI5jYyLHXgiEU"

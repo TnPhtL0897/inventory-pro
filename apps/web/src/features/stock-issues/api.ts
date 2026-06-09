@@ -1,9 +1,19 @@
 // =============================================================================
-// Stock Issues feature
+// Stock Issues feature (Supabase PostgREST + Edge Function version)
+// =============================================================================
+// Reads: PostgREST (tables stock_issues, stock_issue_lines)
+// Writes (CRUD + workflow): Edge Function "stock-issues" (handles DRAFT→POSTED,
+//   lines, status transitions, stock_movements trigger)
 // =============================================================================
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  listTable,
+  getById,
+  callFunctionPascal,
+  callActionPascal,
+  type PaginatedResult,
+} from "@/lib/data-access";
 
 export type IssueStatus = "DRAFT" | "POSTED" | "CANCELLED";
 export type IssuePurpose = "SALE" | "INTERNAL_USE" | "SCRAP" | "SAMPLE" | "GIFT" | "TRANSFER_OUT" | "ADJUSTMENT";
@@ -50,32 +60,38 @@ export interface StockIssue {
   updatedAt: string;
 }
 
-export interface PaginatedResult<T> { items: T[]; total: number; page: number; pageSize: number; hasMore: boolean; }
-
 export interface IssueListParams {
   page?: number; pageSize?: number; search?: string;
   partyId?: string; branchId?: string; warehouseId?: string;
   purpose?: IssuePurpose; status?: IssueStatus; dateFrom?: string; dateTo?: string;
 }
 
-function buildQuery(p: IssueListParams): string {
-  const qs = new URLSearchParams();
-  Object.entries(p).forEach(([k, v]) => { if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v)); });
-  const s = qs.toString();
-  return s ? `?${s}` : "";
-}
-
 export function useStockIssues(params: IssueListParams = {}) {
   return useQuery({
     queryKey: ["stock-issues", params],
-    queryFn: () => api.get<PaginatedResult<StockIssue>>(`/api/v1/stock-issues${buildQuery(params)}`),
+    queryFn: () =>
+      listTable<StockIssue>("stock_issues", {
+        page: params.page,
+        pageSize: params.pageSize,
+        search: params.search,
+        searchColumns: ["issue_number", "reference_no", "notes"],
+        orderBy: "created_at",
+        orderDesc: true,
+        filters: {
+          party_id: params.partyId,
+          branch_id: params.branchId,
+          warehouse_id: params.warehouseId,
+          purpose: params.purpose,
+          status: params.status,
+        },
+      }),
   });
 }
 
 export function useStockIssue(id: string | undefined) {
   return useQuery({
     queryKey: ["stock-issues", id],
-    queryFn: () => api.get<StockIssue>(`/api/v1/stock-issues/${id}`),
+    queryFn: () => getById<StockIssue>("stock_issues", id),
     enabled: !!id,
   });
 }
@@ -90,22 +106,22 @@ export interface CreateIssueInput {
 export function useCreateIssue() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateIssueInput) => api.post<StockIssue>("/api/v1/stock-issues", input),
+    mutationFn: (input: CreateIssueInput) => callFunctionPascal<StockIssue>("stock-issues", input),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["stock-issues"] }); toast.success("Đã tạo phiếu xuất"); },
-    onError: (e: ApiError) => toast.error("Lỗi", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi", { description: e.message }),
   });
 }
 
 export function usePostIssue() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.post<StockIssue>(`/api/v1/stock-issues/${id}/post`),
+    mutationFn: (id: string) => callActionPascal<StockIssue>("stock-issues", id, "post"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["stock-issues"] });
       qc.invalidateQueries({ queryKey: ["stock"] });
       toast.success("Đã xuất kho — trừ tồn");
     },
-    onError: (e: ApiError) => toast.error("Lỗi post", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi post", { description: e.message }),
   });
 }
 
@@ -113,9 +129,9 @@ export function useCancelIssue() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      api.post<StockIssue>(`/api/v1/stock-issues/${id}/cancel`, { reason }),
+      callActionPascal<StockIssue>("stock-issues", id, "cancel", { reason }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["stock-issues"] }); toast.success("Đã hủy"); },
-    onError: (e: ApiError) => toast.error("Lỗi hủy", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi hủy", { description: e.message }),
   });
 }
 

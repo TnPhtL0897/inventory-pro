@@ -1,9 +1,19 @@
 // =============================================================================
-// Purchase Orders feature - hooks + types
+// Purchase Orders feature - Supabase + Edge Function version
+// =============================================================================
+// Reads: PostgREST (tables purchase_orders + purchase_order_lines)
+// Writes: Edge Function "purchase-orders" (create/update/approve/post/cancel)
 // =============================================================================
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  listTable,
+  getById,
+  callFunctionPascal,
+  callActionPascal,
+  callEdgeWithId,
+  type PaginatedResult,
+} from "@/lib/data-access";
 
 export type PoStatus = "DRAFT" | "APPROVED" | "POSTED" | "COMPLETED" | "CANCELLED";
 export type PoLineStatus = "OPEN" | "PARTIAL" | "RECEIVED" | "CANCELLED";
@@ -56,7 +66,7 @@ export interface PurchaseOrder {
   cancelledAt?: string | null;
   cancelReason?: string | null;
   lineCount: number;
-  // ⭐ Thông tin thầu (mới)
+  // Thông tin thầu
   bidContractId?: string | null;
   bidContractNo?: string | null;
   bidContractValue?: number | null;
@@ -68,14 +78,6 @@ export interface PurchaseOrder {
   bidLotName?: string | null;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
 }
 
 export interface CreatePoLineInput {
@@ -101,7 +103,6 @@ export interface CreatePoInput {
   shippingAddress?: string | null;
   notes?: string | null;
   internalNotes?: string | null;
-  // ⭐ BẮT BUỘC: HĐ thầu
   bidContractId: string;
   bidLotId?: string | null;
   lines: CreatePoLineInput[];
@@ -118,26 +119,30 @@ export interface PoListParams {
   dateTo?: string;
 }
 
-function buildQuery(p: PoListParams): string {
-  const qs = new URLSearchParams();
-  Object.entries(p).forEach(([k, v]) => {
-    if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
-  });
-  const s = qs.toString();
-  return s ? `?${s}` : "";
-}
-
 export function usePurchaseOrders(params: PoListParams = {}) {
   return useQuery({
     queryKey: ["purchase-orders", params],
-    queryFn: () => api.get<PaginatedResult<PurchaseOrder>>(`/api/v1/purchase-orders${buildQuery(params)}`),
+    queryFn: () =>
+      listTable<PurchaseOrder>("purchase_orders", {
+        page: params.page,
+        pageSize: params.pageSize,
+        search: params.search,
+        searchColumns: ["po_number", "notes"],
+        orderBy: "created_at",
+        orderDesc: true,
+        filters: {
+          party_id: params.partyId,
+          branch_id: params.branchId,
+          status: params.status,
+        },
+      }),
   });
 }
 
 export function usePurchaseOrder(id: string | undefined) {
   return useQuery({
     queryKey: ["purchase-orders", id],
-    queryFn: () => api.get<PurchaseOrder>(`/api/v1/purchase-orders/${id}`),
+    queryFn: () => getById<PurchaseOrder>("purchase_orders", id),
     enabled: !!id,
   });
 }
@@ -145,12 +150,12 @@ export function usePurchaseOrder(id: string | undefined) {
 export function useCreatePo() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreatePoInput) => api.post<PurchaseOrder>("/api/v1/purchase-orders", input),
+    mutationFn: (input: CreatePoInput) => callFunctionPascal<PurchaseOrder>("purchase-orders", input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["purchase-orders"] });
       toast.success("Đã tạo đơn mua hàng");
     },
-    onError: (e: ApiError) => toast.error("Lỗi tạo PO", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi tạo PO", { description: e.message }),
   });
 }
 
@@ -158,24 +163,24 @@ export function useUpdatePo() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: Partial<CreatePoInput> }) =>
-      api.put<PurchaseOrder>(`/api/v1/purchase-orders/${id}`, input),
+      callEdgeWithId<PurchaseOrder>("purchase-orders", id, input, "PUT"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["purchase-orders"] });
       toast.success("Đã cập nhật PO");
     },
-    onError: (e: ApiError) => toast.error("Lỗi cập nhật", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi cập nhật", { description: e.message }),
   });
 }
 
 export function useDeletePo() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/api/v1/purchase-orders/${id}`),
+    mutationFn: (id: string) => callEdgeWithId<void>("purchase-orders", id, {}, "DELETE"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["purchase-orders"] });
       toast.success("Đã xóa PO");
     },
-    onError: (e: ApiError) => toast.error("Lỗi xóa PO", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi xóa PO", { description: e.message }),
   });
 }
 
@@ -183,24 +188,24 @@ export function useApprovePo() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, notes }: { id: string; notes?: string }) =>
-      api.post<PurchaseOrder>(`/api/v1/purchase-orders/${id}/approve`, { notes }),
+      callActionPascal<PurchaseOrder>("purchase-orders", id, "approve", { notes }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["purchase-orders"] });
       toast.success("Đã duyệt PO");
     },
-    onError: (e: ApiError) => toast.error("Lỗi duyệt", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi duyệt", { description: e.message }),
   });
 }
 
 export function usePostPo() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.post<PurchaseOrder>(`/api/v1/purchase-orders/${id}/post`),
+    mutationFn: (id: string) => callActionPascal<PurchaseOrder>("purchase-orders", id, "post"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["purchase-orders"] });
       toast.success("Đã post PO — chờ GRN");
     },
-    onError: (e: ApiError) => toast.error("Lỗi post", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi post", { description: e.message }),
   });
 }
 
@@ -208,12 +213,12 @@ export function useCancelPo() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      api.post<PurchaseOrder>(`/api/v1/purchase-orders/${id}/cancel`, { reason }),
+      callActionPascal<PurchaseOrder>("purchase-orders", id, "cancel", { reason }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["purchase-orders"] });
       toast.success("Đã hủy PO");
     },
-    onError: (e: ApiError) => toast.error("Lỗi hủy", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi hủy", { description: e.message }),
   });
 }
 

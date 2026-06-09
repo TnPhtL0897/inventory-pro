@@ -1,65 +1,72 @@
 // =============================================================================
-// Stock feature - hooks + types
+// Stock feature - hooks + types (Supabase PostgREST version)
+// =============================================================================
+// Stock levels & movements are VIEWS (read-only). Recording manual IN/OUT/ADJUST
+// is done via Edge Function (writes to stock_movements + stock via trigger).
 // =============================================================================
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
 import { toast } from "sonner";
+import { listTable, insertRow } from "@/lib/data-access";
 
 export type StockMovementType =
   | "IN" | "OUT" | "TRANSFER_IN" | "TRANSFER_OUT"
   | "ADJUST_IN" | "ADJUST_OUT" | "RETURN_IN" | "RETURN_OUT";
 
+// View v_stock_levels: flat aggregate
+// Columns: tenant_id, product_id, warehouse_id, location_id, unit_id,
+//          batch_no, serial_no, expiry_date, on_hand_qty, weighted_avg_cost,
+//          last_movement_date
 export interface StockLevel {
   productId: string;
-  productSku: string;
-  productName: string;
-  baseUnitCode: string | null;
-  branchId: string;
   warehouseId: string;
-  warehouseCode: string;
   locationId: string;
-  locationCode: string;
+  unitId: string;
   batchNo: string | null;
   serialNo: string | null;
+  expiryDate: string | null;
   quantity: number;
-  reservedQty: number;
-  availableQty: number;
+  reservedQty: number;       // always 0 - column not in view
+  availableQty: number;      // = quantity
   avgCost: number;
   lastMovementAt: string | null;
+  // Optional fields the original C# DTO exposed (not in view; null for now)
+  productSku?: string | null;
+  productName?: string | null;
+  baseUnitCode?: string | null;
+  branchId?: string | null;
+  warehouseCode?: string | null;
+  locationCode?: string | null;
 }
 
+// View v_stock_movements_history: unified timeline
+// Columns: tenant_id, doc_id, doc_number, doc_type, movement_type,
+//          product_id, warehouse_id, location_id, unit_id, batch_no, serial_no,
+//          expiry_date, quantity, unit_cost, movement_date, posted_at, notes
 export interface StockMovement {
-  id: string;
-  branchId: string;
+  id: string;                 // = doc_id
   warehouseId: string;
   locationId: string;
   productId: string;
-  productSku: string | null;
-  productName: string | null;
   unitId: string;
-  movementType: string;
+  movementType: string;      // IN/OUT/TRANSFER_IN/TRANSFER_OUT
   quantity: number;
   unitCost: number | null;
-  refType: string;
-  refId: string | null;
+  refType: string;           // GOODS_RECEIPT/STOCK_ISSUE/STOCK_TRANSFER
+  refId: string;             // = doc_id
   notes: string | null;
   batchNo: string | null;
   serialNo: string | null;
   expiryDate: string | null;
-  idempotencyKey: string;
-  postedAt: string;
-}
-
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
+  postedAt: string | null;
+  // Optional doc fields (not in view)
+  branchId?: string | null;
+  productSku?: string | null;
+  productName?: string | null;
+  idempotencyKey?: string;
 }
 
 // =============================================================================
-// List stock levels
+// List stock levels (view)
 // =============================================================================
 export interface StockListParams {
   page?: number;
@@ -71,24 +78,26 @@ export interface StockListParams {
   search?: string;
 }
 
-function buildQuery(p: StockListParams): string {
-  const qs = new URLSearchParams();
-  Object.entries(p).forEach(([k, v]) => {
-    if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
-  });
-  const s = qs.toString();
-  return s ? `?${s}` : "";
-}
-
 export function useStockLevels(params: StockListParams = {}) {
   return useQuery({
     queryKey: ["stock", "levels", params],
-    queryFn: () => api.get<PaginatedResult<StockLevel>>(`/api/v1/stock${buildQuery(params)}`),
+    queryFn: () =>
+      listTable<StockLevel>("v_stock_levels", {
+        page: params.page,
+        pageSize: params.pageSize,
+        orderBy: "last_movement_date",
+        orderDesc: true,
+        filters: {
+          warehouse_id: params.warehouseId,
+          product_id: params.productId,
+        },
+        // NB: branch_id & category_id not in this view - filtered client-side if needed
+      }),
   });
 }
 
 // =============================================================================
-// List stock movements
+// List stock movements (view)
 // =============================================================================
 export interface MovementListParams {
   page?: number;
@@ -104,13 +113,31 @@ export interface MovementListParams {
 export function useStockMovements(params: MovementListParams = {}) {
   return useQuery({
     queryKey: ["stock", "movements", params],
-    queryFn: () => api.get<PaginatedResult<StockMovement>>(`/api/v1/stock/movements${buildQuery(params)}`),
+    queryFn: () =>
+      listTable<StockMovement>("v_stock_movements_history", {
+        page: params.page,
+        pageSize: params.pageSize,
+        orderBy: "movement_date",
+        orderDesc: true,
+        filters: {
+          warehouse_id: params.warehouseId,
+          product_id: params.productId,
+          movement_type: params.movementType,
+        },
+        // NB: branch_id / date range not directly filterable on view columns
+        // (movement_date is a date, not range; would need select+gte/lte raw query)
+      }),
   });
 }
 
 // =============================================================================
 // Record stock movement (manual IN/OUT/ADJUST...)
 // =============================================================================
+// TODO: cần Edge Function "stock-movements" để validate + update stock aggregate
+//       (chưa có trong supabase/functions/). Tạm thời insertRow trực tiếp vào
+//       stock_movements — bỏ qua trigger nếu có, cần sau khi deploy edge function.
+// =============================================================================
+
 export interface RecordMovementInput {
   branchId: string;
   warehouseId: string;
@@ -127,11 +154,9 @@ export interface RecordMovementInput {
 }
 
 function genUuid(): string {
-  // Browser crypto UUID
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return (crypto as Crypto).randomUUID();
   }
-  // Fallback
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
     const v = c === "x" ? r : (r & 0x3) | 0x8;
@@ -144,24 +169,15 @@ export function useRecordMovement() {
   return useMutation({
     mutationFn: async (input: RecordMovementInput) => {
       const idempotencyKey = genUuid();
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:5000"}/api/v1/stock/movements`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...input, idempotency_key: idempotencyKey }),
-        },
-      );
-      const body = await res.json().catch(() => ({}));
-      if (!res.ok || !body?.success) {
-        throw new ApiError(
-          body?.error?.code ?? `HTTP_${res.status}`,
-          body?.error?.message ?? "Lỗi ghi movement",
-          res.status,
-          body?.error?.details,
-        );
-      }
-      return body.data as StockMovement;
+      // TODO: replace with callFunction("stock-movements", { ...input, idempotency_key: idempotencyKey })
+      //       once Edge Function is deployed.
+      const row: any = {
+        ...input,
+        idempotencyKey,
+        status: "POSTED",
+        postedAt: new Date().toISOString(),
+      };
+      return await insertRow<StockMovement>("stock_movements", row);
     },
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ["stock"] });
@@ -171,7 +187,7 @@ export function useRecordMovement() {
         ? "nhập" : "xuất";
       toast.success(`Đã ghi ${verb} kho`);
     },
-    onError: (e: ApiError) => toast.error("Lỗi ghi movement", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi ghi movement", { description: e.message }),
   });
 }
 

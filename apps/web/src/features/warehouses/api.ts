@@ -1,10 +1,17 @@
 // =============================================================================
-// Warehouses feature
+// Warehouses feature - hooks + types (Supabase PostgREST version)
 // =============================================================================
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
-import type { CreateWarehouseInput, UpdateWarehouseInput } from "@inventorypro/validation/warehouse";
 import { toast } from "sonner";
+import {
+  listTable,
+  getById,
+  insertRow,
+  updateRow,
+  deleteRow,
+  type PaginatedResult,
+} from "@/lib/data-access";
+import type { CreateWarehouseInput, UpdateWarehouseInput } from "@inventorypro/validation/warehouse";
 
 export type WarehouseStatus = "ACTIVE" | "INACTIVE" | "CLOSED";
 export type WarehouseType = "RECEIVING" | "ISSUE";
@@ -39,14 +46,6 @@ export interface Location {
   pickSequence: number;
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-}
-
 export interface WarehouseListParams {
   page?: number;
   pageSize?: number;
@@ -56,26 +55,29 @@ export interface WarehouseListParams {
   search?: string;
 }
 
-function buildQuery(p: WarehouseListParams): string {
-  const qs = new URLSearchParams();
-  Object.entries(p).forEach(([k, v]) => {
-    if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
-  });
-  const s = qs.toString();
-  return s ? `?${s}` : "";
-}
-
 export function useWarehouses(params: WarehouseListParams = {}) {
   return useQuery({
     queryKey: ["warehouses", params],
-    queryFn: () => api.get<PaginatedResult<Warehouse>>(`/api/v1/warehouses${buildQuery(params)}`),
+    queryFn: () =>
+      listTable<Warehouse>("warehouses", {
+        page: params.page,
+        pageSize: params.pageSize,
+        search: params.search,
+        searchColumns: ["name", "code"],
+        orderBy: "name",
+        filters: {
+          branch_id: params.branchId,
+          status: params.status,
+          type: params.type,
+        },
+      }),
   });
 }
 
 export function useWarehouse(id: string | undefined) {
   return useQuery({
     queryKey: ["warehouses", id],
-    queryFn: () => api.get<Warehouse>(`/api/v1/warehouses/${id}`),
+    queryFn: () => getById<Warehouse>("warehouses", id),
     enabled: !!id,
   });
 }
@@ -83,25 +85,26 @@ export function useWarehouse(id: string | undefined) {
 export function useWarehouseLocations(warehouseId: string | undefined) {
   return useQuery({
     queryKey: ["locations", "warehouse", warehouseId],
-    queryFn: () => api.get<PaginatedResult<Location>>(
-      `/api/v1/locations${warehouseId ? `?warehouseId=${warehouseId}&pageSize=200` : "?pageSize=200"}`
-    ),
+    queryFn: () =>
+      listTable<Location>("locations", {
+        pageSize: 200,
+        filters: { warehouse_id: warehouseId },
+      }),
     enabled: !!warehouseId,
   });
 }
 
-// Re-export from validation package (snake_case để khớp với .NET backend JSON)
 export type { CreateWarehouseInput, UpdateWarehouseInput } from "@inventorypro/validation/warehouse";
 
 export function useCreateWarehouse() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateWarehouseInput) => api.post<Warehouse>("/api/v1/warehouses", input),
+    mutationFn: (input: CreateWarehouseInput) => insertRow<Warehouse>("warehouses", input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["warehouses"] });
       toast.success("Đã tạo kho");
     },
-    onError: (e: ApiError) => toast.error("Lỗi tạo kho", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi tạo kho", { description: e.message }),
   });
 }
 
@@ -109,24 +112,24 @@ export function useUpdateWarehouse() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateWarehouseInput }) =>
-      api.put<Warehouse>(`/api/v1/warehouses/${id}`, input),
+      updateRow<Warehouse>("warehouses", id, input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["warehouses"] });
       toast.success("Đã cập nhật kho");
     },
-    onError: (e: ApiError) => toast.error("Lỗi cập nhật", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi cập nhật", { description: e.message }),
   });
 }
 
 export function useDeleteWarehouse() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/api/v1/warehouses/${id}`),
+    mutationFn: (id: string) => deleteRow("warehouses", id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["warehouses"] });
       toast.success("Đã đóng kho");
     },
-    onError: (e: ApiError) => toast.error("Lỗi đóng kho", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi đóng kho", { description: e.message }),
   });
 }
 
@@ -145,30 +148,30 @@ export interface CreateLocationInput {
 export function useCreateLocation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateLocationInput) => api.post<Location>("/api/v1/locations", input),
+    mutationFn: (input: CreateLocationInput) => insertRow<Location>("locations", input),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ["locations"] });
       qc.invalidateQueries({ queryKey: ["warehouses", vars.warehouseId] });
       toast.success("Đã tạo vị trí");
     },
-    onError: (e: ApiError) => toast.error("Lỗi tạo vị trí", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi tạo vị trí", { description: e.message }),
   });
 }
 
 export function useDeleteLocation() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.delete(`/api/v1/locations/${id}`),
+    mutationFn: (id: string) => deleteRow("locations", id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["locations"] });
       qc.invalidateQueries({ queryKey: ["warehouses"] });
       toast.success("Đã xóa vị trí");
     },
-    onError: (e: ApiError) => toast.error("Lỗi xóa vị trí", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi xóa vị trí", { description: e.message }),
   });
 }
 
-// Branches dropdown
+// Branches dropdown (now hits the real branches table)
 export interface Branch {
   id: string;
   name: string;
@@ -179,7 +182,7 @@ export interface Branch {
 export function useBranchesAll() {
   return useQuery({
     queryKey: ["branches", "all"],
-    queryFn: () => api.get<PaginatedResult<Branch>>("/api/v1/branches?pageSize=200"),
+    queryFn: () => listTable<Branch>("branches", { pageSize: 200, orderBy: "name" }),
     staleTime: 5 * 60_000,
   });
 }

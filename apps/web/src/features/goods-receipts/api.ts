@@ -1,9 +1,19 @@
 // =============================================================================
-// Goods Receipts (GRN) feature - hooks + types
+// Goods Receipts (GRN) feature - Supabase + Edge Function version
+// =============================================================================
+// Reads: PostgREST (tables goods_receipts + goods_receipt_lines)
+// Writes: Edge Function "goods-receipts" (create/update/post/cancel)
 // =============================================================================
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, ApiError } from "@/lib/api";
 import { toast } from "sonner";
+import {
+  listTable,
+  getById,
+  callFunctionPascal,
+  callActionPascal,
+  callEdgeWithId,
+  type PaginatedResult,
+} from "@/lib/data-access";
 
 export type GrnStatus = "DRAFT" | "POSTED" | "CANCELLED";
 export type GrnLineStatus = "OPEN" | "POSTED" | "CANCELLED";
@@ -53,14 +63,6 @@ export interface GoodsReceipt {
   updatedAt: string;
 }
 
-export interface PaginatedResult<T> {
-  items: T[];
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-}
-
 export interface GrnListParams {
   page?: number;
   pageSize?: number;
@@ -73,26 +75,31 @@ export interface GrnListParams {
   dateTo?: string;
 }
 
-function buildQuery(p: GrnListParams): string {
-  const qs = new URLSearchParams();
-  Object.entries(p).forEach(([k, v]) => {
-    if (v !== undefined && v !== "" && v !== null) qs.set(k, String(v));
-  });
-  const s = qs.toString();
-  return s ? `?${s}` : "";
-}
-
 export function useGoodsReceipts(params: GrnListParams = {}) {
   return useQuery({
     queryKey: ["goods-receipts", params],
-    queryFn: () => api.get<PaginatedResult<GoodsReceipt>>(`/api/v1/goods-receipts${buildQuery(params)}`),
+    queryFn: () =>
+      listTable<GoodsReceipt>("goods_receipts", {
+        page: params.page,
+        pageSize: params.pageSize,
+        search: params.search,
+        searchColumns: ["grn_number", "supplier_invoice_no", "notes"],
+        orderBy: "created_at",
+        orderDesc: true,
+        filters: {
+          party_id: params.partyId,
+          purchase_order_id: params.purchaseOrderId,
+          branch_id: params.branchId,
+          status: params.status,
+        },
+      }),
   });
 }
 
 export function useGoodsReceipt(id: string | undefined) {
   return useQuery({
     queryKey: ["goods-receipts", id],
-    queryFn: () => api.get<GoodsReceipt>(`/api/v1/goods-receipts/${id}`),
+    queryFn: () => getById<GoodsReceipt>("goods_receipts", id),
     enabled: !!id,
   });
 }
@@ -113,12 +120,12 @@ export interface CreateGrnInput {
 export function useCreateGrn() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateGrnInput) => api.post<GoodsReceipt>("/api/v1/goods-receipts", input),
+    mutationFn: (input: CreateGrnInput) => callFunctionPascal<GoodsReceipt>("goods-receipts", input),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["goods-receipts"] });
       toast.success("Đã tạo phiếu nhập kho");
     },
-    onError: (e: ApiError) => toast.error("Lỗi tạo GRN", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi tạo GRN", { description: e.message }),
   });
 }
 
@@ -126,26 +133,26 @@ export function useUpdateGrn() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: Partial<CreateGrnInput> }) =>
-      api.put<GoodsReceipt>(`/api/v1/goods-receipts/${id}`, input),
+      callEdgeWithId<GoodsReceipt>("goods-receipts", id, input, "PUT"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["goods-receipts"] });
       toast.success("Đã cập nhật GRN");
     },
-    onError: (e: ApiError) => toast.error("Lỗi cập nhật", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi cập nhật", { description: e.message }),
   });
 }
 
 export function usePostGrn() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => api.post<GoodsReceipt>(`/api/v1/goods-receipts/${id}/post`),
+    mutationFn: (id: string) => callActionPascal<GoodsReceipt>("goods-receipts", id, "post"),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["goods-receipts"] });
       qc.invalidateQueries({ queryKey: ["stock"] });
       qc.invalidateQueries({ queryKey: ["stock-movements"] });
       toast.success("Đã post GRN — đã ghi stock_movements");
     },
-    onError: (e: ApiError) => toast.error("Lỗi post", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi post", { description: e.message }),
   });
 }
 
@@ -153,12 +160,12 @@ export function useCancelGrn() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ id, reason }: { id: string; reason: string }) =>
-      api.post<GoodsReceipt>(`/api/v1/goods-receipts/${id}/cancel`, { reason }),
+      callActionPascal<GoodsReceipt>("goods-receipts", id, "cancel", { reason }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["goods-receipts"] });
       toast.success("Đã hủy GRN");
     },
-    onError: (e: ApiError) => toast.error("Lỗi hủy", { description: e.message }),
+    onError: (e: Error) => toast.error("Lỗi hủy", { description: e.message }),
   });
 }
 
