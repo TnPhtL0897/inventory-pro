@@ -7,6 +7,8 @@ import { BidLotListClient } from "./list-client";
 // Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
 export const dynamic = "force-dynamic"
 
+export const runtime = "edge";
+
 export default async function BidLotsPage() {
   let items: any[] = [];
   let total = 0;

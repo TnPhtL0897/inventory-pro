@@ -19,6 +19,8 @@ interface BidPlan {
   createdAt: string;
 }
 
+export const runtime = "edge";
+
 export default async function BidPlansPage() {
   let plans: BidPlan[] = [];
   let total = 0;

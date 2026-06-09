@@ -6,6 +6,8 @@ import { ClipboardList } from "lucide-react";
 // Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
 export const dynamic = "force-dynamic"
 
+export const runtime = "edge";
+
 export default async function PurchaseRequestsPage() {
   return (
     <div className="space-y-4 sm:space-y-6">

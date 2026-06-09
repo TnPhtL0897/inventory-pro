@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
 export const dynamic = "force-dynamic"
 
+export const runtime = "edge";
+
 export default function NewMovementPage() {
   const router = useRouter();
   return (
@@ -15,7 +17,7 @@ export default function NewMovementPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Ghi stock movement thá»§ cÃ´ng</h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          IN/OUT/ADJUST/RETURN. Trigger trong DB sáº½ tá»± cáº­p nháº­t báº£ng stock.
+          IN/OUT/ADJUST/RETURN. Trigger trong DB sế tá»± cập nhật bảng stock.
         </p>
       </div>
       <Card>

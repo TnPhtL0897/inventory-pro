@@ -1,4 +1,4 @@
-﻿// Server component - Dá»± trÃ¹ cuá»‘i thÃ¡ng cho kho cháºµn
+﻿// Server component - Dá»± trù cuá»‘i tháng cho kho chẵn
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
@@ -10,6 +10,8 @@ import type { ReplenishmentRun } from "@/features/replenishment/api";
 // Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
 export const dynamic = "force-dynamic"
 
+export const runtime = "edge";
+
 export default async function ReplenishmentPage() {
   let runs: ReplenishmentRun[] = [];
   let total = 0;
@@ -18,7 +20,7 @@ export default async function ReplenishmentPage() {
     runs = data.items;
     total = data.total;
   } catch {
-    // Fallback to mock khi API chÆ°a cháº¡y
+    // Fallback to mock khi API chÆ°a chạy
     runs = MOCK_REPLENISHMENT_RUNS as ReplenishmentRun[];
     total = runs.length;
   }
@@ -29,10 +31,10 @@ export default async function ReplenishmentPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
             <TrendingUp className="h-6 w-6 sm:h-8 sm:w-8" />
-            Dá»± trÃ¹ cuá»‘i thÃ¡ng
+            Dá»± trù cuá»‘i tháng
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            TÃ­nh forecast xuáº¥t hÃ ng 3 thÃ¡ng gáº§n nháº¥t + Ä‘á» xuáº¥t bá»• sung cho kho cháºµn (RECEIVING) â€¢ <strong>{total}</strong> láº§n cháº¡y
+            Tính forecast xuất hàng 3 tháng gần nhất + Ä‘á» xuất bá»• sung cho kho chẵn (RECEIVING) â€¢ <strong>{total}</strong> lần chạy
           </p>
         </div>
       </div>
@@ -40,7 +42,7 @@ export default async function ReplenishmentPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <ClipboardList className="h-5 w-5" />
-            Lá»‹ch sá»­ cháº¡y dá»± trÃ¹
+            Lá»‹ch sá»­ chạy dá»± trù
           </CardTitle>
         </CardHeader>
         <CardContent>

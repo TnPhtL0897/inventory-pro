@@ -13,6 +13,8 @@ import { ArrowLeft, Check, Send, X } from "lucide-react";
 // Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
 export const dynamic = "force-dynamic"
 
+export const runtime = "edge";
+
 export default function PoDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();

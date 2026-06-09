@@ -21,6 +21,8 @@ async function fetchTotal(path: string): Promise<number> {
   }
 }
 
+export const runtime = "edge";
+
 export default async function DashboardPage() {
   // DEV MODE: lấy email từ cookie, tránh gọi Supabase khi env placeholder
   const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL ||

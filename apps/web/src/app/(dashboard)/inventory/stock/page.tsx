@@ -9,6 +9,8 @@ import { StockTable } from "@/features/stock/stock-table";
 import { MovementsTable } from "@/features/stock/movements-table";
 import type { StockLevel, StockMovement } from "@/features/stock/api";
 
+export const runtime = "edge";
+
 export default async function StockPage() {
   let levels: StockLevel[] = [];
   let movements: StockMovement[] = [];

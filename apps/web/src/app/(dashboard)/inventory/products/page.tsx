@@ -8,6 +8,8 @@ import type { Product } from "@/features/products/api";
 // Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
 export const dynamic = "force-dynamic"
 
+export const runtime = "edge";
+
 export default async function ProductsPage() {
   // Fetch on server - mock returns sync
   let products: Product[] = [];

@@ -7,6 +7,8 @@ import { api } from "@/lib/api";
 import { PartyTable } from "@/features/parties/party-table";
 import type { Party } from "@/features/parties/api";
 
+export const runtime = "edge";
+
 export default async function PartiesPage() {
   let parties: Party[] = [];
   let total = 0;
