@@ -1,0 +1,6432 @@
+{
+  "tables": [
+    "audit_logs",
+    "branches",
+    "categories",
+    "goods_receipt_lines",
+    "goods_receipts",
+    "locations",
+    "month_end_forecast_runs",
+    "parties",
+    "product_units",
+    "products",
+    "purchase_order_lines",
+    "purchase_orders",
+    "roles",
+    "stock_issue_lines",
+    "stock_issues",
+    "stock_take_lines",
+    "stock_takes",
+    "stock_transfer_lines",
+    "stock_transfers",
+    "supplier_products",
+    "tenants",
+    "units_of_measure",
+    "user_roles",
+    "users",
+    "warehouses"
+  ],
+  "views": [],
+  "rlsStatus": [
+    {
+      "tablename": "audit_logs",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "branches",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "categories",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "goods_receipts",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "locations",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "parties",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "product_units",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "products",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "purchase_orders",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "roles",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "stock_issues",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "stock_take_lines",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "stock_takes",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "stock_transfer_lines",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "stock_transfers",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "supplier_products",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "tenants",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "units_of_measure",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "user_roles",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "users",
+      "rowsecurity": true
+    },
+    {
+      "tablename": "warehouses",
+      "rowsecurity": true
+    }
+  ],
+  "policies": [
+    {
+      "schemaname": "public",
+      "tablename": "audit_logs",
+      "policyname": "audit_logs_insert",
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "audit_logs",
+      "policyname": "audit_logs_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "audit_logs",
+      "policyname": "audit_logs_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "branches",
+      "policyname": "branches_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "branches",
+      "policyname": "branches_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "branches",
+      "policyname": "branches_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "categories",
+      "policyname": "categories_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "categories",
+      "policyname": "categories_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "categories",
+      "policyname": "categories_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "goods_receipt_lines",
+      "policyname": "grn_lines_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "goods_receipt_lines",
+      "policyname": "grn_lines_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "goods_receipt_lines",
+      "policyname": "grn_lines_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "goods_receipts",
+      "policyname": "grn_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "goods_receipts",
+      "policyname": "grn_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "goods_receipts",
+      "policyname": "grn_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "locations",
+      "policyname": "locations_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "locations",
+      "policyname": "locations_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "locations",
+      "policyname": "locations_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "month_end_forecast_runs",
+      "policyname": "month_end_forecast_runs_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "month_end_forecast_runs",
+      "policyname": "month_end_forecast_runs_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "month_end_forecast_runs",
+      "policyname": "month_end_forecast_runs_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "parties",
+      "policyname": "parties_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "parties",
+      "policyname": "parties_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "parties",
+      "policyname": "parties_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "product_units",
+      "policyname": "product_units_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "product_units",
+      "policyname": "product_units_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "product_units",
+      "policyname": "product_units_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "products",
+      "policyname": "products_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "products",
+      "policyname": "products_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "products",
+      "policyname": "products_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "purchase_order_lines",
+      "policyname": "po_lines_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "purchase_order_lines",
+      "policyname": "po_lines_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "purchase_order_lines",
+      "policyname": "po_lines_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "purchase_orders",
+      "policyname": "po_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "purchase_orders",
+      "policyname": "po_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "purchase_orders",
+      "policyname": "po_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "roles",
+      "policyname": "roles_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "roles",
+      "policyname": "roles_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "roles",
+      "policyname": "roles_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_issue_lines",
+      "policyname": "issue_lines_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_issue_lines",
+      "policyname": "issue_lines_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_issue_lines",
+      "policyname": "issue_lines_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_issues",
+      "policyname": "issues_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_issues",
+      "policyname": "issues_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_issues",
+      "policyname": "issues_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_take_lines",
+      "policyname": "stock_take_lines_service",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_take_lines",
+      "policyname": "stock_take_lines_tenant",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_takes",
+      "policyname": "stock_takes_service",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_takes",
+      "policyname": "stock_takes_tenant",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_transfer_lines",
+      "policyname": "stock_transfer_lines_service",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_transfer_lines",
+      "policyname": "stock_transfer_lines_tenant",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_transfers",
+      "policyname": "stock_transfers_service",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "stock_transfers",
+      "policyname": "stock_transfers_tenant",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "supplier_products",
+      "policyname": "supplier_products_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "supplier_products",
+      "policyname": "supplier_products_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "supplier_products",
+      "policyname": "supplier_products_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "tenants",
+      "policyname": "tenant_isolation_select",
+      "cmd": "SELECT",
+      "qual": "(id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "tenants",
+      "policyname": "tenant_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "units_of_measure",
+      "policyname": "units_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "units_of_measure",
+      "policyname": "units_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "units_of_measure",
+      "policyname": "units_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "user_roles",
+      "policyname": "user_roles_isolation",
+      "cmd": "SELECT",
+      "qual": "(user_id IN ( SELECT users.id\n   FROM users\n  WHERE (users.tenant_id = auth_tenant_id())))",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "user_roles",
+      "policyname": "user_roles_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "user_roles",
+      "policyname": "user_roles_write",
+      "cmd": "ALL",
+      "qual": "(user_id IN ( SELECT users.id\n   FROM users\n  WHERE (users.tenant_id = auth_tenant_id())))",
+      "with_check": "(user_id IN ( SELECT users.id\n   FROM users\n  WHERE (users.tenant_id = auth_tenant_id())))"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "users",
+      "policyname": "users_self_update",
+      "cmd": "UPDATE",
+      "qual": "(id = auth.uid())",
+      "with_check": "(id = auth.uid())"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "users",
+      "policyname": "users_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "users",
+      "policyname": "users_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "warehouses",
+      "policyname": "warehouses_service_role",
+      "cmd": "ALL",
+      "qual": "true",
+      "with_check": "true"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "warehouses",
+      "policyname": "warehouses_tenant_isolation",
+      "cmd": "SELECT",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": null
+    },
+    {
+      "schemaname": "public",
+      "tablename": "warehouses",
+      "policyname": "warehouses_tenant_write",
+      "cmd": "ALL",
+      "qual": "(tenant_id = auth_tenant_id())",
+      "with_check": "(tenant_id = auth_tenant_id())"
+    }
+  ],
+  "columns": [
+    {
+      "table_name": "audit_logs",
+      "column_name": "id",
+      "data_type": "bigint",
+      "is_nullable": "NO",
+      "column_default": "nextval('audit_logs_id_seq'::regclass)",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "action",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "table_name",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "record_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "old_data",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "new_data",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "metadata",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "audit_logs",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "branches",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "branches",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "branches",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "branches",
+      "column_name": "code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "branches",
+      "column_name": "address",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "branches",
+      "column_name": "phone",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "branches",
+      "column_name": "is_default",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "branches",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "branches",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "branches",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "categories",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "categories",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "categories",
+      "column_name": "parent_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "categories",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "categories",
+      "column_name": "code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "categories",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "categories",
+      "column_name": "sort_order",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "categories",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "categories",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "categories",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "goods_receipt_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "po_line_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "line_no",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "unit_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "location_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "product_name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "unit_code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 20
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "quantity",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "unit_cost",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "batch_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "serial_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "expiry_date",
+      "data_type": "date",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "movement_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'OPEN'::grn_line_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "column_name": "idempotency_key",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "grn_number",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 30
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "purchase_order_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "party_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "warehouse_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "receipt_date",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_DATE",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "supplier_invoice_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "supplier_invoice_date",
+      "data_type": "date",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'DRAFT'::grn_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "posted_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "posted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "cancelled_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "cancel_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "created_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "goods_receipts",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "warehouse_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "parent_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "locations",
+      "column_name": "code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 80
+    },
+    {
+      "table_name": "locations",
+      "column_name": "barcode",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "locations",
+      "column_name": "location_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'STORAGE'::location_type",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "capacity_volume",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "capacity_weight",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "max_qty_hint",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "pick_sequence",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "is_pickable",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'ACTIVE'::location_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "attributes",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "locations",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "run_type",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": "'MANUAL'::character varying",
+      "character_maximum_length": 20
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "fiscal_year",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "fiscal_month",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "as_of_date",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "triggered_by_user",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "status",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": "'COMPLETED'::character varying",
+      "character_maximum_length": 20
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "warehouse_count",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "product_count",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "total_estimated_value",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "created_purchase_request_ids",
+      "data_type": "ARRAY",
+      "is_nullable": "NO",
+      "column_default": "'{}'::uuid[]",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "error_message",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "party_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'SUPPLIER'::party_type",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "parties",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "parties",
+      "column_name": "tax_code",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "parties",
+      "column_name": "contact_name",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "parties",
+      "column_name": "contact_email",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "contact_phone",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "parties",
+      "column_name": "address",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "city",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "parties",
+      "column_name": "country",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": "'VN'::character varying",
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "parties",
+      "column_name": "payment_terms",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "credit_limit",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "bank_account",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "parties",
+      "column_name": "bank_name",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "parties",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'ACTIVE'::party_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "attributes",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "created_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "parties",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "unit_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "factor",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "is_purchase",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "is_sale",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "barcode",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "sort_order",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "product_units",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "sku",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "products",
+      "column_name": "barcode",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "products",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "products",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "category_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "base_unit_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "product_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'GOODS'::product_type",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "cost_price",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "sell_price",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "min_stock",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "max_stock",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "is_batch_tracked",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "is_serial_tracked",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "is_expiry_tracked",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "weight",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "volume",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "attributes",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "image_url",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'ACTIVE'::product_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "products",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "purchase_order_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "line_no",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "unit_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "product_name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "unit_code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 20
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "quantity",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "received_qty",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "unit_price",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "discount_pct",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "tax_pct",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "line_total",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'OPEN'::po_line_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "po_number",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 30
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "party_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "order_date",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_DATE",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "expected_date",
+      "data_type": "date",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "currency",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": "'VND'::character varying",
+      "character_maximum_length": 3
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "exchange_rate",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "1",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "subtotal",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "discount_amount",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "tax_amount",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "shipping_amount",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "total",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "paid_amount",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'DRAFT'::po_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "payment_terms",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "shipping_address",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "internal_notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "approved_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "approved_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "posted_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "posted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "completed_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "cancelled_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "cancel_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "created_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "purchase_orders",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "roles",
+      "column_name": "code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "roles",
+      "column_name": "description",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "permissions",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'[]'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "role_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'CUSTOM'::role_type",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "roles",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "stock_issue_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "line_no",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "unit_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "location_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "product_name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "unit_code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 20
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "quantity",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "unit_price",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "batch_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "serial_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "expiry_date",
+      "data_type": "date",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "movement_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'OPEN'::grn_line_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "issue_number",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 30
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "party_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "warehouse_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "purpose",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'SALE'::stock_issue_purpose",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "issue_date",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_DATE",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "reference_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'DRAFT'::grn_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "posted_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "posted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "cancelled_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "cancel_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "created_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_issues",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "stock_take_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "line_no",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "unit_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "location_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "product_name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "unit_code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 20
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "location_code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 80
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "batch_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "serial_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "system_qty",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "counted_qty",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "unit_cost",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "adjust_movement_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'PENDING'::stock_take_line_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_take_lines",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "warehouse_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "stock_take_number",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "stock_take_date",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_DATE",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'DRAFT'::stock_take_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "counted_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "counted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "posted_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "posted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "cancel_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "cancelled_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "cancelled_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "created_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_takes",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "stock_transfer_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "line_no",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "unit_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "product_name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "unit_code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 20
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "from_location_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "from_location_code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 80
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "to_location_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "to_location_code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 80
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "quantity",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "shipped_qty",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "received_qty",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "batch_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "serial_no",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "expiry_date",
+      "data_type": "date",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "out_movement_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "in_movement_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'OPEN'::stock_transfer_line_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "transfer_number",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "from_branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "from_warehouse_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "to_branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "to_warehouse_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "transfer_date",
+      "data_type": "date",
+      "is_nullable": "NO",
+      "column_default": "CURRENT_DATE",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "expected_receipt_date",
+      "data_type": "date",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'DRAFT'::stock_transfer_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "out_shipped_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "out_shipped_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "in_received_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "in_received_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "cancel_reason",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "cancelled_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "cancelled_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "created_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "stock_transfers",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "party_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "product_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "supplier_sku",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "cost_price",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "0",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "min_order_qty",
+      "data_type": "numeric",
+      "is_nullable": "NO",
+      "column_default": "1",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "lead_time_days",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "7",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "is_preferred",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "notes",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "supplier_products",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "slug",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "tax_code",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "address",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "phone",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "email",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "logo_url",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "settings",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'ACTIVE'::tenant_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "tenants",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "units_of_measure",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "units_of_measure",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "units_of_measure",
+      "column_name": "code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 20
+    },
+    {
+      "table_name": "units_of_measure",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 100
+    },
+    {
+      "table_name": "units_of_measure",
+      "column_name": "unit_type",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'COUNT'::unit_type",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "units_of_measure",
+      "column_name": "is_active",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "units_of_measure",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "units_of_measure",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_roles",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_roles",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_roles",
+      "column_name": "role_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_roles",
+      "column_name": "branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_roles",
+      "column_name": "granted_by",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_roles",
+      "column_name": "granted_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "user_roles",
+      "column_name": "expires_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "users",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "users",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "users",
+      "column_name": "full_name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "users",
+      "column_name": "email",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "users",
+      "column_name": "phone",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "users",
+      "column_name": "avatar_url",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "users",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'ACTIVE'::user_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "users",
+      "column_name": "last_login_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "users",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "users",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "uuid_generate_v4()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "tenant_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "branch_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "name",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 200
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "code",
+      "data_type": "character varying",
+      "is_nullable": "NO",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "address",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "phone",
+      "data_type": "character varying",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": 50
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "manager_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null,
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "is_default",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "allow_negative",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "false",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "status",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": "'ACTIVE'::warehouse_status",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "attributes",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "created_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    },
+    {
+      "table_name": "warehouses",
+      "column_name": "updated_at",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()",
+      "character_maximum_length": null
+    }
+  ],
+  "functions": [
+    {
+      "nspname": "public",
+      "proname": "audit_trigger_func",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "auth_has_role",
+      "args": "p_branch_id uuid, p_role_code character varying"
+    },
+    {
+      "nspname": "public",
+      "proname": "auth_tenant_id",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "auth_user_branch_ids",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "check_category_no_cycle",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "check_location_no_cycle",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "citext",
+      "args": "boolean"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext",
+      "args": "inet"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext",
+      "args": "character"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_cmp",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_eq",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_ge",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_gt",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_hash",
+      "args": "citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_hash_extended",
+      "args": "citext, bigint"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_larger",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_le",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_lt",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_ne",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_pattern_cmp",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_pattern_ge",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_pattern_gt",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_pattern_le",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_pattern_lt",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citext_smaller",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citextin",
+      "args": "cstring"
+    },
+    {
+      "nspname": "public",
+      "proname": "citextout",
+      "args": "citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "citextrecv",
+      "args": "internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "citextsend",
+      "args": "citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "enforce_single_default_warehouse",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "enforce_single_preferred_supplier",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "generate_grn_number",
+      "args": "p_tenant_id uuid, p_date date"
+    },
+    {
+      "nspname": "public",
+      "proname": "generate_issue_number",
+      "args": "p_tenant_id uuid, p_date date"
+    },
+    {
+      "nspname": "public",
+      "proname": "generate_po_number",
+      "args": "p_tenant_id uuid, p_date date"
+    },
+    {
+      "nspname": "public",
+      "proname": "gin_extract_query_trgm",
+      "args": "text, internal, smallint, internal, internal, internal, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gin_extract_value_trgm",
+      "args": "text, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gin_trgm_consistent",
+      "args": "internal, smallint, text, integer, internal, internal, internal, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gin_trgm_triconsistent",
+      "args": "internal, smallint, text, integer, internal, internal, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_compress",
+      "args": "internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_consistent",
+      "args": "internal, text, smallint, oid, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_decompress",
+      "args": "internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_distance",
+      "args": "internal, text, smallint, oid, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_in",
+      "args": "cstring"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_options",
+      "args": "internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_out",
+      "args": "gtrgm"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_penalty",
+      "args": "internal, internal, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_picksplit",
+      "args": "internal, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_same",
+      "args": "gtrgm, gtrgm, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "gtrgm_union",
+      "args": "internal, internal"
+    },
+    {
+      "nspname": "public",
+      "proname": "max",
+      "args": "citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "min",
+      "args": "citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "recompute_po_totals",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_match",
+      "args": "citext, citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_match",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_matches",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_matches",
+      "args": "citext, citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_replace",
+      "args": "citext, citext, text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_replace",
+      "args": "citext, citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_split_to_array",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_split_to_array",
+      "args": "citext, citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_split_to_table",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "regexp_split_to_table",
+      "args": "citext, citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "replace",
+      "args": "citext, citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "seed_tenant_default_units",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "seed_tenant_system_roles",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "seed_warehouse_default_location",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "set_limit",
+      "args": "real"
+    },
+    {
+      "nspname": "public",
+      "proname": "set_updated_at",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "show_limit",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "show_trgm",
+      "args": "text"
+    },
+    {
+      "nspname": "public",
+      "proname": "similarity",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "similarity_dist",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "similarity_op",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "split_part",
+      "args": "citext, citext, integer"
+    },
+    {
+      "nspname": "public",
+      "proname": "strict_word_similarity",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "strict_word_similarity_commutator_op",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "strict_word_similarity_dist_commutator_op",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "strict_word_similarity_dist_op",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "strict_word_similarity_op",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "strpos",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "texticlike",
+      "args": "citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "texticlike",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "texticnlike",
+      "args": "citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "texticnlike",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "texticregexeq",
+      "args": "citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "texticregexeq",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "texticregexne",
+      "args": "citext, citext"
+    },
+    {
+      "nspname": "public",
+      "proname": "texticregexne",
+      "args": "citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "translate",
+      "args": "citext, citext, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "update_po_line_status",
+      "args": ""
+    },
+    {
+      "nspname": "public",
+      "proname": "word_similarity",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "word_similarity_commutator_op",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "word_similarity_dist_commutator_op",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "word_similarity_dist_op",
+      "args": "text, text"
+    },
+    {
+      "nspname": "public",
+      "proname": "word_similarity_op",
+      "args": "text, text"
+    }
+  ],
+  "triggers": [
+    {
+      "tablename": "branches",
+      "trigger_name": "audit_branches",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "branches",
+      "trigger_name": "audit_branches",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "branches",
+      "trigger_name": "audit_branches",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "branches",
+      "trigger_name": "trg_branches_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "categories",
+      "trigger_name": "audit_categories",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "categories",
+      "trigger_name": "audit_categories",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "categories",
+      "trigger_name": "audit_categories",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "categories",
+      "trigger_name": "trg_categories_no_cycle",
+      "event_manipulation": "INSERT",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION check_category_no_cycle()"
+    },
+    {
+      "tablename": "categories",
+      "trigger_name": "trg_categories_no_cycle",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION check_category_no_cycle()"
+    },
+    {
+      "tablename": "categories",
+      "trigger_name": "trg_categories_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "trigger_name": "audit_grn_lines",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "trigger_name": "audit_grn_lines",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "trigger_name": "audit_grn_lines",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "trigger_name": "trg_grn_lines_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "goods_receipts",
+      "trigger_name": "audit_grn",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "goods_receipts",
+      "trigger_name": "audit_grn",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "goods_receipts",
+      "trigger_name": "audit_grn",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "goods_receipts",
+      "trigger_name": "trg_grn_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "locations",
+      "trigger_name": "audit_locations",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "locations",
+      "trigger_name": "audit_locations",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "locations",
+      "trigger_name": "audit_locations",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "locations",
+      "trigger_name": "trg_locations_no_cycle",
+      "event_manipulation": "INSERT",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION check_location_no_cycle()"
+    },
+    {
+      "tablename": "locations",
+      "trigger_name": "trg_locations_no_cycle",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION check_location_no_cycle()"
+    },
+    {
+      "tablename": "locations",
+      "trigger_name": "trg_locations_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "trigger_name": "audit_forecast_runs",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "trigger_name": "audit_forecast_runs",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "trigger_name": "audit_forecast_runs",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "trigger_name": "trg_forecast_runs_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "parties",
+      "trigger_name": "audit_parties",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "parties",
+      "trigger_name": "audit_parties",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "parties",
+      "trigger_name": "audit_parties",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "parties",
+      "trigger_name": "trg_parties_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "product_units",
+      "trigger_name": "audit_product_units",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "product_units",
+      "trigger_name": "audit_product_units",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "product_units",
+      "trigger_name": "audit_product_units",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "product_units",
+      "trigger_name": "trg_product_units_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "products",
+      "trigger_name": "audit_products",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "products",
+      "trigger_name": "audit_products",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "products",
+      "trigger_name": "audit_products",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "products",
+      "trigger_name": "trg_products_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "audit_po_lines",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "audit_po_lines",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "audit_po_lines",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "trg_po_lines_recompute_totals",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION recompute_po_totals()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "trg_po_lines_recompute_totals",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION recompute_po_totals()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "trg_po_lines_recompute_totals",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION recompute_po_totals()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "trg_po_lines_status",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_po_line_status()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "trg_po_lines_status",
+      "event_manipulation": "INSERT",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION update_po_line_status()"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "trigger_name": "trg_po_lines_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "purchase_orders",
+      "trigger_name": "audit_po",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "purchase_orders",
+      "trigger_name": "audit_po",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "purchase_orders",
+      "trigger_name": "audit_po",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "purchase_orders",
+      "trigger_name": "trg_po_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "roles",
+      "trigger_name": "audit_roles",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "roles",
+      "trigger_name": "audit_roles",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "roles",
+      "trigger_name": "audit_roles",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "roles",
+      "trigger_name": "trg_roles_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "trigger_name": "audit_issue_lines",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "trigger_name": "audit_issue_lines",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "trigger_name": "audit_issue_lines",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "trigger_name": "trg_issue_lines_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "stock_issues",
+      "trigger_name": "audit_issues",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "stock_issues",
+      "trigger_name": "audit_issues",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "stock_issues",
+      "trigger_name": "audit_issues",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "stock_issues",
+      "trigger_name": "trg_issues_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "stock_take_lines",
+      "trigger_name": "trg_stock_take_line_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "stock_takes",
+      "trigger_name": "audit_stock_takes",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "stock_takes",
+      "trigger_name": "audit_stock_takes",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "stock_takes",
+      "trigger_name": "trg_stock_take_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "stock_transfer_lines",
+      "trigger_name": "trg_stock_transfer_line_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "stock_transfers",
+      "trigger_name": "trg_stock_transfer_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "supplier_products",
+      "trigger_name": "audit_supplier_products",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "supplier_products",
+      "trigger_name": "audit_supplier_products",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "supplier_products",
+      "trigger_name": "audit_supplier_products",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "supplier_products",
+      "trigger_name": "trg_supplier_products_single_preferred",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION enforce_single_preferred_supplier()"
+    },
+    {
+      "tablename": "supplier_products",
+      "trigger_name": "trg_supplier_products_single_preferred",
+      "event_manipulation": "INSERT",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION enforce_single_preferred_supplier()"
+    },
+    {
+      "tablename": "supplier_products",
+      "trigger_name": "trg_supplier_products_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "tenants",
+      "trigger_name": "trg_tenants_seed_roles",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION seed_tenant_system_roles()"
+    },
+    {
+      "tablename": "tenants",
+      "trigger_name": "trg_tenants_seed_units",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION seed_tenant_default_units()"
+    },
+    {
+      "tablename": "tenants",
+      "trigger_name": "trg_tenants_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "units_of_measure",
+      "trigger_name": "audit_units",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "units_of_measure",
+      "trigger_name": "audit_units",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "units_of_measure",
+      "trigger_name": "audit_units",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "units_of_measure",
+      "trigger_name": "trg_units_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "user_roles",
+      "trigger_name": "audit_user_roles",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "user_roles",
+      "trigger_name": "audit_user_roles",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "user_roles",
+      "trigger_name": "audit_user_roles",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "users",
+      "trigger_name": "audit_users",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "users",
+      "trigger_name": "audit_users",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "users",
+      "trigger_name": "audit_users",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "users",
+      "trigger_name": "trg_users_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    },
+    {
+      "tablename": "warehouses",
+      "trigger_name": "audit_warehouses",
+      "event_manipulation": "UPDATE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "warehouses",
+      "trigger_name": "audit_warehouses",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "warehouses",
+      "trigger_name": "audit_warehouses",
+      "event_manipulation": "DELETE",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION audit_trigger_func()"
+    },
+    {
+      "tablename": "warehouses",
+      "trigger_name": "trg_warehouses_seed_location",
+      "event_manipulation": "INSERT",
+      "action_timing": "AFTER",
+      "action_statement": "EXECUTE FUNCTION seed_warehouse_default_location()"
+    },
+    {
+      "tablename": "warehouses",
+      "trigger_name": "trg_warehouses_single_default",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION enforce_single_default_warehouse()"
+    },
+    {
+      "tablename": "warehouses",
+      "trigger_name": "trg_warehouses_single_default",
+      "event_manipulation": "INSERT",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION enforce_single_default_warehouse()"
+    },
+    {
+      "tablename": "warehouses",
+      "trigger_name": "trg_warehouses_updated_at",
+      "event_manipulation": "UPDATE",
+      "action_timing": "BEFORE",
+      "action_statement": "EXECUTE FUNCTION set_updated_at()"
+    }
+  ],
+  "indexes": [
+    {
+      "tablename": "audit_logs",
+      "indexname": "audit_logs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX audit_logs_pkey ON public.audit_logs USING btree (id)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "idx_audit_action",
+      "indexdef": "CREATE INDEX idx_audit_action ON public.audit_logs USING btree (action, created_at DESC)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "idx_audit_table_record",
+      "indexdef": "CREATE INDEX idx_audit_table_record ON public.audit_logs USING btree (table_name, record_id)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "idx_audit_tenant_created",
+      "indexdef": "CREATE INDEX idx_audit_tenant_created ON public.audit_logs USING btree (tenant_id, created_at DESC)"
+    },
+    {
+      "tablename": "audit_logs",
+      "indexname": "idx_audit_user",
+      "indexdef": "CREATE INDEX idx_audit_user ON public.audit_logs USING btree (user_id, created_at DESC)"
+    },
+    {
+      "tablename": "branches",
+      "indexname": "branches_pkey",
+      "indexdef": "CREATE UNIQUE INDEX branches_pkey ON public.branches USING btree (id)"
+    },
+    {
+      "tablename": "branches",
+      "indexname": "branches_tenant_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX branches_tenant_id_code_key ON public.branches USING btree (tenant_id, code)"
+    },
+    {
+      "tablename": "branches",
+      "indexname": "idx_branches_active",
+      "indexdef": "CREATE INDEX idx_branches_active ON public.branches USING btree (tenant_id, is_active)"
+    },
+    {
+      "tablename": "branches",
+      "indexname": "idx_branches_tenant",
+      "indexdef": "CREATE INDEX idx_branches_tenant ON public.branches USING btree (tenant_id)"
+    },
+    {
+      "tablename": "categories",
+      "indexname": "categories_pkey",
+      "indexdef": "CREATE UNIQUE INDEX categories_pkey ON public.categories USING btree (id)"
+    },
+    {
+      "tablename": "categories",
+      "indexname": "categories_tenant_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX categories_tenant_id_code_key ON public.categories USING btree (tenant_id, code)"
+    },
+    {
+      "tablename": "categories",
+      "indexname": "idx_categories_active",
+      "indexdef": "CREATE INDEX idx_categories_active ON public.categories USING btree (tenant_id, is_active)"
+    },
+    {
+      "tablename": "categories",
+      "indexname": "idx_categories_parent",
+      "indexdef": "CREATE INDEX idx_categories_parent ON public.categories USING btree (parent_id)"
+    },
+    {
+      "tablename": "categories",
+      "indexname": "idx_categories_tenant",
+      "indexdef": "CREATE INDEX idx_categories_tenant ON public.categories USING btree (tenant_id)"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "indexname": "goods_receipt_lines_goods_receipt_id_line_no_key",
+      "indexdef": "CREATE UNIQUE INDEX goods_receipt_lines_goods_receipt_id_line_no_key ON public.goods_receipt_lines USING btree (goods_receipt_id, line_no)"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "indexname": "goods_receipt_lines_pkey",
+      "indexdef": "CREATE UNIQUE INDEX goods_receipt_lines_pkey ON public.goods_receipt_lines USING btree (id)"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "indexname": "idx_grn_lines_grn",
+      "indexdef": "CREATE INDEX idx_grn_lines_grn ON public.goods_receipt_lines USING btree (goods_receipt_id)"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "indexname": "idx_grn_lines_movement",
+      "indexdef": "CREATE INDEX idx_grn_lines_movement ON public.goods_receipt_lines USING btree (movement_id) WHERE (movement_id IS NOT NULL)"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "indexname": "idx_grn_lines_po_line",
+      "indexdef": "CREATE INDEX idx_grn_lines_po_line ON public.goods_receipt_lines USING btree (po_line_id) WHERE (po_line_id IS NOT NULL)"
+    },
+    {
+      "tablename": "goods_receipt_lines",
+      "indexname": "idx_grn_lines_product",
+      "indexdef": "CREATE INDEX idx_grn_lines_product ON public.goods_receipt_lines USING btree (product_id)"
+    },
+    {
+      "tablename": "goods_receipts",
+      "indexname": "goods_receipts_pkey",
+      "indexdef": "CREATE UNIQUE INDEX goods_receipts_pkey ON public.goods_receipts USING btree (id)"
+    },
+    {
+      "tablename": "goods_receipts",
+      "indexname": "goods_receipts_tenant_id_grn_number_key",
+      "indexdef": "CREATE UNIQUE INDEX goods_receipts_tenant_id_grn_number_key ON public.goods_receipts USING btree (tenant_id, grn_number)"
+    },
+    {
+      "tablename": "goods_receipts",
+      "indexname": "idx_grn_branch",
+      "indexdef": "CREATE INDEX idx_grn_branch ON public.goods_receipts USING btree (tenant_id, branch_id)"
+    },
+    {
+      "tablename": "goods_receipts",
+      "indexname": "idx_grn_date",
+      "indexdef": "CREATE INDEX idx_grn_date ON public.goods_receipts USING btree (tenant_id, receipt_date DESC)"
+    },
+    {
+      "tablename": "goods_receipts",
+      "indexname": "idx_grn_party",
+      "indexdef": "CREATE INDEX idx_grn_party ON public.goods_receipts USING btree (party_id)"
+    },
+    {
+      "tablename": "goods_receipts",
+      "indexname": "idx_grn_po",
+      "indexdef": "CREATE INDEX idx_grn_po ON public.goods_receipts USING btree (purchase_order_id)"
+    },
+    {
+      "tablename": "goods_receipts",
+      "indexname": "idx_grn_status",
+      "indexdef": "CREATE INDEX idx_grn_status ON public.goods_receipts USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "goods_receipts",
+      "indexname": "idx_grn_tenant",
+      "indexdef": "CREATE INDEX idx_grn_tenant ON public.goods_receipts USING btree (tenant_id)"
+    },
+    {
+      "tablename": "locations",
+      "indexname": "idx_locations_branch",
+      "indexdef": "CREATE INDEX idx_locations_branch ON public.locations USING btree (branch_id)"
+    },
+    {
+      "tablename": "locations",
+      "indexname": "idx_locations_parent",
+      "indexdef": "CREATE INDEX idx_locations_parent ON public.locations USING btree (parent_id)"
+    },
+    {
+      "tablename": "locations",
+      "indexname": "idx_locations_pickable",
+      "indexdef": "CREATE INDEX idx_locations_pickable ON public.locations USING btree (warehouse_id, is_pickable) WHERE (is_pickable = true)"
+    },
+    {
+      "tablename": "locations",
+      "indexname": "idx_locations_tenant",
+      "indexdef": "CREATE INDEX idx_locations_tenant ON public.locations USING btree (tenant_id)"
+    },
+    {
+      "tablename": "locations",
+      "indexname": "idx_locations_warehouse",
+      "indexdef": "CREATE INDEX idx_locations_warehouse ON public.locations USING btree (warehouse_id)"
+    },
+    {
+      "tablename": "locations",
+      "indexname": "idx_locations_warehouse_barcode",
+      "indexdef": "CREATE UNIQUE INDEX idx_locations_warehouse_barcode ON public.locations USING btree (warehouse_id, barcode) WHERE (barcode IS NOT NULL)"
+    },
+    {
+      "tablename": "locations",
+      "indexname": "locations_pkey",
+      "indexdef": "CREATE UNIQUE INDEX locations_pkey ON public.locations USING btree (id)"
+    },
+    {
+      "tablename": "locations",
+      "indexname": "locations_warehouse_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX locations_warehouse_id_code_key ON public.locations USING btree (warehouse_id, code)"
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "indexname": "idx_forecast_runs_status",
+      "indexdef": "CREATE INDEX idx_forecast_runs_status ON public.month_end_forecast_runs USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "indexname": "idx_forecast_runs_tenant_year",
+      "indexdef": "CREATE INDEX idx_forecast_runs_tenant_year ON public.month_end_forecast_runs USING btree (tenant_id, fiscal_year DESC, fiscal_month DESC)"
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "indexname": "month_end_forecast_runs_pkey",
+      "indexdef": "CREATE UNIQUE INDEX month_end_forecast_runs_pkey ON public.month_end_forecast_runs USING btree (id)"
+    },
+    {
+      "tablename": "month_end_forecast_runs",
+      "indexname": "uq_forecast_run_per_month",
+      "indexdef": "CREATE UNIQUE INDEX uq_forecast_run_per_month ON public.month_end_forecast_runs USING btree (tenant_id, fiscal_year, fiscal_month)"
+    },
+    {
+      "tablename": "parties",
+      "indexname": "idx_parties_name",
+      "indexdef": "CREATE INDEX idx_parties_name ON public.parties USING gin (name gin_trgm_ops)"
+    },
+    {
+      "tablename": "parties",
+      "indexname": "idx_parties_status",
+      "indexdef": "CREATE INDEX idx_parties_status ON public.parties USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "parties",
+      "indexname": "idx_parties_tax_code",
+      "indexdef": "CREATE INDEX idx_parties_tax_code ON public.parties USING btree (tenant_id, tax_code) WHERE (tax_code IS NOT NULL)"
+    },
+    {
+      "tablename": "parties",
+      "indexname": "idx_parties_tenant",
+      "indexdef": "CREATE INDEX idx_parties_tenant ON public.parties USING btree (tenant_id)"
+    },
+    {
+      "tablename": "parties",
+      "indexname": "idx_parties_type",
+      "indexdef": "CREATE INDEX idx_parties_type ON public.parties USING btree (tenant_id, party_type)"
+    },
+    {
+      "tablename": "parties",
+      "indexname": "parties_pkey",
+      "indexdef": "CREATE UNIQUE INDEX parties_pkey ON public.parties USING btree (id)"
+    },
+    {
+      "tablename": "parties",
+      "indexname": "parties_tenant_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX parties_tenant_id_code_key ON public.parties USING btree (tenant_id, code)"
+    },
+    {
+      "tablename": "product_units",
+      "indexname": "idx_product_units_barcode",
+      "indexdef": "CREATE UNIQUE INDEX idx_product_units_barcode ON public.product_units USING btree (tenant_id, barcode) WHERE (barcode IS NOT NULL)"
+    },
+    {
+      "tablename": "product_units",
+      "indexname": "idx_product_units_one_purchase",
+      "indexdef": "CREATE UNIQUE INDEX idx_product_units_one_purchase ON public.product_units USING btree (product_id) WHERE (is_purchase = true)"
+    },
+    {
+      "tablename": "product_units",
+      "indexname": "idx_product_units_one_sale",
+      "indexdef": "CREATE UNIQUE INDEX idx_product_units_one_sale ON public.product_units USING btree (product_id) WHERE (is_sale = true)"
+    },
+    {
+      "tablename": "product_units",
+      "indexname": "idx_product_units_product",
+      "indexdef": "CREATE INDEX idx_product_units_product ON public.product_units USING btree (product_id)"
+    },
+    {
+      "tablename": "product_units",
+      "indexname": "idx_product_units_tenant",
+      "indexdef": "CREATE INDEX idx_product_units_tenant ON public.product_units USING btree (tenant_id)"
+    },
+    {
+      "tablename": "product_units",
+      "indexname": "product_units_pkey",
+      "indexdef": "CREATE UNIQUE INDEX product_units_pkey ON public.product_units USING btree (id)"
+    },
+    {
+      "tablename": "product_units",
+      "indexname": "product_units_product_id_unit_id_key",
+      "indexdef": "CREATE UNIQUE INDEX product_units_product_id_unit_id_key ON public.product_units USING btree (product_id, unit_id)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "idx_products_category",
+      "indexdef": "CREATE INDEX idx_products_category ON public.products USING btree (category_id)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "idx_products_name_trgm",
+      "indexdef": "CREATE INDEX idx_products_name_trgm ON public.products USING gin (name gin_trgm_ops)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "idx_products_status",
+      "indexdef": "CREATE INDEX idx_products_status ON public.products USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "idx_products_tenant",
+      "indexdef": "CREATE INDEX idx_products_tenant ON public.products USING btree (tenant_id)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "idx_products_tenant_barcode",
+      "indexdef": "CREATE UNIQUE INDEX idx_products_tenant_barcode ON public.products USING btree (tenant_id, barcode) WHERE (barcode IS NOT NULL)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "products_pkey",
+      "indexdef": "CREATE UNIQUE INDEX products_pkey ON public.products USING btree (id)"
+    },
+    {
+      "tablename": "products",
+      "indexname": "products_tenant_id_sku_key",
+      "indexdef": "CREATE UNIQUE INDEX products_tenant_id_sku_key ON public.products USING btree (tenant_id, sku)"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "indexname": "idx_po_lines_po",
+      "indexdef": "CREATE INDEX idx_po_lines_po ON public.purchase_order_lines USING btree (purchase_order_id)"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "indexname": "idx_po_lines_product",
+      "indexdef": "CREATE INDEX idx_po_lines_product ON public.purchase_order_lines USING btree (product_id)"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "indexname": "idx_po_lines_status",
+      "indexdef": "CREATE INDEX idx_po_lines_status ON public.purchase_order_lines USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "indexname": "purchase_order_lines_pkey",
+      "indexdef": "CREATE UNIQUE INDEX purchase_order_lines_pkey ON public.purchase_order_lines USING btree (id)"
+    },
+    {
+      "tablename": "purchase_order_lines",
+      "indexname": "purchase_order_lines_purchase_order_id_line_no_key",
+      "indexdef": "CREATE UNIQUE INDEX purchase_order_lines_purchase_order_id_line_no_key ON public.purchase_order_lines USING btree (purchase_order_id, line_no)"
+    },
+    {
+      "tablename": "purchase_orders",
+      "indexname": "idx_po_branch",
+      "indexdef": "CREATE INDEX idx_po_branch ON public.purchase_orders USING btree (tenant_id, branch_id)"
+    },
+    {
+      "tablename": "purchase_orders",
+      "indexname": "idx_po_date",
+      "indexdef": "CREATE INDEX idx_po_date ON public.purchase_orders USING btree (tenant_id, order_date DESC)"
+    },
+    {
+      "tablename": "purchase_orders",
+      "indexname": "idx_po_number_trgm",
+      "indexdef": "CREATE INDEX idx_po_number_trgm ON public.purchase_orders USING gin (po_number gin_trgm_ops)"
+    },
+    {
+      "tablename": "purchase_orders",
+      "indexname": "idx_po_party",
+      "indexdef": "CREATE INDEX idx_po_party ON public.purchase_orders USING btree (party_id)"
+    },
+    {
+      "tablename": "purchase_orders",
+      "indexname": "idx_po_status",
+      "indexdef": "CREATE INDEX idx_po_status ON public.purchase_orders USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "purchase_orders",
+      "indexname": "idx_po_tenant",
+      "indexdef": "CREATE INDEX idx_po_tenant ON public.purchase_orders USING btree (tenant_id)"
+    },
+    {
+      "tablename": "purchase_orders",
+      "indexname": "purchase_orders_pkey",
+      "indexdef": "CREATE UNIQUE INDEX purchase_orders_pkey ON public.purchase_orders USING btree (id)"
+    },
+    {
+      "tablename": "purchase_orders",
+      "indexname": "purchase_orders_tenant_id_po_number_key",
+      "indexdef": "CREATE UNIQUE INDEX purchase_orders_tenant_id_po_number_key ON public.purchase_orders USING btree (tenant_id, po_number)"
+    },
+    {
+      "tablename": "roles",
+      "indexname": "idx_roles_tenant",
+      "indexdef": "CREATE INDEX idx_roles_tenant ON public.roles USING btree (tenant_id)"
+    },
+    {
+      "tablename": "roles",
+      "indexname": "roles_pkey",
+      "indexdef": "CREATE UNIQUE INDEX roles_pkey ON public.roles USING btree (id)"
+    },
+    {
+      "tablename": "roles",
+      "indexname": "roles_tenant_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX roles_tenant_id_code_key ON public.roles USING btree (tenant_id, code)"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "indexname": "idx_issue_lines_issue",
+      "indexdef": "CREATE INDEX idx_issue_lines_issue ON public.stock_issue_lines USING btree (stock_issue_id)"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "indexname": "idx_issue_lines_movement",
+      "indexdef": "CREATE INDEX idx_issue_lines_movement ON public.stock_issue_lines USING btree (movement_id) WHERE (movement_id IS NOT NULL)"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "indexname": "idx_issue_lines_product",
+      "indexdef": "CREATE INDEX idx_issue_lines_product ON public.stock_issue_lines USING btree (product_id)"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "indexname": "stock_issue_lines_pkey",
+      "indexdef": "CREATE UNIQUE INDEX stock_issue_lines_pkey ON public.stock_issue_lines USING btree (id)"
+    },
+    {
+      "tablename": "stock_issue_lines",
+      "indexname": "stock_issue_lines_stock_issue_id_line_no_key",
+      "indexdef": "CREATE UNIQUE INDEX stock_issue_lines_stock_issue_id_line_no_key ON public.stock_issue_lines USING btree (stock_issue_id, line_no)"
+    },
+    {
+      "tablename": "stock_issues",
+      "indexname": "idx_issues_branch",
+      "indexdef": "CREATE INDEX idx_issues_branch ON public.stock_issues USING btree (tenant_id, branch_id)"
+    },
+    {
+      "tablename": "stock_issues",
+      "indexname": "idx_issues_date",
+      "indexdef": "CREATE INDEX idx_issues_date ON public.stock_issues USING btree (tenant_id, issue_date DESC)"
+    },
+    {
+      "tablename": "stock_issues",
+      "indexname": "idx_issues_party",
+      "indexdef": "CREATE INDEX idx_issues_party ON public.stock_issues USING btree (party_id)"
+    },
+    {
+      "tablename": "stock_issues",
+      "indexname": "idx_issues_purpose",
+      "indexdef": "CREATE INDEX idx_issues_purpose ON public.stock_issues USING btree (tenant_id, purpose)"
+    },
+    {
+      "tablename": "stock_issues",
+      "indexname": "idx_issues_status",
+      "indexdef": "CREATE INDEX idx_issues_status ON public.stock_issues USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "stock_issues",
+      "indexname": "idx_issues_tenant",
+      "indexdef": "CREATE INDEX idx_issues_tenant ON public.stock_issues USING btree (tenant_id)"
+    },
+    {
+      "tablename": "stock_issues",
+      "indexname": "stock_issues_pkey",
+      "indexdef": "CREATE UNIQUE INDEX stock_issues_pkey ON public.stock_issues USING btree (id)"
+    },
+    {
+      "tablename": "stock_issues",
+      "indexname": "stock_issues_tenant_id_issue_number_key",
+      "indexdef": "CREATE UNIQUE INDEX stock_issues_tenant_id_issue_number_key ON public.stock_issues USING btree (tenant_id, issue_number)"
+    },
+    {
+      "tablename": "stock_take_lines",
+      "indexname": "idx_stock_take_lines_product",
+      "indexdef": "CREATE INDEX idx_stock_take_lines_product ON public.stock_take_lines USING btree (product_id)"
+    },
+    {
+      "tablename": "stock_take_lines",
+      "indexname": "idx_stock_take_lines_status",
+      "indexdef": "CREATE INDEX idx_stock_take_lines_status ON public.stock_take_lines USING btree (stock_take_id, status) WHERE (status = ANY (ARRAY['PENDING'::stock_take_line_status, 'COUNTED'::stock_take_line_status]))"
+    },
+    {
+      "tablename": "stock_take_lines",
+      "indexname": "idx_stock_take_lines_take",
+      "indexdef": "CREATE INDEX idx_stock_take_lines_take ON public.stock_take_lines USING btree (stock_take_id)"
+    },
+    {
+      "tablename": "stock_take_lines",
+      "indexname": "stock_take_lines_pkey",
+      "indexdef": "CREATE UNIQUE INDEX stock_take_lines_pkey ON public.stock_take_lines USING btree (id)"
+    },
+    {
+      "tablename": "stock_take_lines",
+      "indexname": "stock_take_lines_stock_take_id_line_no_key",
+      "indexdef": "CREATE UNIQUE INDEX stock_take_lines_stock_take_id_line_no_key ON public.stock_take_lines USING btree (stock_take_id, line_no)"
+    },
+    {
+      "tablename": "stock_takes",
+      "indexname": "idx_stock_takes_tenant_status",
+      "indexdef": "CREATE INDEX idx_stock_takes_tenant_status ON public.stock_takes USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "stock_takes",
+      "indexname": "idx_stock_takes_tenant_wh_date",
+      "indexdef": "CREATE INDEX idx_stock_takes_tenant_wh_date ON public.stock_takes USING btree (tenant_id, warehouse_id, stock_take_date DESC)"
+    },
+    {
+      "tablename": "stock_takes",
+      "indexname": "stock_takes_pkey",
+      "indexdef": "CREATE UNIQUE INDEX stock_takes_pkey ON public.stock_takes USING btree (id)"
+    },
+    {
+      "tablename": "stock_takes",
+      "indexname": "stock_takes_tenant_id_stock_take_number_key",
+      "indexdef": "CREATE UNIQUE INDEX stock_takes_tenant_id_stock_take_number_key ON public.stock_takes USING btree (tenant_id, stock_take_number)"
+    },
+    {
+      "tablename": "stock_transfer_lines",
+      "indexname": "idx_stock_transfer_lines_product",
+      "indexdef": "CREATE INDEX idx_stock_transfer_lines_product ON public.stock_transfer_lines USING btree (product_id)"
+    },
+    {
+      "tablename": "stock_transfer_lines",
+      "indexname": "idx_stock_transfer_lines_transfer",
+      "indexdef": "CREATE INDEX idx_stock_transfer_lines_transfer ON public.stock_transfer_lines USING btree (stock_transfer_id)"
+    },
+    {
+      "tablename": "stock_transfer_lines",
+      "indexname": "stock_transfer_lines_pkey",
+      "indexdef": "CREATE UNIQUE INDEX stock_transfer_lines_pkey ON public.stock_transfer_lines USING btree (id)"
+    },
+    {
+      "tablename": "stock_transfer_lines",
+      "indexname": "stock_transfer_lines_stock_transfer_id_line_no_key",
+      "indexdef": "CREATE UNIQUE INDEX stock_transfer_lines_stock_transfer_id_line_no_key ON public.stock_transfer_lines USING btree (stock_transfer_id, line_no)"
+    },
+    {
+      "tablename": "stock_transfers",
+      "indexname": "idx_stock_transfers_tenant_date",
+      "indexdef": "CREATE INDEX idx_stock_transfers_tenant_date ON public.stock_transfers USING btree (tenant_id, transfer_date DESC)"
+    },
+    {
+      "tablename": "stock_transfers",
+      "indexname": "idx_stock_transfers_tenant_from_wh",
+      "indexdef": "CREATE INDEX idx_stock_transfers_tenant_from_wh ON public.stock_transfers USING btree (tenant_id, from_warehouse_id)"
+    },
+    {
+      "tablename": "stock_transfers",
+      "indexname": "idx_stock_transfers_tenant_status",
+      "indexdef": "CREATE INDEX idx_stock_transfers_tenant_status ON public.stock_transfers USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "stock_transfers",
+      "indexname": "idx_stock_transfers_tenant_to_wh",
+      "indexdef": "CREATE INDEX idx_stock_transfers_tenant_to_wh ON public.stock_transfers USING btree (tenant_id, to_warehouse_id)"
+    },
+    {
+      "tablename": "stock_transfers",
+      "indexname": "stock_transfers_pkey",
+      "indexdef": "CREATE UNIQUE INDEX stock_transfers_pkey ON public.stock_transfers USING btree (id)"
+    },
+    {
+      "tablename": "stock_transfers",
+      "indexname": "stock_transfers_tenant_id_transfer_number_key",
+      "indexdef": "CREATE UNIQUE INDEX stock_transfers_tenant_id_transfer_number_key ON public.stock_transfers USING btree (tenant_id, transfer_number)"
+    },
+    {
+      "tablename": "supplier_products",
+      "indexname": "idx_supplier_products_preferred",
+      "indexdef": "CREATE INDEX idx_supplier_products_preferred ON public.supplier_products USING btree (product_id) WHERE (is_preferred = true)"
+    },
+    {
+      "tablename": "supplier_products",
+      "indexname": "idx_supplier_products_product",
+      "indexdef": "CREATE INDEX idx_supplier_products_product ON public.supplier_products USING btree (product_id)"
+    },
+    {
+      "tablename": "supplier_products",
+      "indexname": "idx_supplier_products_tenant",
+      "indexdef": "CREATE INDEX idx_supplier_products_tenant ON public.supplier_products USING btree (tenant_id)"
+    },
+    {
+      "tablename": "supplier_products",
+      "indexname": "supplier_products_party_id_product_id_key",
+      "indexdef": "CREATE UNIQUE INDEX supplier_products_party_id_product_id_key ON public.supplier_products USING btree (party_id, product_id)"
+    },
+    {
+      "tablename": "supplier_products",
+      "indexname": "supplier_products_pkey",
+      "indexdef": "CREATE UNIQUE INDEX supplier_products_pkey ON public.supplier_products USING btree (id)"
+    },
+    {
+      "tablename": "tenants",
+      "indexname": "idx_tenants_slug",
+      "indexdef": "CREATE INDEX idx_tenants_slug ON public.tenants USING btree (slug)"
+    },
+    {
+      "tablename": "tenants",
+      "indexname": "idx_tenants_status",
+      "indexdef": "CREATE INDEX idx_tenants_status ON public.tenants USING btree (status)"
+    },
+    {
+      "tablename": "tenants",
+      "indexname": "tenants_pkey",
+      "indexdef": "CREATE UNIQUE INDEX tenants_pkey ON public.tenants USING btree (id)"
+    },
+    {
+      "tablename": "tenants",
+      "indexname": "tenants_slug_key",
+      "indexdef": "CREATE UNIQUE INDEX tenants_slug_key ON public.tenants USING btree (slug)"
+    },
+    {
+      "tablename": "units_of_measure",
+      "indexname": "idx_units_active",
+      "indexdef": "CREATE INDEX idx_units_active ON public.units_of_measure USING btree (tenant_id, is_active)"
+    },
+    {
+      "tablename": "units_of_measure",
+      "indexname": "idx_units_tenant",
+      "indexdef": "CREATE INDEX idx_units_tenant ON public.units_of_measure USING btree (tenant_id)"
+    },
+    {
+      "tablename": "units_of_measure",
+      "indexname": "units_of_measure_pkey",
+      "indexdef": "CREATE UNIQUE INDEX units_of_measure_pkey ON public.units_of_measure USING btree (id)"
+    },
+    {
+      "tablename": "units_of_measure",
+      "indexname": "units_of_measure_tenant_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX units_of_measure_tenant_id_code_key ON public.units_of_measure USING btree (tenant_id, code)"
+    },
+    {
+      "tablename": "user_roles",
+      "indexname": "idx_user_roles_branch",
+      "indexdef": "CREATE INDEX idx_user_roles_branch ON public.user_roles USING btree (branch_id)"
+    },
+    {
+      "tablename": "user_roles",
+      "indexname": "idx_user_roles_role",
+      "indexdef": "CREATE INDEX idx_user_roles_role ON public.user_roles USING btree (role_id)"
+    },
+    {
+      "tablename": "user_roles",
+      "indexname": "idx_user_roles_user",
+      "indexdef": "CREATE INDEX idx_user_roles_user ON public.user_roles USING btree (user_id)"
+    },
+    {
+      "tablename": "user_roles",
+      "indexname": "user_roles_pkey",
+      "indexdef": "CREATE UNIQUE INDEX user_roles_pkey ON public.user_roles USING btree (id)"
+    },
+    {
+      "tablename": "user_roles",
+      "indexname": "user_roles_user_id_role_id_branch_id_key",
+      "indexdef": "CREATE UNIQUE INDEX user_roles_user_id_role_id_branch_id_key ON public.user_roles USING btree (user_id, role_id, branch_id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "idx_users_email",
+      "indexdef": "CREATE INDEX idx_users_email ON public.users USING btree (email)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "idx_users_status",
+      "indexdef": "CREATE INDEX idx_users_status ON public.users USING btree (tenant_id, status)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "idx_users_tenant",
+      "indexdef": "CREATE INDEX idx_users_tenant ON public.users USING btree (tenant_id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_pkey",
+      "indexdef": "CREATE UNIQUE INDEX users_pkey ON public.users USING btree (id)"
+    },
+    {
+      "tablename": "users",
+      "indexname": "users_tenant_id_email_key",
+      "indexdef": "CREATE UNIQUE INDEX users_tenant_id_email_key ON public.users USING btree (tenant_id, email)"
+    },
+    {
+      "tablename": "warehouses",
+      "indexname": "idx_warehouses_branch",
+      "indexdef": "CREATE INDEX idx_warehouses_branch ON public.warehouses USING btree (branch_id)"
+    },
+    {
+      "tablename": "warehouses",
+      "indexname": "idx_warehouses_default",
+      "indexdef": "CREATE INDEX idx_warehouses_default ON public.warehouses USING btree (branch_id) WHERE (is_default = true)"
+    },
+    {
+      "tablename": "warehouses",
+      "indexname": "idx_warehouses_status",
+      "indexdef": "CREATE INDEX idx_warehouses_status ON public.warehouses USING btree (branch_id, status)"
+    },
+    {
+      "tablename": "warehouses",
+      "indexname": "idx_warehouses_tenant",
+      "indexdef": "CREATE INDEX idx_warehouses_tenant ON public.warehouses USING btree (tenant_id)"
+    },
+    {
+      "tablename": "warehouses",
+      "indexname": "warehouses_branch_id_code_key",
+      "indexdef": "CREATE UNIQUE INDEX warehouses_branch_id_code_key ON public.warehouses USING btree (branch_id, code)"
+    },
+    {
+      "tablename": "warehouses",
+      "indexname": "warehouses_pkey",
+      "indexdef": "CREATE UNIQUE INDEX warehouses_pkey ON public.warehouses USING btree (id)"
+    }
+  ],
+  "foreignKeys": [
+    {
+      "table_name": "audit_logs",
+      "constraint_name": "audit_logs_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "audit_logs",
+      "constraint_name": "audit_logs_user_id_fkey",
+      "column_name": "user_id",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "branches",
+      "constraint_name": "branches_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "categories",
+      "constraint_name": "categories_parent_id_fkey",
+      "column_name": "parent_id",
+      "foreign_table_name": "categories",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "categories",
+      "constraint_name": "categories_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "constraint_name": "goods_receipt_lines_goods_receipt_id_fkey",
+      "column_name": "goods_receipt_id",
+      "foreign_table_name": "goods_receipts",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "constraint_name": "goods_receipt_lines_location_id_fkey",
+      "column_name": "location_id",
+      "foreign_table_name": "locations",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "constraint_name": "goods_receipt_lines_po_line_id_fkey",
+      "column_name": "po_line_id",
+      "foreign_table_name": "purchase_order_lines",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "constraint_name": "goods_receipt_lines_product_id_fkey",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "constraint_name": "goods_receipt_lines_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipt_lines",
+      "constraint_name": "goods_receipt_lines_unit_id_fkey",
+      "column_name": "unit_id",
+      "foreign_table_name": "units_of_measure",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipts",
+      "constraint_name": "goods_receipts_branch_id_fkey",
+      "column_name": "branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipts",
+      "constraint_name": "goods_receipts_created_by_fkey",
+      "column_name": "created_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipts",
+      "constraint_name": "goods_receipts_party_id_fkey",
+      "column_name": "party_id",
+      "foreign_table_name": "parties",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipts",
+      "constraint_name": "goods_receipts_posted_by_fkey",
+      "column_name": "posted_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipts",
+      "constraint_name": "goods_receipts_purchase_order_id_fkey",
+      "column_name": "purchase_order_id",
+      "foreign_table_name": "purchase_orders",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipts",
+      "constraint_name": "goods_receipts_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "goods_receipts",
+      "constraint_name": "goods_receipts_warehouse_id_fkey",
+      "column_name": "warehouse_id",
+      "foreign_table_name": "warehouses",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "locations",
+      "constraint_name": "locations_branch_id_fkey",
+      "column_name": "branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "locations",
+      "constraint_name": "locations_parent_id_fkey",
+      "column_name": "parent_id",
+      "foreign_table_name": "locations",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "locations",
+      "constraint_name": "locations_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "locations",
+      "constraint_name": "locations_warehouse_id_fkey",
+      "column_name": "warehouse_id",
+      "foreign_table_name": "warehouses",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "month_end_forecast_runs",
+      "constraint_name": "month_end_forecast_runs_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "parties",
+      "constraint_name": "parties_created_by_fkey",
+      "column_name": "created_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "parties",
+      "constraint_name": "parties_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "product_units",
+      "constraint_name": "product_units_product_id_fkey",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "product_units",
+      "constraint_name": "product_units_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "product_units",
+      "constraint_name": "product_units_unit_id_fkey",
+      "column_name": "unit_id",
+      "foreign_table_name": "units_of_measure",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "products",
+      "constraint_name": "products_base_unit_id_fkey",
+      "column_name": "base_unit_id",
+      "foreign_table_name": "units_of_measure",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "products",
+      "constraint_name": "products_category_id_fkey",
+      "column_name": "category_id",
+      "foreign_table_name": "categories",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "products",
+      "constraint_name": "products_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "constraint_name": "purchase_order_lines_product_id_fkey",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "constraint_name": "purchase_order_lines_purchase_order_id_fkey",
+      "column_name": "purchase_order_id",
+      "foreign_table_name": "purchase_orders",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "constraint_name": "purchase_order_lines_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_order_lines",
+      "constraint_name": "purchase_order_lines_unit_id_fkey",
+      "column_name": "unit_id",
+      "foreign_table_name": "units_of_measure",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_orders",
+      "constraint_name": "purchase_orders_approved_by_fkey",
+      "column_name": "approved_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_orders",
+      "constraint_name": "purchase_orders_branch_id_fkey",
+      "column_name": "branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_orders",
+      "constraint_name": "purchase_orders_created_by_fkey",
+      "column_name": "created_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_orders",
+      "constraint_name": "purchase_orders_party_id_fkey",
+      "column_name": "party_id",
+      "foreign_table_name": "parties",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_orders",
+      "constraint_name": "purchase_orders_posted_by_fkey",
+      "column_name": "posted_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "purchase_orders",
+      "constraint_name": "purchase_orders_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "roles",
+      "constraint_name": "roles_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "constraint_name": "stock_issue_lines_location_id_fkey",
+      "column_name": "location_id",
+      "foreign_table_name": "locations",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "constraint_name": "stock_issue_lines_product_id_fkey",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "constraint_name": "stock_issue_lines_stock_issue_id_fkey",
+      "column_name": "stock_issue_id",
+      "foreign_table_name": "stock_issues",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "constraint_name": "stock_issue_lines_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issue_lines",
+      "constraint_name": "stock_issue_lines_unit_id_fkey",
+      "column_name": "unit_id",
+      "foreign_table_name": "units_of_measure",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issues",
+      "constraint_name": "stock_issues_branch_id_fkey",
+      "column_name": "branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issues",
+      "constraint_name": "stock_issues_created_by_fkey",
+      "column_name": "created_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issues",
+      "constraint_name": "stock_issues_party_id_fkey",
+      "column_name": "party_id",
+      "foreign_table_name": "parties",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issues",
+      "constraint_name": "stock_issues_posted_by_fkey",
+      "column_name": "posted_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issues",
+      "constraint_name": "stock_issues_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_issues",
+      "constraint_name": "stock_issues_warehouse_id_fkey",
+      "column_name": "warehouse_id",
+      "foreign_table_name": "warehouses",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_take_lines",
+      "constraint_name": "stock_take_lines_location_id_fkey",
+      "column_name": "location_id",
+      "foreign_table_name": "locations",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_take_lines",
+      "constraint_name": "stock_take_lines_product_id_fkey",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_take_lines",
+      "constraint_name": "stock_take_lines_stock_take_id_fkey",
+      "column_name": "stock_take_id",
+      "foreign_table_name": "stock_takes",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_take_lines",
+      "constraint_name": "stock_take_lines_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_take_lines",
+      "constraint_name": "stock_take_lines_unit_id_fkey",
+      "column_name": "unit_id",
+      "foreign_table_name": "units_of_measure",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_takes",
+      "constraint_name": "stock_takes_branch_id_fkey",
+      "column_name": "branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_takes",
+      "constraint_name": "stock_takes_cancelled_by_fkey",
+      "column_name": "cancelled_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_takes",
+      "constraint_name": "stock_takes_counted_by_fkey",
+      "column_name": "counted_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_takes",
+      "constraint_name": "stock_takes_created_by_fkey",
+      "column_name": "created_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_takes",
+      "constraint_name": "stock_takes_posted_by_fkey",
+      "column_name": "posted_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_takes",
+      "constraint_name": "stock_takes_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_takes",
+      "constraint_name": "stock_takes_warehouse_id_fkey",
+      "column_name": "warehouse_id",
+      "foreign_table_name": "warehouses",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "constraint_name": "stock_transfer_lines_from_location_id_fkey",
+      "column_name": "from_location_id",
+      "foreign_table_name": "locations",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "constraint_name": "stock_transfer_lines_product_id_fkey",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "constraint_name": "stock_transfer_lines_stock_transfer_id_fkey",
+      "column_name": "stock_transfer_id",
+      "foreign_table_name": "stock_transfers",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "constraint_name": "stock_transfer_lines_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "constraint_name": "stock_transfer_lines_to_location_id_fkey",
+      "column_name": "to_location_id",
+      "foreign_table_name": "locations",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfer_lines",
+      "constraint_name": "stock_transfer_lines_unit_id_fkey",
+      "column_name": "unit_id",
+      "foreign_table_name": "units_of_measure",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_cancelled_by_fkey",
+      "column_name": "cancelled_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_created_by_fkey",
+      "column_name": "created_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_from_branch_id_fkey",
+      "column_name": "from_branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_from_warehouse_id_fkey",
+      "column_name": "from_warehouse_id",
+      "foreign_table_name": "warehouses",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_in_received_by_fkey",
+      "column_name": "in_received_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_out_shipped_by_fkey",
+      "column_name": "out_shipped_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_to_branch_id_fkey",
+      "column_name": "to_branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "stock_transfers",
+      "constraint_name": "stock_transfers_to_warehouse_id_fkey",
+      "column_name": "to_warehouse_id",
+      "foreign_table_name": "warehouses",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "supplier_products",
+      "constraint_name": "supplier_products_party_id_fkey",
+      "column_name": "party_id",
+      "foreign_table_name": "parties",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "supplier_products",
+      "constraint_name": "supplier_products_product_id_fkey",
+      "column_name": "product_id",
+      "foreign_table_name": "products",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "supplier_products",
+      "constraint_name": "supplier_products_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "units_of_measure",
+      "constraint_name": "units_of_measure_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "user_roles",
+      "constraint_name": "user_roles_branch_id_fkey",
+      "column_name": "branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "user_roles",
+      "constraint_name": "user_roles_granted_by_fkey",
+      "column_name": "granted_by",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "user_roles",
+      "constraint_name": "user_roles_role_id_fkey",
+      "column_name": "role_id",
+      "foreign_table_name": "roles",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "user_roles",
+      "constraint_name": "user_roles_user_id_fkey",
+      "column_name": "user_id",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "users",
+      "constraint_name": "users_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "warehouses",
+      "constraint_name": "warehouses_branch_id_fkey",
+      "column_name": "branch_id",
+      "foreign_table_name": "branches",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "warehouses",
+      "constraint_name": "warehouses_manager_id_fkey",
+      "column_name": "manager_id",
+      "foreign_table_name": "users",
+      "foreign_column_name": "id"
+    },
+    {
+      "table_name": "warehouses",
+      "constraint_name": "warehouses_tenant_id_fkey",
+      "column_name": "tenant_id",
+      "foreign_table_name": "tenants",
+      "foreign_column_name": "id"
+    }
+  ],
+  "authTables": [
+    "audit_log_entries",
+    "custom_oauth_providers",
+    "flow_state",
+    "identities",
+    "instances",
+    "mfa_amr_claims",
+    "mfa_challenges",
+    "mfa_factors",
+    "oauth_authorizations",
+    "oauth_client_states",
+    "oauth_clients",
+    "oauth_consents",
+    "one_time_tokens",
+    "refresh_tokens",
+    "saml_providers",
+    "saml_relay_states",
+    "schema_migrations",
+    "sessions",
+    "sso_domains",
+    "sso_providers",
+    "users",
+    "webauthn_challenges",
+    "webauthn_credentials"
+  ]
+}
