@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useCallback } from "react";
+
+type Step = "idle" | "parsing" | "preview" | "importing" | "done";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -13,8 +15,6 @@ import {
   type ParsedSheet,
 } from "@/lib/excel-parser";
 import { callFunction, sb } from "@/lib/data-access";
-
-type Step = "idle" | "parsing" | "preview" | "importing" | "done";
 
 interface ImportResult {
   total: number;
@@ -33,6 +33,7 @@ export function ImportProductsClient() {
   const [finalResult, setFinalResult] = useState<ImportResult | null>(null);
   const [updateExisting, setUpdateExisting] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reset = useCallback(() => {
@@ -93,7 +94,7 @@ export function ImportProductsClient() {
 
   const handleDryRun = useCallback(async () => {
     if (mappedRows.length === 0) return;
-    setStep("importing");
+    setIsImporting(true);
     try {
       const res = await callFunction<ImportResult>("import-products", {
         rows: mappedRows,
@@ -101,7 +102,6 @@ export function ImportProductsClient() {
         updateExisting,
       });
       setDryRunResult(res);
-      setStep("preview");
       if (res.failed === 0) {
         toast.success(`Dry-run OK: ${res.total} dòng sẽ được insert/update`);
       } else {
@@ -110,13 +110,14 @@ export function ImportProductsClient() {
     } catch (e) {
       console.error(e);
       toast.error("Lỗi dry-run", { description: (e as Error).message });
-      setStep("preview");
+    } finally {
+      setIsImporting(false);
     }
   }, [mappedRows, updateExisting]);
 
   const handleCommit = useCallback(async () => {
     if (mappedRows.length === 0) return;
-    setStep("importing");
+    setIsImporting(true);
     try {
       const res = await callFunction<ImportResult>("import-products", {
         rows: mappedRows,
@@ -137,6 +138,8 @@ export function ImportProductsClient() {
       console.error(e);
       toast.error("Lỗi import", { description: (e as Error).message });
       setStep("preview");
+    } finally {
+      setIsImporting(false);
     }
   }, [mappedRows, updateExisting]);
 
@@ -294,11 +297,18 @@ export function ImportProductsClient() {
           )}
 
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleDryRun} disabled={(step as Step) === "importing"}>
+            <Button
+              variant="outline"
+              onClick={handleDryRun}
+              disabled={isImporting}
+            >
               Dry-run (validate)
             </Button>
-            <Button onClick={handleCommit} disabled={(step as Step) === "importing" || mappedRows.length === 0}>
-              {(step as Step) === "importing" ? "Đang import..." : `Import ${mappedRows.length} dòng`}
+            <Button
+              onClick={handleCommit}
+              disabled={isImporting || mappedRows.length === 0}
+            >
+              {isImporting ? "Đang import..." : `Import ${mappedRows.length} dòng`}
             </Button>
           </div>
         </>
