@@ -1,27 +1,20 @@
-﻿// Server component - fetch data trên server, render trá»±c tiểp vào HTML
+"use client";
+
+// Client component - fetch data via Supabase PostgREST (useProducts hook)
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { api } from "@/lib/api";
+import { useProducts } from "@/features/products/api";
 import { ProductTable } from "@/features/products/product-table";
-import type { Product } from "@/features/products/api";
 
-
-// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
-export const dynamic = "force-dynamic"
+// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
+export const dynamic = "force-dynamic";
 
 export const runtime = "edge";
 
-export default async function ProductsPage() {
-  // Fetch on server - mock returns sync
-  let products: Product[] = [];
-  let total = 0;
-  let errorMsg: string | null = null;
-  try {
-    const data = await api.get<{ items: Product[]; total: number }>("/api/v1/products?pageSize=100");
-    products = data.items;
-    total = data.total;
-  } catch (e) {
-    errorMsg = e instanceof Error ? e.message : "Unknown error";
-  }
+export default function ProductsPage() {
+  const { data, isLoading, error } = useProducts({ pageSize: 100 });
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
+  const errorMsg = error instanceof Error ? error.message : null;
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -41,9 +34,11 @@ export default async function ProductsPage() {
         <CardContent>
           {errorMsg ? (
             <div className="text-red-600 p-4">Lỗi: {errorMsg}</div>
+          ) : isLoading && items.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">Đang tải...</div>
           ) : (
             <ProductTable
-              initialData={{ items: products, total, page: 1, pageSize: 100, hasMore: false }}
+              initialData={{ items, total, page: 1, pageSize: 100, hasMore: false }}
             />
           )}
         </CardContent>
@@ -51,4 +46,3 @@ export default async function ProductsPage() {
     </div>
   );
 }
-

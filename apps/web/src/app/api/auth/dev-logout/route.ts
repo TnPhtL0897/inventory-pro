@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 export async function POST() {
   if (process.env.NODE_ENV === "production") {
     return NextResponse.json(

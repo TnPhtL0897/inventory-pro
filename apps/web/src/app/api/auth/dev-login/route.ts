@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+export const runtime = "edge";
+
 /**
  * ⚠ DEV ONLY - Mock login endpoint.
  * Khi deploy production phải XÓA route này + block DEV_BYPASS_AUTH trong middleware.

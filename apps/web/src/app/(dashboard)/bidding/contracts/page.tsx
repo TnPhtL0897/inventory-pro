@@ -1,35 +1,19 @@
-﻿// Server component - fetch data trên server
+"use client";
+
+// Client component - list-client has its own useBidContracts hook (PostgREST).
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { api } from "@/lib/api";
-import { BidContract, BidContractListParams } from "@/features/bid-contracts/api";
+import { useBidContracts } from "@/features/bid-contracts/api";
 import { BidContractListClient } from "./list-client";
 
-
-// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
-export const dynamic = "force-dynamic"
+// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
+export const dynamic = "force-dynamic";
 
 export const runtime = "edge";
 
-export default async function BidContractsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ status?: string; expiringSoon?: string }>;
-}) {
-  // Next.js 15: searchParams là async, phải await
-  const sp = await searchParams;
-  const params: BidContractListParams = {
-    pageSize: 100,
-    status: (sp.status as any) || undefined,
-    expiringSoon: sp.expiringSoon === "true",
-  };
-
-  let contracts: BidContract[] = [];
-  let total = 0;
-  try {
-    const data = await api.get<{ items: BidContract[]; total: number }>(`/api/v1/bid-contracts?pageSize=100`);
-    contracts = data.items;
-    total = data.total;
-  } catch {}
+export default function BidContractsPage() {
+  // Page-level query just to display the total count in the header
+  const { data } = useBidContracts({ page: 1, pageSize: 1 });
+  const total = data?.total ?? 0;
 
   return (
     <div className="space-y-4 sm:space-y-6">
@@ -44,10 +28,9 @@ export default async function BidContractsPage({
       <Card>
         <CardHeader><CardTitle>Danh sách hợp đồng thầu</CardTitle></CardHeader>
         <CardContent>
-          <BidContractListClient initialData={{ items: contracts, total }} />
+          <BidContractListClient />
         </CardContent>
       </Card>
     </div>
   );
 }
-

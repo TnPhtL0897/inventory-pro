@@ -1,27 +1,24 @@
-﻿import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
 
-// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
-export const dynamic = "force-dynamic"
-
+// Client component - fetch stock levels + movements via Supabase PostgREST
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { api } from "@/lib/api";
+import { useStockLevels, useStockMovements } from "@/features/stock/api";
 import { StockTable } from "@/features/stock/stock-table";
 import { MovementsTable } from "@/features/stock/movements-table";
-import type { StockLevel, StockMovement } from "@/features/stock/api";
+
+// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
+export const dynamic = "force-dynamic";
 
 export const runtime = "edge";
 
-export default async function StockPage() {
-  let levels: StockLevel[] = [];
-  let movements: StockMovement[] = [];
-  try {
-    const [l, m] = await Promise.all([
-      api.get<{ items: StockLevel[] }>("/api/v1/stock?pageSize=100"),
-      api.get<{ items: StockMovement[] }>("/api/v1/stock/movements?pageSize=100"),
-    ]);
-    levels = l.items;
-    movements = m.items;
-  } catch {}
+export default function StockPage() {
+  const { data: levelsData, isLoading: loadingLevels } = useStockLevels({ pageSize: 100 });
+  const { data: movementsData, isLoading: loadingMovements } = useStockMovements({ pageSize: 100 });
+
+  const levels = levelsData?.items ?? [];
+  const movements = movementsData?.items ?? [];
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div>
@@ -42,7 +39,9 @@ export default async function StockPage() {
           <Card>
             <CardHeader><CardTitle>Tồn kho hiện tại</CardTitle></CardHeader>
             <CardContent>
-              {levels.length === 0 ? (
+              {loadingLevels && levels.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">Đang tải...</div>
+              ) : levels.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">Chưa có tồn kho.</div>
               ) : (
                 <StockTable initialData={{ items: levels, total: levels.length, page: 1, pageSize: 100, hasMore: false }} />
@@ -54,7 +53,9 @@ export default async function StockPage() {
           <Card>
             <CardHeader><CardTitle>Lịch sử stock movements</CardTitle></CardHeader>
             <CardContent>
-              {movements.length === 0 ? (
+              {loadingMovements && movements.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">Đang tải...</div>
+              ) : movements.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">Chưa có movement.</div>
               ) : (
                 <MovementsTable initialData={{ items: movements, total: movements.length, page: 1, pageSize: 100, hasMore: false }} />
@@ -66,4 +67,3 @@ export default async function StockPage() {
     </div>
   );
 }
-

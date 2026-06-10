@@ -1,39 +1,40 @@
-﻿import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
 
-// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
-export const dynamic = "force-dynamic"
-
-import { api } from "@/lib/api";
+// Client component - fetch stock takes via Supabase PostgREST
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useStockTakes } from "@/features/stock-takes/api";
 import { StockTakeFormClient } from "./stock-take-form-client";
 import { StockTakesTableSSR } from "@/features/stock-takes/stock-takes-table-ssr";
-import type { StockTake } from "@/features/stock-takes/api";
+
+// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
+export const dynamic = "force-dynamic";
 
 export const runtime = "edge";
 
-export default async function StockTakesPage() {
-  let stockTakes: StockTake[] = [];
-  let total = 0;
-  try {
-    const data = await api.get<{ items: StockTake[]; total: number }>("/api/v1/stock-takes?pageSize=100");
-    stockTakes = data.items;
-    total = data.total;
-  } catch {}
+export default function StockTakesPage() {
+  const { data, isLoading } = useStockTakes({ pageSize: 100 });
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
+
   return (
     <div className="space-y-4 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Kiá»ƒm kê</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">Tạo phiểu kiá»ƒm kê, snapshot tá»“n kho, nhập sá»‘ Ä‘ểm, chá»‘t tạo ADJUST â€¢ <strong>{total}</strong> phiểu</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Kiểm kê</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">Tạo phiếu kiểm kê, snapshot tồn kho, nhập số đếm, chốt tạo ADJUST • <strong>{total}</strong> phiếu</p>
         </div>
         <StockTakeFormClient />
       </div>
       <Card>
-        <CardHeader><CardTitle>Danh sách phiểu kiá»ƒm kê</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Danh sách phiếu kiểm kê</CardTitle></CardHeader>
         <CardContent>
-          <StockTakesTableSSR data={{ items: stockTakes, total }} />
+          {isLoading && items.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">Đang tải...</div>
+          ) : (
+            <StockTakesTableSSR data={{ items, total }} />
+          )}
         </CardContent>
       </Card>
     </div>
   );
 }
-

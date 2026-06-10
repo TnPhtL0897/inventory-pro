@@ -1,61 +1,65 @@
-﻿import Link from "next/link";
+"use client";
 
-// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
-export const dynamic = "force-dynamic"
-
-import { cookies } from "next/headers";
+// Client component - 8 parallel counters via useQueries + PostgREST
+import { useEffect, useState } from "react";
+import { useQueries } from "@tanstack/react-query";
+import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, Warehouse, TrendingUp, AlertTriangle, ArrowRight } from "lucide-react";
-import { api } from "@/lib/api";
-import { createClient } from "@/lib/supabase/server";
+import { Package, Warehouse, ArrowRight } from "lucide-react";
+import { listTable } from "@/lib/data-access";
+import { createClient } from "@/lib/supabase/client";
 
-interface CountResult { total: number }
-interface PaginatedResult<T> { items: T[]; total: number; page: number; pageSize: number; hasMore: boolean }
-
-async function fetchTotal(path: string): Promise<number> {
-  try {
-    const data = await api.get<PaginatedResult<unknown>>(path);
-    return data.total;
-  } catch {
-    return 0;
-  }
-}
+// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
+export const dynamic = "force-dynamic";
 
 export const runtime = "edge";
 
-export default async function DashboardPage() {
-  // DEV MODE: lấy email từ cookie, tránh gọi Supabase khi env placeholder
-  const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder") ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL.includes("abcdefghij");
-
-  let userEmail: string | null = null;
-  if (isPlaceholder) {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get("dev_session")?.value;
-    if (sessionCookie) {
-      try {
-        const session = JSON.parse(sessionCookie);
-        userEmail = session?.user?.email ?? null;
-      } catch {}
+export default function DashboardPage() {
+  // Read user.email from Supabase auth (client-side)
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder") ||
+      process.env.NEXT_PUBLIC_SUPABASE_URL.includes("abcdefghij");
+    if (isPlaceholder) {
+      // DEV MODE: read dev_session cookie
+      const m = document.cookie.match(/(?:^|;\s*)dev_session=([^;]+)/);
+      if (m) {
+        try {
+          const session = JSON.parse(decodeURIComponent(m[1]));
+          if (!cancelled) setUserEmail(session?.user?.email ?? null);
+        } catch {}
+      }
+    } else {
+      const supabase = createClient();
+      supabase.auth.getUser().then(({ data }) => {
+        if (!cancelled) setUserEmail(data.user?.email ?? null);
+      });
     }
-  } else {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    userEmail = user?.email ?? null;
-  }
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  // Fetch song song tất cả counters
-  const [productsTotal, warehousesTotal, branchesTotal, partiesTotal, purchaseOrdersTotal, goodsReceiptsTotal, transfersTotal, stockTakesTotal] = await Promise.all([
-    fetchTotal("/api/v1/products?pageSize=1"),
-    fetchTotal("/api/v1/warehouses?pageSize=1"),
-    fetchTotal("/api/v1/branches?pageSize=1"),
-    fetchTotal("/api/v1/parties?pageSize=1"),
-    fetchTotal("/api/v1/purchase-orders?pageSize=1"),
-    fetchTotal("/api/v1/goods-receipts?pageSize=1"),
-    fetchTotal("/api/v1/stock-transfers?pageSize=1"),
-    fetchTotal("/api/v1/stock-takes?pageSize=1"),
-  ]);
+  // 8 counters in parallel — each uses a tiny pageSize=1 to get total count
+  const counterQueries = useQueries({
+    queries: [
+      { queryKey: ["products", "count"],     queryFn: () => listTable("products",         { pageSize: 1 }), staleTime: 30_000 },
+      { queryKey: ["warehouses", "count"],   queryFn: () => listTable("warehouses",       { pageSize: 1 }), staleTime: 30_000 },
+      { queryKey: ["branches", "count"],     queryFn: () => listTable("branches",         { pageSize: 1 }), staleTime: 30_000 },
+      { queryKey: ["parties", "count"],      queryFn: () => listTable("parties",          { pageSize: 1 }), staleTime: 30_000 },
+      { queryKey: ["purchase-orders", "count"], queryFn: () => listTable("purchase_orders", { pageSize: 1 }), staleTime: 30_000 },
+      { queryKey: ["goods-receipts", "count"],  queryFn: () => listTable("goods_receipts",  { pageSize: 1 }), staleTime: 30_000 },
+      { queryKey: ["stock-transfers", "count"],queryFn: () => listTable("stock_transfers",  { pageSize: 1 }), staleTime: 30_000 },
+      { queryKey: ["stock-takes", "count"],  queryFn: () => listTable("stock_takes",      { pageSize: 1 }), staleTime: 30_000 },
+    ],
+  });
+
+  const [
+    productsTotal, warehousesTotal, branchesTotal, partiesTotal,
+    purchaseOrdersTotal, goodsReceiptsTotal, transfersTotal, stockTakesTotal,
+  ] = counterQueries.map((q) => q.data?.total ?? 0);
 
   const cards = [
     { title: "Tổng vật tư", value: productsTotal, href: "/inventory/products", icon: Package, color: "text-blue-600" },
@@ -80,7 +84,7 @@ export default async function DashboardPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tổng quan</h1>
         <p className="text-sm sm:text-base text-muted-foreground">
-          Xin chào <span className="font-medium break-all">{userEmail}</span> — chọn module bên dưới để bắt đầu.
+          Xin chào <span className="font-medium break-all">{userEmail ?? "..."}</span> — chọn module bên dưới để bắt đầu.
         </p>
       </div>
 
@@ -145,4 +149,3 @@ export default async function DashboardPage() {
     </div>
   );
 }
-
