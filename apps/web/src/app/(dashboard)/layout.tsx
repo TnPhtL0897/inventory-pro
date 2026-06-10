@@ -67,6 +67,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Tổng quan", href: "/dashboard" },
   { label: "Vật tư", href: "/inventory/products" },
   { label: "Tồn kho", href: "/inventory/stock" },
+  { label: "Import tồn kho", href: "/inventory/stock/snapshot" },
   { label: "Kho", href: "/warehouses" },
   { label: "Đối tác", href: "/parties" },
   { label: "Mua hàng", href: "/purchase-orders" },
