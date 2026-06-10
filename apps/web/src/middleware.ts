@@ -47,6 +47,13 @@ const TEST_USERS: Record<string, { password: string; user: { id: string; email: 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const publicPaths = ["/login", "/auth/callback", "/api/auth/callback", "/api/auth/dev-login", "/api/auth/dev-logout"];
+
+  // PWA assets must bypass auth (manifest, service worker, offline page)
+  const pwaAssets = ["/manifest.json", "/sw.js", "/offline.html", "/icon.svg", "/icon-192.png", "/icon-512.png", "/favicon.ico"];
+  if (pwaAssets.some((p) => pathname === p || pathname.startsWith(p + "?"))) {
+    return NextResponse.next({ request });
+  }
+
   const isPublicPath = publicPaths.some((p) => pathname.startsWith(p));
 
   // DEV BYPASS: Nếu env là placeholder và user "đã login" qua cookie, cho phép vào
