@@ -5,9 +5,9 @@
 # in Cloudflare Dashboard > Pages > Settings > Environment variables
 # (NOT in this file, because Pages wrangler.toml doesn't support [vars]).
 #
-# Compatibility flags (nodejs_compat) and compatibility date are configured
-# in Dashboard > Settings > Functions.
+# Compatibility flags here are the fallback if Dashboard doesn't have them set.
 
 name = "inventorypro-web"
 compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
 pages_build_output_dir = ".vercel/output/static"
