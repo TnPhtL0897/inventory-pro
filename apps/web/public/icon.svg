@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="32" fill="#0f172a"/>
+  <path d="M48 56h96v80H48z" fill="none" stroke="#60a5fa" stroke-width="6"/>
+  <path d="M48 80h96M48 104h96" stroke="#60a5fa" stroke-width="4"/>
+  <circle cx="96" cy="56" r="8" fill="#fbbf24"/>
+  <text x="96" y="148" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold" fill="#60a5fa">KHO</text>
+</svg>

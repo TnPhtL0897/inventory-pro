@@ -4,6 +4,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useStockLevels, useStockMovements } from "@/features/stock/api";
+import { useRealtimeStockMovements } from "@/lib/realtime";
 import { StockTable } from "@/features/stock/stock-table";
 import { MovementsTable } from "@/features/stock/movements-table";
 
@@ -13,6 +14,9 @@ export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
 export default function StockPage() {
+  // Realtime: auto-refresh stock levels + movements when new movements are inserted
+  useRealtimeStockMovements();
+
   const { data: levelsData, isLoading: loadingLevels } = useStockLevels({ pageSize: 100 });
   const { data: movementsData, isLoading: loadingMovements } = useStockMovements({ pageSize: 100 });
 

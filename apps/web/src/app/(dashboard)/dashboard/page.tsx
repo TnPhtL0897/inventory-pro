@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, Warehouse, ArrowRight } from "lucide-react";
 import { listTable } from "@/lib/data-access";
+import { useRealtimeStockDocuments } from "@/lib/realtime";
 import { createClient } from "@/lib/supabase/client";
 
 // Force dynamic rendering - skip static gen (Cloudflare Pages edge)
@@ -41,6 +42,9 @@ export default function DashboardPage() {
       cancelled = true;
     };
   }, []);
+
+  // Realtime: auto-refresh counters when stock docs change
+  useRealtimeStockDocuments();
 
   // 8 counters in parallel — each uses a tiny pageSize=1 to get total count
   const counterQueries = useQueries({
