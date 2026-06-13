@@ -103,9 +103,9 @@ export default async function DashboardLayout({
             </Link>
           </div>
 
-          {/* Desktop user info + logout */}
-          <div className="hidden lg:flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
+          {/* Tablet + Desktop user info + logout */}
+          <div className="hidden md:flex items-center gap-3">
+            <span className="text-sm text-muted-foreground hidden lg:inline">
               {user.email}
               {user.role && (
                 <span className="ml-2 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
@@ -114,12 +114,19 @@ export default async function DashboardLayout({
               )}
             </span>
             <form action={handleSignOut}>
-              <Button variant="ghost" size="sm" type="submit">
-                <LogOut className="mr-2 h-4 w-4" />
-                Đăng xuất
+              <Button variant="ghost" size="sm" type="submit" aria-label="Đăng xuất">
+                <LogOut className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Đăng xuất</span>
               </Button>
             </form>
           </div>
+
+{/* Mobile: small logout button visible */}
+          <form action={handleSignOut} className="md:hidden">
+            <Button variant="ghost" size="icon" type="submit" aria-label="Đăng xuất">
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </form>
         </div>
       </header>
       <main className="flex-1">

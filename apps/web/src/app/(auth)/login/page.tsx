@@ -27,6 +27,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+ const isPlaceholder = !process.env.NEXT_PUBLIC_SUPABASE_URL ||
+ process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder") ||
+ process.env.NEXT_PUBLIC_SUPABASE_URL.includes("abcdefghij");
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -130,7 +134,8 @@ export default function LoginPage() {
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Đăng nhập
           </Button>
-          <div className="rounded-md bg-blue-50 dark:bg-blue-950 p-3 text-xs space-y-1 w-full">
+          {isPlaceholder && (
+ <div className="rounded-md bg-blue-50 dark:bg-blue-950 p-3 text-xs space-y-1 w-full">
             <p className="font-semibold text-blue-900 dark:text-blue-100">🧪 Tài khoản test (DEV MODE):</p>
             <p className="text-blue-800 dark:text-blue-200 font-mono">admin@inventorypro.vn / admin123</p>
             <p className="text-blue-800 dark:text-blue-200 font-mono">manager@inventorypro.vn / manager123</p>
@@ -139,6 +144,7 @@ export default function LoginPage() {
               ⚠ Khi deploy production phải setup Supabase thật + xóa mock login
             </p>
           </div>
+ )}
           <p className="text-sm text-muted-foreground">
             Chưa có tài khoản? Liên hệ quản trị viên.
           </p>

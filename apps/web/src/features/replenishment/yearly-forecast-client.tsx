@@ -220,11 +220,11 @@ export function YearlyForecastClient() {
  }
 
  return (
- <div className="space-y-6">
+ <div className="space-y-4 sm:space-y-6">
  {/* Header */}
  <div>
- <h1 className="text-2xl font-bold">Dự trù năm</h1>
- <p className="text-sm text-muted-foreground">
+ <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dự trù năm</h1>
+ <p className="text-sm sm:text-base text-muted-foreground">
  Lập kế hoạch mua sắm cho năm {fiscalYear} dựa trên lịch sử tiêu thụ (công thức: MAX(TB 12 tháng, Max 3 tháng) × 12).
  </p>
  </div>
@@ -260,14 +260,14 @@ export function YearlyForecastClient() {
  ) : (
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 border rounded-md max-h-48 overflow-y-auto">
  {warehouses.map((w) => (
- <label key={w.id} className="flex items-center gap-2 text-sm cursor-pointer">
+ <label key={w.id} className="flex items-center gap-3 text-sm cursor-pointer py-1.5">
  <input
  type="checkbox"
  checked={selectedWarehouses.includes(w.id)}
  onChange={() => toggleWarehouse(w.id)}
- className="rounded"
+ className="h-4 w-4 rounded shrink-0"
  />
- <span>{w.code} — {w.name}</span>
+ <span className="min-w-0">{w.code} — {w.name}</span>
  </label>
  ))}
  </div>
@@ -277,6 +277,7 @@ export function YearlyForecastClient() {
  <Button
  onClick={() => compute.mutate()}
  disabled={compute.isPending || selectedWarehouses.length === 0}
+ className="w-full sm:w-auto"
  >
  {compute.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
  Chạy dự trù
@@ -287,21 +288,21 @@ export function YearlyForecastClient() {
  {/* Bảng kết quả */}
  {activeRunId && (
  <Card>
- <CardHeader className="flex flex-row items-center justify-between">
+ <CardHeader className="space-y-3">
  <div>
  <CardTitle>2. Kết quả dự trù (Run #{activeRunId.slice(0, 8)})</CardTitle>
  <CardDescription>
  {lines?.length ?? 0} sản phẩm ACTIVE
  </CardDescription>
  </div>
- <div className="flex gap-2">
+ <div className="flex flex-col sm:flex-row gap-2">
  <Input
  placeholder="Tìm SKU / tên..."
  value={search}
  onChange={(e) => setSearch(e.target.value)}
- className="w-48"
+ className="w-full sm:w-48"
  />
- <Button variant="outline" onClick={handleExportCsv} disabled={!lines || lines.length === 0}>
+ <Button variant="outline" onClick={handleExportCsv} disabled={!lines || lines.length === 0} className="shrink-0">
  <FileDown className="mr-2 h-4 w-4" />
  Export Excel (CSV)
  </Button>
@@ -321,9 +322,9 @@ export function YearlyForecastClient() {
  <TableRow>
  <TableHead>SKU</TableHead>
  <TableHead>Tên sản phẩm</TableHead>
- <TableHead>ĐVT</TableHead>
- <TableHead className="text-right">TB 12 tháng</TableHead>
- <TableHead className="text-right">Max 3 tháng</TableHead>
+ <TableHead className="hidden md:table-cell">ĐVT</TableHead>
+ <TableHead className="hidden lg:table-cell text-right">TB 12 tháng</TableHead>
+ <TableHead className="hidden lg:table-cell text-right">Max 3 tháng</TableHead>
  <TableHead className="text-right">Dự kiến năm</TableHead>
  <TableHead className="text-right">Tồn kho</TableHead>
  <TableHead className="text-right">Đề xuất mua</TableHead>
@@ -333,15 +334,15 @@ export function YearlyForecastClient() {
  <TableBody>
  {filteredLines.map((l) => (
  <TableRow key={l.id}>
- <TableCell className="font-mono text-xs">{l.productSku}</TableCell>
- <TableCell className="max-w-[200px] truncate" title={l.productName}>{l.productName}</TableCell>
- <TableCell className="text-xs">{l.unitCode ?? "—"}</TableCell>
- <TableCell className="text-right tabular-nums">{formatQty(l.consumption12mAvg)}</TableCell>
- <TableCell className="text-right tabular-nums">{formatQty(l.consumption3mMax)}</TableCell>
+ <TableCell className="font-mono text-xs whitespace-nowrap">{l.productSku}</TableCell>
+ <TableCell className="max-w-[180px] md:max-w-[200px] truncate" title={l.productName}>{l.productName}</TableCell>
+ <TableCell className="hidden md:table-cell text-xs">{l.unitCode ?? "—"}</TableCell>
+ <TableCell className="hidden lg:table-cell text-right tabular-nums">{formatQty(l.consumption12mAvg)}</TableCell>
+ <TableCell className="hidden lg:table-cell text-right tabular-nums">{formatQty(l.consumption3mMax)}</TableCell>
  <TableCell className="text-right tabular-nums">{formatQty(l.forecastYearQty)}</TableCell>
  <TableCell className="text-right tabular-nums">{formatQty(l.currentStock)}</TableCell>
  <TableCell className="text-right tabular-nums font-semibold">{formatQty(l.suggestedBuyQty)}</TableCell>
- <TableCell className="text-right tabular-nums font-semibold">{formatVND(l.totalEstimatedValue)}</TableCell>
+ <TableCell className="text-right tabular-nums font-semibold whitespace-nowrap">{formatVND(l.totalEstimatedValue)}</TableCell>
  </TableRow>
  ))}
  </TableBody>
@@ -363,7 +364,7 @@ export function YearlyForecastClient() {
  <CardContent>
  {runsLoading ? (
  <div className="text-sm text-muted-foreground">Đang tải...</div>
- ) : !runs || runs.length === 0 ? (
+ ) : !runs || runs?.items.length === 0 ? (
  <div className="text-sm text-muted-foreground">Chưa có lần chạy nào.</div>
  ) : (
  <div className="border rounded-md overflow-x-auto">
@@ -371,29 +372,29 @@ export function YearlyForecastClient() {
  <TableHeader>
  <TableRow>
  <TableHead>Run #</TableHead>
- <TableHead>Năm</TableHead>
- <TableHead>Ngày chạy</TableHead>
+ <TableHead className="hidden sm:table-cell">Năm</TableHead>
+ <TableHead className="hidden md:table-cell">Ngày chạy</TableHead>
  <TableHead className="text-right">SP xét</TableHead>
- <TableHead className="text-right">Có output</TableHead>
+ <TableHead className="hidden sm:table-cell text-right">Có output</TableHead>
  <TableHead className="text-right">Tổng tiền dự kiến</TableHead>
- <TableHead>Trạng thái</TableHead>
+ <TableHead className="hidden md:table-cell">Trạng thái</TableHead>
  <TableHead></TableHead>
  </TableRow>
  </TableHeader>
  <TableBody>
- {runs.map((r) => (
+ {runs?.items.map((r) => (
  <TableRow key={r.id} className={activeRunId === r.id ? "bg-muted/50" : ""}>
- <TableCell className="font-mono text-xs">{r.id.slice(0, 8)}</TableCell>
- <TableCell>{r.fiscalYear}</TableCell>
- <TableCell>{r.runDate}</TableCell>
+ <TableCell className="font-mono text-xs whitespace-nowrap">{r.id.slice(0, 8)}</TableCell>
+ <TableCell className="hidden sm:table-cell">{r.fiscalYear}</TableCell>
+ <TableCell className="hidden md:table-cell whitespace-nowrap">{r.runDate}</TableCell>
  <TableCell className="text-right tabular-nums">{r.totalProducts}</TableCell>
- <TableCell className="text-right tabular-nums">{r.totalLines}</TableCell>
- <TableCell className="text-right tabular-nums font-semibold">{formatVND(r.totalEstimatedValue)}</TableCell>
- <TableCell>
+ <TableCell className="hidden sm:table-cell text-right tabular-nums">{r.totalLines}</TableCell>
+ <TableCell className="text-right tabular-nums font-semibold whitespace-nowrap">{formatVND(r.totalEstimatedValue)}</TableCell>
+ <TableCell className="hidden md:table-cell">
  <Badge variant={r.status === "COMPLETED" ? "default" : "secondary"}>{r.status}</Badge>
  </TableCell>
  <TableCell>
- <Button size="sm" variant="ghost" onClick={() => setActiveRunId(r.id)}>
+ <Button size="icon" variant="ghost" onClick={() => setActiveRunId(r.id)} className="h-10 w-10 sm:h-8 sm:w-10" aria-label="Xem">
  Xem
  </Button>
  </TableCell>
