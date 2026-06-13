@@ -76,6 +76,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Kiểm kê", href: "/stock-takes" },
   { label: "Đấu thầu", href: "/bidding/contracts" },
   { label: "Dự trù cuối tháng", href: "/replenishment" },
+ { label: "Dự trù năm", href: "/inventory/replenishment/yearly" },
 ];
 
 export default async function DashboardLayout({
