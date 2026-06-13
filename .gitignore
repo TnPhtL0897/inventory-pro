@@ -67,3 +67,41 @@ supabase/.temp/
 deploy-package/
 
 # Deploy package (chứa source code cho upload GitHub qua web UI)
+tmp_apply_db.env
+
+# Junk files (sandbox scripts không nên commit)
+MSG*.TXT
+LASTDE~*.TXT
+fix*.py
+test-*.ps1
+check-*.ps1
+check-*.py
+debug-*.js
+deploy-*.ps1
+deploy-*.sh
+apply-*.ps1
+apply-*.js
+verify-*.ps1
+verify-*.js
+trigger-*.ps1
+fix-*.ps1
+fix-*.js
+list-*.ps1
+get-*.ps1
+load-*.ps1
+save-*.ps1
+update-*.ps1
+test-*.sql
+test-*.js
+commit-*.ps1
+force-*.ps1
+link-*.ps1
+clean*.ps1
+CLEANUP.PS1
+FIX-WORKFLOWS.md
+"Deloy secret.txt"
+.deploy-state
+.mcp.json
+.supabase-credentials
+apps/web/deps.json
+apps/web/package-lock.json

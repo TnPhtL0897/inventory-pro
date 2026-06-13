@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "dev:web": "turbo run dev --filter=web",
-    "dev:api": "turbo run dev --filter=api",
+   
     "build": "turbo run build",
     "test": "turbo run test",
     "lint": "turbo run lint",
