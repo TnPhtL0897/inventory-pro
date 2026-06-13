@@ -32,7 +32,7 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 -- Mỗi lần chạy dự trù = 1 row. Có thể chạy lại nhiều lần / năm (drafts).
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS yearly_forecast_runs (
-    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id           UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     fiscal_year         INT NOT NULL,                    -- NĂM CẦN DỰ TRÙ (vd: 2027)
     run_date            DATE NOT NULL DEFAULT CURRENT_DATE,
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS yearly_forecast_runs (
     total_estimated_value NUMERIC(18,2) DEFAULT 0,       -- tổng tiền dự kiến
     -- Audit
     status              yearly_forecast_status NOT NULL DEFAULT 'DRAFT',
-    run_by              UUID REFERENCES users(id),
+    run_by UUID, -- loose FK (match pattern used in created_by columns elsewhere),
     notes               TEXT,
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -64,7 +64,7 @@ COMMENT ON TABLE yearly_forecast_runs IS
 -- 1 row / product / run. Lưu chi tiết tính toán.
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS yearly_forecast_lines (
-    id                  UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tenant_id           UUID NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
     run_id              UUID NOT NULL REFERENCES yearly_forecast_runs(id) ON DELETE CASCADE,
     product_id          UUID NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS yearly_forecast_lines (
     line_status         yearly_forecast_line_status NOT NULL DEFAULT 'PENDING',
     user_note           TEXT,
     -- Unit info (snapshot tại thời điểm run)
-    unit_id             UUID REFERENCES units_of_measure(id),
+    unit_id UUID, -- loose FK (match pattern used elsewhere),
     unit_code           TEXT,
     -- Audit
     created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -145,59 +145,54 @@ GRANT ALL ON yearly_forecast_lines TO service_role;
 -- =============================================================================
 CREATE OR REPLACE VIEW v_product_consumption_yearly AS
 WITH all_out_movements AS (
-    -- Stock Issues: OUT (xuất kho)
-    SELECT
-        l.product_id,
-        g.warehouse_id,
-        i.issue_date::date AS movement_date,
-        l.quantity
-    FROM stock_issue_lines l
-    JOIN stock_issues i ON i.id = l.stock_issue_id
-    WHERE i.status = 'POSTED'
+ -- Stock Issues: OUT (xuất kho)
+ SELECT
+ l.product_id,
+ i.warehouse_id,
+ i.issue_date::date AS movement_date,
+ l.quantity
+ FROM stock_issue_lines l
+ JOIN stock_issues i ON i.id = l.stock_issue_id
+ WHERE i.status = 'POSTED'
 
-    UNION ALL
+ UNION ALL
 
-    -- Stock Transfers: TRANSFER_OUT
-    SELECT
-        l.product_id,
-        t.from_warehouse_id AS warehouse_id,
-        t.created_at::date AS movement_date,
-        l.shipped_qty AS quantity
-    FROM stock_transfer_lines l
-    JOIN stock_transfers t ON t.id = l.stock_transfer_id
-    WHERE t.status IN ('IN_TRANSIT', 'RECEIVED')
+ -- Stock Transfers: TRANSFER_OUT
+ SELECT
+ l.product_id,
+ t.from_warehouse_id AS warehouse_id,
+ t.created_at::date AS movement_date,
+ l.shipped_qty AS quantity
+ FROM stock_transfer_lines l
+ JOIN stock_transfers t ON t.id = l.stock_transfer_id
+ WHERE t.status IN ('IN_TRANSIT', 'RECEIVED')
 
-    UNION ALL
-
-    -- Stock Takes: ADJUST_OUT (hỏng, mất, hết HSD)
-    -- Lưu ý: stock_take_lines có system_qty + counted_qty, variance = counted - system
-    -- Tạm thời chưa aggregate vì stock_take chưa có flow tự tạo movements
-    -- TODO: bổ sung khi có stock_take flow chính thức
+ -- (stock_take ADJUST_OUT chưa aggregate vì chưa có flow tự tạo movements; TODO bổ sung sau)
+),
+-- Pre-aggregate theo product/warehouse/month để tính max-1-month chính xác
+monthly AS (
+ SELECT
+ product_id,
+ warehouse_id,
+ date_trunc('month', movement_date)::date AS month_start,
+ SUM(quantity) AS monthly_qty
+ FROM all_out_movements
+ WHERE movement_date >= CURRENT_DATE - INTERVAL '12 months'
+ GROUP BY product_id, warehouse_id, date_trunc('month', movement_date)
 )
 SELECT
-    a.product_id,
-    a.warehouse_id,
-    -- 12 tháng gần nhất (rolling window)
-    COALESCE(SUM(a.quantity) FILTER (
-        WHERE a.movement_date >= CURRENT_DATE - INTERVAL '12 months'
-    ), 0) AS consumption_12m_total,
-    -- Trung bình / tháng trong 12 tháng
-    COALESCE(SUM(a.quantity) FILTER (
-        WHERE a.movement_date >= CURRENT_DATE - INTERVAL '12 months'
-    ), 0) / 12.0 AS consumption_12m_avg,
-    -- Max 1 tháng trong 3 tháng gần nhất
-    COALESCE(MAX(monthly_qty), 0) AS consumption_3m_max
-FROM all_out_movements a
-LEFT JOIN LATERAL (
-    SELECT SUM(quantity) AS monthly_qty
-    FROM all_out_movements a2
-    WHERE a2.product_id = a.product_id
-      AND a2.warehouse_id = a.warehouse_id
-      AND a2.movement_date >= CURRENT_DATE - INTERVAL '3 months'
-      AND date_trunc('month', a2.movement_date) = date_trunc('month', a.movement_date)
-) monthly ON true
-WHERE a.movement_date >= CURRENT_DATE - INTERVAL '12 months'
-GROUP BY a.product_id, a.warehouse_id;
+ m.product_id,
+ m.warehouse_id,
+ -- Tổng xuất 12 tháng gần nhất
+ COALESCE(SUM(m.monthly_qty), 0) AS consumption_12m_total,
+ -- Trung bình / tháng trong 12 tháng
+ COALESCE(SUM(m.monthly_qty), 0) / 12.0 AS consumption_12m_avg,
+ -- Max của 1 tháng trong 3 tháng gần nhất (riêng từng tháng)
+ COALESCE(MAX(m.monthly_qty) FILTER (
+ WHERE m.month_start >= date_trunc('month', CURRENT_DATE) - INTERVAL '3 months'
+ ), 0) AS consumption_3m_max
+FROM monthly m
+GROUP BY m.product_id, m.warehouse_id;
 
 COMMENT ON VIEW v_product_consumption_yearly IS
     'Tổng hợp tiêu thụ 12 tháng + max 3 tháng gần nhất theo (product, warehouse). Dùng cho yearly forecast.';
