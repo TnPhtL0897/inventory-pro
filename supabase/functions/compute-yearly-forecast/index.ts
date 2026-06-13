@@ -74,7 +74,7 @@ interface ProductRow {
  sku: string;
  name: string;
  cost_price: number;
- is_active: boolean;
+ status: string;
  base_unit_id: string | null;
 }
 
@@ -139,8 +139,8 @@ serve(async (req: Request) => {
  // 5. Query products ACTIVE
  const { data: productsRaw, error: prodErr } = await userClient
  .from("products")
- .select("id, sku, name, cost_price, is_active, base_unit_id")
- .eq("is_active", true)
+ .select("id, sku, name, cost_price, status, base_unit_id")
+ .eq("status", "ACTIVE")
  .order("sku");
  if (prodErr) {
   return err("Lỗi query products", 500, "QUERY_FAILED", prodErr.message);

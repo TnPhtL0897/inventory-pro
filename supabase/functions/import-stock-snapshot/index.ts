@@ -142,19 +142,52 @@ serve(async (req: Request) => {
   });
 
   // Auth: read JWT
+  // 3 modes:
+  //  1. No JWT            → 401 Unauthorized
+  //  2. Service-role JWT  → bypass auth, require tenantId in body (scripted)
+  //  3. User JWT          → require userId + tenantId in JWT (UI)
   const auth = req.headers.get("Authorization");
   let userId: string | null = null;
   let tenantId: string | null = null;
-  if (auth) {
+  let isServiceRole = false;
+
+  if (!auth) return err("Unauthorized", 401);
+
+  // Decode JWT payload (no verification) to detect service_role
+  let payload: any = null;
+  try {
+    const token = auth.replace(/^Bearer\s+/i, "");
+    const parts = token.split(".");
+    if (parts.length === 3) {
+      const padded = parts[1] + "===".slice((parts[1].length + 3) % 4);
+      payload = JSON.parse(atob(padded));
+    }
+  } catch {
+    // invalid JWT, fall through to user auth check
+  }
+
+  if (payload?.role === "service_role") {
+    isServiceRole = true;
+    // Service-role: tenantId MUST be provided in body
+    tenantId = (body?.tenantId ?? "").toString().trim() || null;
+    if (!tenantId) {
+      return err(
+        "Service-role call requires tenantId in body (scripted invocation)",
+        400,
+      );
+    }
+    userId = "service-role"; // marker for created_by
+  } else {
+    // User JWT: verify via getUser
     const userClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: auth } },
     });
     const { data: { user } } = await userClient.auth.getUser();
     userId = user?.id ?? null;
     tenantId = (user?.app_metadata?.tenant_id as string) ?? null;
+    if (!userId) return err("Unauthorized", 401);
+    if (!tenantId) return err("Missing tenant_id in JWT", 401);
   }
-  if (!userId) return err("Unauthorized", 401);
-  if (!tenantId) return err("Missing tenant_id in JWT", 401);
 
   // Validate warehouse + get branch + default location
   const { data: wh, error: whErr } = await svc
