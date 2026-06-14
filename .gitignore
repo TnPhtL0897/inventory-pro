@@ -32,6 +32,8 @@ obj/
 .env.production
 !.env.example
 !.env.production.example
+# Allow apps/web/.env.production (contains only NEXT_PUBLIC_* values for build)
+!apps/web/.env.production
 
 # Deploy secrets (LOCAL ONLY - chứa API tokens)
 deploy-secrets.ps1
