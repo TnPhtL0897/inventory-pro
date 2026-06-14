@@ -214,3 +214,40 @@ export const MOCK_FORECAST_LINES = [
   { productId: "p3", productSku: "RM-001", productName: "Thép tấm 5mm", unitId: "u3", unitCode: "TẤM", currentStock: 5, minStock: 10, maxStock: 100, avgDailyOut: 0, forecastNextMonth: 0, suggestedReplenishQty: 95, estimatedUnitPrice: 25_000_000, estimatedTotal: 2_375_000_000, bidContractId: null, bidContractNo: null, bidLotId: null, bidLotName: null, reason: "Không đủ lịch sử (0 lần OUT, cần >= 3)" },
   { productId: "p4", productSku: "FG-001", productName: "Bàn làm việc gỗ công nghiệp", unitId: "u1", unitCode: "CÁI", currentStock: 1, minStock: 5, maxStock: 50, avgDailyOut: 0.11, forecastNextMonth: 3, suggestedReplenishQty: 7, estimatedUnitPrice: 1_500_000, estimatedTotal: 10_500_000, bidContractId: null, bidContractNo: null, bidLotId: null, bidLotName: null, reason: "Trend 3 tháng: 10 / 90 ngày" },
 ];
+
+// =============================================================================
+// Khoa XN — Module 2: Mock lots
+// =============================================================================
+export const MOCK_LOTS = [
+  {
+    id: "lot1", tenantId: "t1", productId: "pxn1", warehouseId: "wxn1",
+    lotNumber: "L-GLUC-2026-001", expirationDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    quantity: 50, packageVolume: 100, storageCondition: "REFRIGERATED",
+    status: "APPROVED", qcRequired: true, openVialCount: 0,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "lot2", tenantId: "t1", productId: "pxn1", warehouseId: "wxn2",
+    lotNumber: "L-GLUC-2026-002", expirationDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    quantity: 20, packageVolume: 100, storageCondition: "REFRIGERATED",
+    status: "IN_USE", qcRequired: true, openVialCount: 1,
+    openVialOpenedAt: new Date(Date.now() - 23 * 24 * 60 * 60 * 1000).toISOString(),
+    openVialExpirationDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    openVialStabilityDays: 28, openVialQuantityRemaining: 95,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "lot3", tenantId: "t1", productId: "pxn2", warehouseId: "wxn1",
+    lotNumber: "L-HBS-2026-010", expirationDate: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    quantity: 30, packageVolume: 50, storageCondition: "REFRIGERATED",
+    status: "PENDING_QC", qcRequired: true, openVialCount: 0,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  },
+  {
+    id: "lot4", tenantId: "t1", productId: "pxn3", warehouseId: "wxn3",
+    lotNumber: "L-EDTA-2026-005", expirationDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    quantity: 1000, storageCondition: "ROOM_TEMP",
+    status: "APPROVED", qcRequired: false, openVialCount: 0,
+    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+  },
+];

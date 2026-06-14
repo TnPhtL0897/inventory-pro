@@ -609,6 +609,282 @@ export interface StockIssue {
   created_at: ISODateString;
   updated_at: ISODateString;
 }
+// =============================================================================
+// Khoa XN — Module 2: Lot Lifecycle
+// =============================================================================
+
+/** Lot status (10 trạng thái) */
+export type LotStatus =
+  | "QUARANTINE"
+  | "PENDING_QC"
+  | "IN_QC"
+  | "APPROVED"
+  | "IN_USE"
+  | "DEPLETED"
+  | "EXPIRED"
+  | "DESTROYED"
+  | "QC_FAILED"
+  | "BLOCKED";
+
+/** QC result */
+export type LotQCResult = "PASS" | "FAIL" | "PENDING";
+
+/** QC type */
+export type LotQCType = "INITIAL" | "OPEN_VIAL_RETEST" | "PERIODIC";
+
+/** Lot (master) */
+export interface Lot {
+  id: UUID;
+  tenant_id: UUID;
+  product_id: UUID;
+  warehouse_id: UUID;
+  lot_number: string;
+  manufacturer_date: ISODateString | null;
+  expiration_date: ISODateString;
+  quantity: number;
+  package_volume: number | null;
+  storage_condition: StorageCondition | null;
+  status: LotStatus;
+  qc_required: boolean;
+  qc_required_at: ISODateString | null;
+  qc_completed_at: ISODateString | null;
+  open_vial_opened_at: ISODateString | null;
+  open_vial_opened_by: UUID | null;
+  open_vial_quantity_remaining: number | null;
+  open_vial_expiration_date: ISODateString | null;
+  open_vial_stability_days: number | null;
+  open_vial_count: number;
+  last_qc_retest_at: ISODateString | null;
+  last_qc_retest_result: LotQCResult | null;
+  qc_retest_valid_until: ISODateString | null;
+  recall_notice_id: UUID | null;
+  recall_blocked_at: ISODateString | null;
+  certificate_of_analysis_url: string | null;
+  attachments: Record<string, unknown>[];
+  notes: string | null;
+  created_by: UUID | null;
+  created_at: ISODateString;
+  updated_at: ISODateString;
+}
+
+/** Lot QC Record */
+export interface LotQCRecord {
+  id: UUID;
+  tenant_id: UUID;
+  lot_id: UUID;
+  qc_type: LotQCType;
+  qc_method: string | null;
+  qc_result: LotQCResult;
+  qc_notes: string | null;
+  qc_date: ISODateString;
+  qc_started_at: ISODateString | null;
+  qc_completed_at: ISODateString | null;
+  valid_until: ISODateString | null;
+  decision_notes: string | null;
+  control_normal_lot_id: UUID | null;
+  control_pathological_lot_id: UUID | null;
+  attachments: Record<string, unknown>[];
+  qc_officer_id: UUID;
+  created_at: ISODateString;
+}
+
+/** Open-vial history (mỗi lần mở 1 record) */
+export interface OpenVialHistory {
+  id: UUID;
+  tenant_id: UUID;
+  lot_id: UUID;
+  opened_at: ISODateString;
+  opened_by: UUID;
+  quantity_before: number;
+  quantity_taken: number;
+  quantity_after: number;
+  open_vial_stability_days: number;
+  open_vial_expiration_date: ISODateString;
+  label_printed: boolean;
+  label_printed_at: ISODateString | null;
+  notes: string | null;
+  created_at: ISODateString;
+}
+
+/** Recall notice */
+export type RecallSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+export type RecallStatus = "ACTIVE" | "RESOLVED" | "CLOSED";
+export type RecallActionType = "RETURN_TO_SUPPLIER" | "DESTROY" | "INVESTIGATE";
+
+export interface RecallNotice {
+  id: UUID;
+  tenant_id: UUID;
+  recall_number: string;
+  supplier_name: string;
+  product_names: string[];
+  reason: string;
+  severity: RecallSeverity;
+  recall_date: ISODateString;
+  action_taken_by_supplier: string | null;
+  affected_lot_numbers: string[];
+  status: RecallStatus;
+  resolved_at: ISODateString | null;
+  created_by: UUID | null;
+  created_at: ISODateString;
+  updated_at: ISODateString;
+}
+
+export interface RecallLotAction {
+  id: UUID;
+  tenant_id: UUID;
+  recall_notice_id: UUID;
+  lot_id: UUID;
+  still_in_stock: boolean | null;
+  already_used: boolean | null;
+  usage_notes: string | null;
+  action: RecallActionType;
+  action_notes: string | null;
+  disposal_request_id: UUID | null;
+  return_document_id: UUID | null;
+  investigation_task_id: UUID | null;
+  processed_by: UUID | null;
+  processed_at: ISODateString | null;
+  created_at: ISODateString;
+}
+
+/** Disposal */
+export type DisposalStatus =
+  | "PENDING"
+  | "APPROVED"
+  | "IN_PROGRESS"
+  | "COMPLETED"
+  | "CANCELLED";
+
+export interface DisposalRequest {
+  id: UUID;
+  tenant_id: UUID;
+  request_number: string;
+  reason: string;
+  status: DisposalStatus;
+  total_estimated_value: number;
+  requires_dept_head_approval: boolean;
+  auto_generated: boolean;
+  created_by: UUID | null;
+  approved_by: UUID | null;
+  rejected_by: UUID | null;
+  rejection_reason: string | null;
+  disposal_act_number: string | null;
+  disposal_act_url: string | null;
+  disposal_date: ISODateString | null;
+  disposal_method: string | null;
+  completed_at: ISODateString | null;
+  notes: string | null;
+  created_at: ISODateString;
+  updated_at: ISODateString;
+}
+
+export interface DisposalRequestLine {
+  id: UUID;
+  disposal_request_id: UUID;
+  lot_id: UUID;
+  product_id: UUID;
+  quantity: number;
+  unit_price: number | null;
+  estimated_value: number | null;
+  expiration_date: ISODateString | null;
+  reason: string | null;
+  created_at: ISODateString;
+}
+
+/** Lot alerts */
+export type LotAlertType =
+  | "EXPIRING_SOON"
+  | "OPEN_VIAL_EXPIRING"
+  | "OUT_OF_STOCK"
+  | "RECALL"
+  | "QC_REQUIRED";
+export type LotAlertLevel = "INFO" | "WARNING" | "CRITICAL";
+
+export interface LotAlert {
+  id: UUID;
+  tenant_id: UUID;
+  lot_id: UUID;
+  alert_type: LotAlertType;
+  alert_level: LotAlertLevel;
+  message: string;
+  metadata: Record<string, unknown>;
+  resolved: boolean;
+  resolved_at: ISODateString | null;
+  resolved_by: UUID | null;
+  created_at: ISODateString;
+}
+
+// =============================================================================
+// Labels & Colors (dùng cho UI)
+// =============================================================================
+
+export const LOT_STATUS_LABELS: Record<LotStatus, string> = {
+  QUARANTINE: "Cách ly",
+  PENDING_QC: "Chờ QC",
+  IN_QC: "Đang QC",
+  APPROVED: "Đạt chất lượng",
+  IN_USE: "Đang sử dụng",
+  DEPLETED: "Hết số lượng",
+  EXPIRED: "Hết hạn",
+  DESTROYED: "Đã hủy",
+  QC_FAILED: "QC không đạt",
+  BLOCKED: "Bị chặn (Recall)",
+};
+
+export const LOT_STATUS_COLORS: Record<LotStatus, string> = {
+  QUARANTINE: "bg-gray-100 text-gray-800",
+  PENDING_QC: "bg-yellow-100 text-yellow-800",
+  IN_QC: "bg-blue-100 text-blue-800",
+  APPROVED: "bg-green-100 text-green-800",
+  IN_USE: "bg-cyan-100 text-cyan-800",
+  DEPLETED: "bg-slate-100 text-slate-600",
+  EXPIRED: "bg-red-100 text-red-800",
+  DESTROYED: "bg-stone-100 text-stone-600",
+  QC_FAILED: "bg-rose-100 text-rose-800",
+  BLOCKED: "bg-purple-100 text-purple-800",
+};
+
+export const RECALL_SEVERITY_LABELS: Record<RecallSeverity, string> = {
+  LOW: "Thấp",
+  MEDIUM: "Trung bình",
+  HIGH: "Cao",
+  CRITICAL: "Nghiêm trọng",
+};
+
+export const RECALL_SEVERITY_COLORS: Record<RecallSeverity, string> = {
+  LOW: "bg-blue-100 text-blue-800",
+  MEDIUM: "bg-yellow-100 text-yellow-800",
+  HIGH: "bg-orange-100 text-orange-800",
+  CRITICAL: "bg-red-100 text-red-800",
+};
+
+export const RECALL_ACTION_LABELS: Record<RecallActionType, string> = {
+  RETURN_TO_SUPPLIER: "Trả nhà cung cấp",
+  DESTROY: "Tiêu hủy",
+  INVESTIGATE: "Điều tra",
+};
+
+export const DISPOSAL_STATUS_LABELS: Record<DisposalStatus, string> = {
+  PENDING: "Chờ duyệt",
+  APPROVED: "Đã duyệt",
+  IN_PROGRESS: "Đang thực hiện",
+  COMPLETED: "Hoàn tất",
+  CANCELLED: "Đã hủy",
+};
+
+export const DISPOSAL_STATUS_COLORS: Record<DisposalStatus, string> = {
+  PENDING: "bg-amber-100 text-amber-800",
+  APPROVED: "bg-blue-100 text-blue-800",
+  IN_PROGRESS: "bg-cyan-100 text-cyan-800",
+  COMPLETED: "bg-green-100 text-green-800",
+  CANCELLED: "bg-gray-100 text-gray-800",
+};
+
+export const ALERT_LEVEL_COLORS: Record<LotAlertLevel, string> = {
+  INFO: "bg-blue-100 text-blue-800",
+  WARNING: "bg-amber-100 text-amber-800",
+  CRITICAL: "bg-red-100 text-red-800",
+};
 
 // =============================================================================
 // Database (sẽ được generate tự động bởi supabase gen types)
