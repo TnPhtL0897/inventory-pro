@@ -887,6 +887,180 @@ export const ALERT_LEVEL_COLORS: Record<LotAlertLevel, string> = {
 };
 
 // =============================================================================
+// Khoa XN — Module 3: Internal Replenishment Weekly
+// =============================================================================
+
+/** Replenishment run status (8 trạng thái) */
+export type ReplenishmentRunStatus =
+  | "DRAFT"
+  | "REVIEWED"
+  | "CONFIRMED_BY_DAILY"
+  | "APPROVED"
+  | "REJECTED"
+  | "TRANSFERRING"
+  | "COMPLETED"
+  | "CANCELLED";
+
+/** Replenishment line status (7 trạng thái) */
+export type ReplenishmentLineStatus =
+  | "PENDING"
+  | "ADJUSTED"
+  | "CONFIRMED"
+  | "SKIPPED"
+  | "TRANSFERRING"
+  | "COMPLETED"
+  | "FAILED";
+
+/** Override reason */
+export type ReplenishmentOverrideReason =
+  | "LOT_FEFO_INSUFFICIENT"
+  | "LOT_FEFO_EXPIRING_SOON"
+  | "EMERGENCY"
+  | "ALREADY_OPENED"
+  | "OTHER";
+
+/** Adjustment history item */
+export interface AdjustmentHistoryItem {
+  by: string;
+  by_role: string | string[];
+  from: number;
+  to: number;
+  reason: string;
+  at: string;
+}
+
+/** Weekly Replenishment Run */
+export interface WeeklyReplenishmentRun {
+  id: UUID;
+  tenant_id: UUID;
+  product_group: ProductGroup;
+  warehouse_role_from: WarehouseRole;
+  warehouse_role_to: WarehouseRole;
+  period_date: ISODateString;
+  period_year: number;
+  period_month: number;
+  iso_week: number;
+  status: ReplenishmentRunStatus;
+  total_lines: number;
+  total_suggested_qty: number;
+  total_estimated_value: number;
+  requires_dept_head_approval: boolean;
+  triggered_by: "CRON" | "MANUAL";
+  trigger_source: string | null;
+  created_by: UUID | null;
+  reviewed_by: UUID | null;
+  confirmed_by: UUID | null;
+  approved_by: UUID | null;
+  rejected_by: UUID | null;
+  rejection_reason: string | null;
+  transfer_id: UUID | null;
+  completed_at: ISODateString | null;
+  notes: string | null;
+  created_at: ISODateString;
+  updated_at: ISODateString;
+}
+
+/** Weekly Replenishment Line */
+export interface WeeklyReplenishmentLine {
+  id: UUID;
+  run_id: UUID;
+  product_id: UUID;
+  current_daily_qty: number;
+  current_bulk_qty: number;
+  consumption_3m: number;
+  consumption_last_week: number;
+  min_stock: number;
+  max_stock: number;
+  avg_3m_weekly: number | null;
+  weighted_avg: number | null;
+  target_qty: number | null;
+  short_reason: string | null;
+  suggested_qty: number;
+  adjusted_qty: number | null;
+  daily_requested_qty: number | null;
+  final_qty: number;
+  selected_lot_id: UUID | null;
+  selected_lot_number: string | null;
+  selected_lot_expiration: ISODateString | null;
+  selected_lot_quantity: number | null;
+  unit_price: number | null;
+  estimated_value: number | null;
+  adjustment_history: AdjustmentHistoryItem[];
+  transfer_line_id: UUID | null;
+  status: ReplenishmentLineStatus;
+  skip_reason: string | null;
+  notes: string | null;
+  created_at: ISODateString;
+  updated_at: ISODateString;
+}
+
+/** Weekly Replenishment Alert */
+export interface WeeklyReplenishmentAlert {
+  id: UUID;
+  tenant_id: UUID;
+  run_id: UUID;
+  product_id: UUID;
+  warehouse_id: UUID;
+  alert_type: "BULK_OUT_OF_STOCK" | "BULK_LOW_STOCK";
+  alert_level: LotAlertLevel;  // dùng lại từ Module 2
+  message: string;
+  metadata: Record<string, unknown>;
+  resolved: boolean;
+  resolved_at: ISODateString | null;
+  resolved_by: UUID | null;
+  created_at: ISODateString;
+}
+
+// =============================================================================
+// Labels & Colors
+// =============================================================================
+
+export const REPLENISHMENT_RUN_STATUS_LABELS: Record<ReplenishmentRunStatus, string> = {
+  DRAFT: "Mới tạo (chờ thủ kho xem)",
+  REVIEWED: "Đã điều chỉnh",
+  CONFIRMED_BY_DAILY: "Kho lẻ đã xác nhận",
+  APPROVED: "Đã duyệt",
+  REJECTED: "Trưởng khoa từ chối",
+  TRANSFERRING: "Đang vận chuyển",
+  COMPLETED: "Hoàn tất",
+  CANCELLED: "Đã hủy",
+};
+
+export const REPLENISHMENT_RUN_STATUS_COLORS: Record<ReplenishmentRunStatus, string> = {
+  DRAFT: "bg-gray-100 text-gray-800",
+  REVIEWED: "bg-blue-100 text-blue-800",
+  CONFIRMED_BY_DAILY: "bg-cyan-100 text-cyan-800",
+  APPROVED: "bg-green-100 text-green-800",
+  REJECTED: "bg-red-100 text-red-800",
+  TRANSFERRING: "bg-amber-100 text-amber-800",
+  COMPLETED: "bg-emerald-100 text-emerald-800",
+  CANCELLED: "bg-stone-100 text-stone-600",
+};
+
+export const REPLENISHMENT_LINE_STATUS_LABELS: Record<ReplenishmentLineStatus, string> = {
+  PENDING: "Chờ điều chỉnh",
+  ADJUSTED: "Đã điều chỉnh",
+  CONFIRMED: "Đã xác nhận",
+  SKIPPED: "Bỏ qua",
+  TRANSFERRING: "Đang chuyển",
+  COMPLETED: "Đã nhận",
+  FAILED: "Lỗi",
+};
+
+export const REPLENISHMENT_LINE_STATUS_COLORS: Record<ReplenishmentLineStatus, string> = {
+  PENDING: "bg-gray-100 text-gray-800",
+  ADJUSTED: "bg-blue-100 text-blue-800",
+  CONFIRMED: "bg-cyan-100 text-cyan-800",
+  SKIPPED: "bg-stone-100 text-stone-600",
+  TRANSFERRING: "bg-amber-100 text-amber-800",
+  COMPLETED: "bg-green-100 text-green-800",
+  FAILED: "bg-red-100 text-red-800",
+};
+
+/** Ngưỡng giá trị để quyết định có cần Trưởng khoa duyệt hay không (VNĐ) */
+export const REPLENISHMENT_APPROVAL_THRESHOLD_VND = 5_000_000;
+
+// =============================================================================
 // Database (sẽ được generate tự động bởi supabase gen types)
 // =============================================================================
 export type Database = {
