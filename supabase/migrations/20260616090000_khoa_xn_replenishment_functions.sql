@@ -70,6 +70,10 @@ DECLARE
   v_shortfall INT;
   v_total_current INT;
   v_unit_price DECIMAL(15, 2);
+
+  -- Fix Issue #15: tách biến riêng để không ghi đè v_product record
+  v_consumption_3m DECIMAL(15, 3) := 0;
+  v_consumption_last_week DECIMAL(15, 3) := 0;
 BEGIN
   -- Validate input
   IF p_product_group NOT IN ('HOA_CHAT_SINH_PHAM', 'VAT_TU_Y_TE') THEN
@@ -155,14 +159,14 @@ BEGIN
     -- Lấy tồn kho
     SELECT COALESCE(SUM(CASE WHEN warehouse_id = v_warehouse_from_id THEN quantity END), 0),
            COALESCE(SUM(CASE WHEN warehouse_id = v_warehouse_to_id THEN quantity END), 0)
-    INTO v_lot, v_product
+    INTO v_lot, v_total_current
     FROM lots l
     WHERE l.product_id = v_product.id
       AND l.warehouse_id IN (v_warehouse_from_id, v_warehouse_to_id)
       AND l.status = 'APPROVED'
       AND l.expiration_date >= CURRENT_DATE;
 
-    -- CẢNH BÁO nếu BULK hết
+    -- CẢNH BÁO nếu BULK hết (Fix Issue #15: dùng v_total_current thay vì v_product)
     IF v_lot IS NULL OR v_lot = 0 THEN
       INSERT INTO weekly_replenishment_alerts (
         tenant_id, run_id, product_id, warehouse_id,
@@ -175,11 +179,12 @@ BEGIN
         jsonb_build_object('product_sku', v_product.sku, 'min_stock', v_product.min_stock)
       );
       v_alerts := v_alerts + 1;
-      CONTINUE;  -- Skip sản phẩm này
+      CONTINUE;
     END IF;
 
-    -- Lấy consumption 3 tháng
-    SELECT COALESCE(SUM(quantity), 0) INTO v_product
+    -- Lấy consumption 3 tháng (Fix Issue #15: dùng v_consumption_3m thay vì v_product)
+    SELECT COALESCE(SUM(quantity), 0)
+    INTO v_consumption_3m
     FROM stock_movements sm
     WHERE sm.product_id = v_product.id
       AND sm.movement_type = 'OUT'
@@ -187,15 +192,16 @@ BEGIN
       AND sm.movement_date >= (CURRENT_DATE - INTERVAL '90 days');
 
     -- Lấy consumption tuần gần nhất
-    SELECT COALESCE(SUM(quantity), 0) INTO v_product
+    SELECT COALESCE(SUM(quantity), 0)
+    INTO v_consumption_last_week
     FROM stock_movements sm
     WHERE sm.product_id = v_product.id
       AND sm.movement_type = 'OUT'
       AND sm.warehouse_id = v_warehouse_to_id
       AND sm.movement_date >= (CURRENT_DATE - INTERVAL '7 days');
 
-    -- Nếu không có consumption → skip
-    IF v_product = 0 AND v_product = 0 THEN
+    -- Nếu không có consumption → skip (Fix Issue #16)
+    IF v_consumption_3m = 0 AND v_consumption_last_week = 0 THEN
       CONTINUE;
     END IF;
 
@@ -209,29 +215,30 @@ BEGIN
     -- Cap bởi max_stock - total_current
     -- ============================================
 
-    v_avg_3m_weekly := v_product / 13.0;
-    v_weighted_avg := (v_avg_3m_weekly * 0.6) + (v_product * 0.4);
+    v_avg_3m_weekly := v_consumption_3m / 13.0;
+    v_weighted_avg := (v_avg_3m_weekly * 0.6) + (v_consumption_last_week * 0.4);
     v_target_qty := v_weighted_avg * 1.5;
 
-    v_suggested_qty := GREATEST(0, v_target_qty - v_product);
+    v_suggested_qty := GREATEST(0, v_target_qty - v_total_current);
 
-    -- Shortfall
+    -- Shortfall (Fix Issue #15: dùng đúng biến v_product.min_stock, v_total_current)
     v_shortfall := 0;
-    IF v_total_current < v_product THEN
-      v_shortfall := v_product - v_total_current;
+    IF v_total_current < v_product.min_stock THEN
+      v_shortfall := v_product.min_stock - v_total_current;
       v_suggested_qty := v_suggested_qty + v_shortfall;
     END IF;
 
     -- Cap bởi max_stock
-    IF v_suggested_qty > (v_product - v_total_current) THEN
-      v_suggested_qty := GREATEST(0, v_product - v_total_current);
+    IF v_suggested_qty > (v_product.max_stock - v_total_current) THEN
+      v_suggested_qty := GREATEST(0, v_product.max_stock - v_total_current);
     END IF;
 
     v_final_qty := v_suggested_qty;
 
-    -- Edge case: sản phẩm mới (no consumption) → dùng min_stock
-    IF v_product = 0 AND v_product = 0 AND v_product > 0 THEN
-      v_final_qty := v_product;
+    -- Edge case: sản phẩm mới (no consumption) → dùng min_stock (Fix Issue #17)
+    -- Điều kiện: cả 2 consumption = 0 VÀ có min_stock
+    IF v_consumption_3m = 0 AND v_consumption_last_week = 0 AND v_product.min_stock > 0 THEN
+      v_final_qty := v_product.min_stock;
     END IF;
 
     -- Nếu final_qty = 0 → skip
@@ -270,11 +277,11 @@ BEGIN
       COALESCE(l.open_vial_expiration_date, l.expiration_date) ASC
     LIMIT 1;
 
-    -- Tính giá trị ước tính
-    v_unit_price := COALESCE(v_product, 0);
+    -- Tính giá trị ước tính (Fix Issue #18: dùng v_product.cost_price, không phải v_product đã bị ghi đè)
+    v_unit_price := COALESCE(v_product.cost_price, 0);
     v_total_value := v_total_value + (v_final_qty * v_unit_price);
 
-    -- Insert line
+    -- Insert line (Fix Issue #19: dùng đúng biến, không phải v_product đã bị ghi đè)
     INSERT INTO weekly_replenishment_lines (
       run_id, product_id,
       current_daily_qty, current_bulk_qty,
@@ -286,25 +293,29 @@ BEGIN
       unit_price, estimated_value
     ) VALUES (
       v_run_id, v_product.id,
-      v_product, v_lot,
-      v_product, v_product,
-      v_product, v_product,
+      v_total_current, v_lot,                              -- current_daily_qty, current_bulk_qty
+      v_consumption_3m, v_consumption_last_week,           -- consumption_3m, consumption_last_week
+      v_product.min_stock, v_product.max_stock,            -- min_stock, max_stock (Fix #15)
       v_avg_3m_weekly, v_weighted_avg, v_target_qty,
       CASE WHEN v_shortfall > 0 THEN 'MIN_STOCK_SHORTFALL' ELSE NULL END,
       v_final_qty, v_final_qty,
-      v_lot, NULL, NULL, NULL,
+      v_lot, NULL, NULL, NULL,                              -- lot_id (sau này sẽ lấy lại)
       v_unit_price, v_final_qty * v_unit_price
     );
 
     v_total_lines := v_total_lines + 1;
   END LOOP;
 
-  -- Update run totals
+  -- Update run totals (Fix Issue #20: tính requires_dept_head_approval dựa trên lines thực tế)
   UPDATE weekly_replenishment_runs
   SET total_lines = v_total_lines,
       total_estimated_value = v_total_value,
       requires_dept_head_approval = (v_total_value > 5000000)
   WHERE id = v_run_id;
+
+  -- Log cho audit
+  RAISE NOTICE '[fn_compute_weekly_replenishment] Tenant % ProductGroup % Period %: % lines, % VND, % alerts',
+    p_tenant_id, p_product_group, v_period_date, v_total_lines, v_total_value, v_alerts;
 
   run_id := v_run_id;
   total_lines := v_total_lines;

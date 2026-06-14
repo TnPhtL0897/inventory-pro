@@ -246,7 +246,7 @@ export function WeeklyDetailPage({ runId }: { runId: string }) {
                               id: l.id,
                               qty: l.adjusted_qty ?? l.suggested_qty,
                               name: l.product?.name ?? "",
-                              maxStock: l.product?.max_stock ?? 999,
+                              maxStock: l.product?.maxStock ?? 999,
                               currentDailyQty: l.current_daily_qty,
                             })
                           }

@@ -56,23 +56,33 @@ serve(async (req: Request) => {
   const sb = serviceClient();
 
   try {
-    const allResults: ComputeOutput[] = [];
+    // Fix Issue #21: dùng fn_compute_weekly_replenishment_all (multi-tenant + multi-group)
+    // thay vì gọi fn_compute_weekly_replenishment N×2 lần
+    const { data, error } = await sb.rpc("fn_compute_weekly_replenishment_all", {
+      p_period_date: periodDate ?? null,
+      p_trigger_source: triggerSource,
+      p_trigger_user_id: null,
+    });
 
-    if (productGroup) {
-      // Single product group
-      const result = await computeForGroup(sb, productGroup, periodDate, triggerSource);
-      allResults.push(result);
-    } else {
-      // Both groups
-      for (const group of ["HOA_CHAT_SINH_PHAM", "VAT_TU_Y_TE"] as const) {
-        const result = await computeForGroup(sb, group, periodDate, triggerSource);
-        allResults.push(result);
-      }
+    if (error) {
+      console.error("[compute-weekly-replenishment] RPC error:", error);
+      return Response.json(
+        { success: false, error: error.message },
+        { status: 500 }
+      );
     }
 
-    const totalLines = allResults.reduce((s, r) => s + r.total_lines, 0);
-    const totalValue = allResults.reduce((s, r) => s + r.total_estimated_value, 0);
-    const totalAlerts = allResults.reduce((s, r) => s + r.alerts_created, 0);
+    const results: ComputeOutput[] = (data ?? []).map((r: any) => ({
+      product_group: r.product_group,
+      run_id: r.run_id,
+      total_lines: r.total_lines ?? 0,
+      total_estimated_value: Number(r.total_estimated_value ?? 0),
+      alerts_created: r.alerts_created ?? 0,
+    }));
+
+    const totalLines = results.reduce((s, r) => s + r.total_lines, 0);
+    const totalValue = results.reduce((s, r) => s + r.total_estimated_value, 0);
+    const totalAlerts = results.reduce((s, r) => s + r.alerts_created, 0);
 
     console.log(
       `[compute-weekly-replenishment] Total: ${totalLines} lines, ${totalValue} VND, ${totalAlerts} alerts`
@@ -81,9 +91,9 @@ serve(async (req: Request) => {
     return Response.json({
       success: true,
       trigger_source: triggerSource,
-      results: allResults,
+      results,
       summary: {
-        total_runs: allResults.length,
+        total_runs: results.length,
         total_lines: totalLines,
         total_estimated_value: totalValue,
         total_alerts: totalAlerts,
@@ -98,57 +108,3 @@ serve(async (req: Request) => {
     );
   }
 });
-
-async function computeForGroup(
-  sb: SupabaseClient,
-  productGroup: "HOA_CHAT_SINH_PHAM" | "VAT_TU_Y_TE",
-  periodDate: string | undefined,
-  triggerSource: string,
-): Promise<ComputeOutput> {
-  // Lấy danh sách tenants (multi-tenant)
-  const { data: tenants, error: tenantsErr } = await sb
-    .from("tenants")
-    .select("id")
-    .limit(100);
-
-  if (tenantsErr) throw tenantsErr;
-
-  let totalLines = 0;
-  let totalValue = 0;
-  let totalAlerts = 0;
-  let lastRunId = "";
-
-  for (const tenant of tenants ?? []) {
-    const { data, error } = await sb.rpc("fn_compute_weekly_replenishment", {
-      p_tenant_id: tenant.id,
-      p_product_group: productGroup,
-      p_period_date: periodDate ?? null,
-      p_trigger_source: triggerSource,
-      p_trigger_user_id: null,
-    });
-
-    if (error) {
-      console.error(
-        `[compute-weekly-replenishment] RPC error for tenant ${tenant.id}:`,
-        error
-      );
-      continue;
-    }
-
-    if (data && data.length > 0) {
-      const row = data[0];
-      totalLines += row.total_lines ?? 0;
-      totalValue += Number(row.total_estimated_value ?? 0);
-      totalAlerts += row.alerts_created ?? 0;
-      lastRunId = row.run_id;
-    }
-  }
-
-  return {
-    product_group: productGroup,
-    run_id: lastRunId,
-    total_lines: totalLines,
-    total_estimated_value: totalValue,
-    alerts_created: totalAlerts,
-  };
-}
