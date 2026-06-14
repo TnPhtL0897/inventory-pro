@@ -9,9 +9,11 @@ import {
   insertRow,
   updateRow,
   deleteRow,
+  sb,
   type PaginatedResult,
 } from "@/lib/data-access";
 import type { CreateWarehouseInput, UpdateWarehouseInput } from "@inventorypro/validation/warehouse";
+import type { WarehouseRole, ProductGroup } from "@inventorypro/shared-types";
 
 export type WarehouseStatus = "ACTIVE" | "INACTIVE" | "CLOSED";
 export type WarehouseType = "RECEIVING" | "ISSUE";
@@ -31,6 +33,8 @@ export interface Warehouse {
   locationCount: number;
   createdAt: string;
   updatedAt: string;
+  // Khoa XN — Module 1
+  role?: WarehouseRole | null;
 }
 
 export interface Location {
@@ -53,6 +57,9 @@ export interface WarehouseListParams {
   status?: string;
   type?: WarehouseType | "";
   search?: string;
+  // Khoa XN
+  role?: WarehouseRole | "";
+  productGroup?: ProductGroup | "";
 }
 
 export function useWarehouses(params: WarehouseListParams = {}) {
@@ -69,8 +76,38 @@ export function useWarehouses(params: WarehouseListParams = {}) {
           branch_id: params.branchId,
           status: params.status,
           type: params.type,
+          role: params.role || undefined,
         },
       }),
+  });
+}
+
+/**
+ * Khoa XN: lấy warehouses theo role cụ thể (BULK_HC_SP, DAILY_VTYT, ...)
+ * Dùng cho dropdown chọn kho khi tạo phiếu chuyển kho nội bộ.
+ */
+export function useWarehousesByRole(role: WarehouseRole | undefined) {
+  return useQuery({
+    queryKey: ["warehouses", "by-role", role],
+    queryFn: async () => {
+      if (!role) return [];
+      const { data, error } = await sb()
+        .from("warehouses")
+        .select("id, code, name, role, branch_id, status")
+        .eq("role", role)
+        .eq("status", "ACTIVE")
+        .order("name");
+      if (error) throw error;
+      return (data ?? []).map((r) => ({
+        id: r.id,
+        code: r.code,
+        name: r.name,
+        role: r.role,
+        branchId: r.branch_id,
+        status: r.status,
+      }));
+    },
+    enabled: !!role,
   });
 }
 
@@ -206,3 +243,28 @@ export const WAREHOUSE_TYPE_COLORS: Record<WarehouseType, string> = {
   RECEIVING: "bg-blue-100 text-blue-800",
   ISSUE: "bg-amber-100 text-amber-800",
 };
+
+// =============================================================================
+// Khoa XN — Warehouse Role labels + colors
+// =============================================================================
+
+export const WAREHOUSE_ROLE_LABELS: Record<WarehouseRole, string> = {
+  BULK_HC_SP: "Kho chẵn HC-SP",
+  DAILY_HC_SP: "Kho lẻ HC-SP",
+  BULK_VTYT: "Kho chẵn VTYT",
+  DAILY_VTYT: "Kho lẻ VTYT",
+};
+
+export const WAREHOUSE_ROLE_COLORS: Record<WarehouseRole, string> = {
+  BULK_HC_SP: "bg-purple-100 text-purple-800",
+  DAILY_HC_SP: "bg-pink-100 text-pink-800",
+  BULK_VTYT: "bg-indigo-100 text-indigo-800",
+  DAILY_VTYT: "bg-orange-100 text-orange-800",
+};
+
+export const WAREHOUSE_ROLES: WarehouseRole[] = [
+  "BULK_HC_SP",
+  "DAILY_HC_SP",
+  "BULK_VTYT",
+  "DAILY_VTYT",
+];

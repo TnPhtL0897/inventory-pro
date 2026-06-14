@@ -18,6 +18,11 @@ import type {
   CreateProductInput,
   UpdateProductInput,
 } from "@inventorypro/validation/product";
+import type {
+  ProductGroup,
+  ProductSubtype,
+  StorageCondition,
+} from "@inventorypro/shared-types";
 
 export type ProductType = "GOODS" | "SERVICE" | "RAW_MATERIAL" | "FINISHED_GOOD" | "CONSUMABLE";
 export type ProductStatus = "ACTIVE" | "INACTIVE" | "ARCHIVED";
@@ -44,6 +49,13 @@ export interface Product {
   imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  // Khoa XN — Module 1
+  productGroup?: ProductGroup | null;
+  productSubtype?: ProductSubtype | null;
+  openVialStabilityDays?: number | null;
+  storageCondition?: StorageCondition | null;
+  isActive?: boolean;
+  createdBy?: string | null;
 }
 
 export interface ProductListParams {
@@ -52,6 +64,9 @@ export interface ProductListParams {
   search?: string;
   categoryId?: string;
   status?: string;
+  // Khoa XN
+  productGroup?: ProductGroup | "";
+  isActive?: boolean;
 }
 
 export function useProducts(params: ProductListParams = {}) {
@@ -67,6 +82,8 @@ export function useProducts(params: ProductListParams = {}) {
         filters: {
           category_id: params.categoryId,
           status: params.status,
+          product_group: params.productGroup || undefined,
+          is_active: params.isActive,
         },
       }),
   });
@@ -175,4 +192,39 @@ export const PRODUCT_TYPE_LABELS: Record<ProductType, string> = {
   RAW_MATERIAL: "Nguyên vật liệu",
   FINISHED_GOOD: "Thành phẩm",
   CONSUMABLE: "Vật tư tiêu hao",
+};
+
+// =============================================================================
+// Khoa XN — Product Group + Subtype labels
+// =============================================================================
+
+export const PRODUCT_GROUP_LABELS: Record<ProductGroup, string> = {
+  HOA_CHAT_SINH_PHAM: "Hóa chất - Sinh phẩm (HC-SP)",
+  VAT_TU_Y_TE: "Vật tư y tế (VTYT)",
+};
+
+export const PRODUCT_GROUP_COLORS: Record<ProductGroup, string> = {
+  HOA_CHAT_SINH_PHAM: "bg-purple-100 text-purple-800",
+  VAT_TU_Y_TE: "bg-indigo-100 text-indigo-800",
+};
+
+export const PRODUCT_SUBTYPE_LABELS: Record<ProductSubtype, string> = {
+  REAGENT: "Thuốc thử (Reagent)",
+  CALIBRATOR: "Chất hiệu chuẩn (Calibrator)",
+  CONTROL: "Mẫu kiểm (Control)",
+  BUFFER: "Dung dịch đệm (Buffer)",
+  WASH: "Dung dịch rửa (Wash)",
+  CUVETTE: "Cuvette",
+  CONSUMABLE: "Vật tư tiêu hao (HC-SP)",
+  CONSUMABLE_MEDICAL: "Vật tư y tế tiêu hao",
+  REAGENT_STRIP: "Que thử (Reagent strip)",
+  OTHER: "Khác",
+};
+
+export const STORAGE_CONDITION_LABELS: Record<StorageCondition, string> = {
+  ROOM_TEMP: "Nhiệt độ phòng (15-30°C)",
+  REFRIGERATED: "Tủ lạnh (2-8°C)",
+  FROZEN: "Đông lạnh (≤-20°C)",
+  PROTECTED_FROM_LIGHT: "Tránh ánh sáng",
+  DRY_PLACE: "Nơi khô ráo",
 };

@@ -178,6 +178,13 @@ export interface Product {
   status: ProductStatus;
   created_at: ISODateString;
   updated_at: ISODateString;
+  // Khoa XN — Module 1
+  product_group?: "HOA_CHAT_SINH_PHAM" | "VAT_TU_Y_TE" | null;
+  product_subtype?: ProductSubtype | null;
+  open_vial_stability_days?: number | null;
+  storage_condition?: string | null;
+  is_active?: boolean;
+  created_by?: UUID | null;
 }
 
 export interface ProductUnit {
@@ -209,6 +216,75 @@ export type LocationType =
   | "TRANSIT"
   | "RETURN";
 
+// =============================================================================
+// Khoa XN — Shared types (Module 1: Warehouse Role + Product Group)
+// =============================================================================
+
+/** Khoa XN: 4 kho vật lý (BULK/DAILY × HC-SP/VTYT) */
+export type WarehouseRole =
+  | "BULK_HC_SP"     // Kho chẵn Hóa chất - Sinh phẩm
+  | "DAILY_HC_SP"    // Kho lẻ Hóa chất - Sinh phẩm
+  | "BULK_VTYT"      // Kho chẵn Vật tư y tế
+  | "DAILY_VTYT";    // Kho lẻ Vật tư y tế
+
+/** Khoa XN: 2 mảng nghiệp vụ */
+export type ProductGroup = "HOA_CHAT_SINH_PHAM" | "VAT_TU_Y_TE";
+
+/** Subtype chi tiết cho từng mảng */
+export type ProductSubtype =
+  // HC-SP
+  | "REAGENT"
+  | "CALIBRATOR"
+  | "CONTROL"
+  | "BUFFER"
+  | "WASH"
+  | "CUVETTE"
+  | "CONSUMABLE"
+  // VTYT
+  | "CONSUMABLE_MEDICAL"
+  | "REAGENT_STRIP"
+  | "OTHER";
+
+/** Điều kiện bảo quản (free-form, dùng để gợi ý + cảnh báo) */
+export type StorageCondition =
+  | "ROOM_TEMP"
+  | "REFRIGERATED"
+  | "FROZEN"
+  | "PROTECTED_FROM_LIGHT"
+  | "DRY_PLACE";
+
+/** Khoa XN role codes (dùng cho JWT claim) */
+export type KhoaXnRoleCode =
+  | "ADMIN"
+  | "DEPT_HEAD"
+  | "QC_OFFICER"
+  | "KEEPER_BULK_HC_SP"
+  | "KEEPER_DAILY_HC_SP"
+  | "KEEPER_BULK_VTYT"
+  | "KEEPER_DAILY_VTYT";
+
+/** Helper: map warehouse_role → product_group */
+export const WAREHOUSE_ROLE_TO_PRODUCT_GROUP: Record<WarehouseRole, ProductGroup> = {
+  BULK_HC_SP: "HOA_CHAT_SINH_PHAM",
+  DAILY_HC_SP: "HOA_CHAT_SINH_PHAM",
+  BULK_VTYT: "VAT_TU_Y_TE",
+  DAILY_VTYT: "VAT_TU_Y_TE",
+};
+
+/** Helper: gợi ý product_subtype theo product_group */
+export const PRODUCT_SUBTYPES_BY_GROUP: Record<ProductGroup, ProductSubtype[]> = {
+  HOA_CHAT_SINH_PHAM: [
+    "REAGENT",
+    "CALIBRATOR",
+    "CONTROL",
+    "BUFFER",
+    "WASH",
+    "CUVETTE",
+    "CONSUMABLE",
+  ],
+  VAT_TU_Y_TE: ["CONSUMABLE_MEDICAL", "REAGENT_STRIP", "OTHER"],
+};
+
 export interface Warehouse {
   id: UUID;
   tenant_id: UUID;
@@ -222,6 +298,8 @@ export interface Warehouse {
   allow_negative: boolean;
   status: WarehouseStatus;
   attributes: Record<string, unknown>;
+  // Khoa XN — Module 1
+  role?: WarehouseRole | null;
   created_at: ISODateString;
   updated_at: ISODateString;
 }
