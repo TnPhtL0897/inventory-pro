@@ -14,30 +14,36 @@
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 CREATE EXTENSION IF NOT EXISTS pg_net;
 
--- Lấy URL và SERVICE_ROLE_KEY từ env (Supabase tự động set)
--- Nếu chưa có, dùng defaults
+-- Fix Issue #10: Lấy URL + SERVICE_ROLE_KEY từ Supabase env vars
+-- Supabase tự động expose biến môi trường cho Postgres qua current_setting()
 DO $$
 DECLARE
   v_supabase_url TEXT;
   v_service_key TEXT;
 BEGIN
-  -- Lấy URL từ settings (Supabase set tự động)
+  -- Ưu tiên đọc từ settings (nếu admin đã set qua ALTER DATABASE)
   v_supabase_url := current_setting('app.settings.supabase_url', true);
+  v_service_key := current_setting('app.settings.service_role_key', true);
+
+  -- Fallback: hardcode URL của project (KHÔNG hardcode key vì lộ secret)
   IF v_supabase_url IS NULL OR v_supabase_url = '' THEN
-    v_supabase_url := 'http://localhost:54321';  -- Local dev fallback
+    v_supabase_url := 'https://ituyoplyuhbdxkhabcpy.supabase.co';  -- Project URL
   END IF;
 
-  v_service_key := current_setting('app.settings.service_role_key', true);
   IF v_service_key IS NULL OR v_service_key = '' THEN
-    v_service_key := 'placeholder-key';  -- Local dev fallback
+    RAISE NOTICE '[khoa-xn-cron] SERVICE_ROLE_KEY chưa set. Chạy: ALTER DATABASE postgres SET app.settings.service_role_key = ''<key>'';';
+    RAISE NOTICE '[khoa-xn-cron] Skip scheduling. Chạy manual từ Dashboard sau.';
+    RETURN;
   END IF;
 
   -- Unschedule cũ nếu có
-  PERFORM cron.unschedule('auto-expire-lots');
+  BEGIN
+    PERFORM cron.unschedule('auto-expire-lots');
   EXCEPTION WHEN OTHERS THEN NULL;
   END;
 
-  PERFORM cron.unschedule('check-lot-expirations');
+  BEGIN
+    PERFORM cron.unschedule('check-lot-expirations');
   EXCEPTION WHEN OTHERS THEN NULL;
   END;
 
@@ -78,8 +84,6 @@ BEGIN
   );
 
   RAISE NOTICE '[khoa-xn-cron] Scheduled auto-expire-lots (00:30) and check-lot-expirations (06:00)';
-EXCEPTION WHEN OTHERS THEN
-  RAISE NOTICE '[khoa-xn-cron] Failed to schedule: %', SQLERRM;
 END $$;
 
 -- Verify schedules

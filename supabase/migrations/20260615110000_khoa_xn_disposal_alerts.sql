@@ -158,7 +158,7 @@ ALTER TABLE disposal_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE disposal_request_lines ENABLE ROW LEVEL SECURITY;
 ALTER TABLE lot_alerts ENABLE ROW LEVEL SECURITY;
 
--- disposal_requests: thủ kho + DEPT_HEAD
+-- disposal_requests: SELECT tất cả user trong tenant
 DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname = 'public'
@@ -169,24 +169,49 @@ DO $$ BEGIN
   END IF;
 END $$;
 
+-- disposal_requests: INSERT (thủ kho + admin) - Fix Issue #11
 DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname = 'public'
-      AND tablename = 'disposal_requests' AND policyname = 'dr_write'
+      AND tablename = 'disposal_requests' AND policyname = 'dr_insert'
   ) THEN
-    CREATE POLICY dr_write ON disposal_requests FOR ALL
+    CREATE POLICY dr_insert ON disposal_requests FOR INSERT
+      WITH CHECK (
+        -- Thủ kho tạo (created_by = mình) hoặc admin
+        (created_by = auth.uid() AND tenant_id = auth_tenant_id())
+        OR fn_user_is_admin_or_head()
+      );
+  END IF;
+END $$;
+
+-- disposal_requests: UPDATE (chỉ DEPT_HEAD/ADMIN approve, hoặc creator khi PENDING)
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public'
+      AND tablename = 'disposal_requests' AND policyname = 'dr_update'
+  ) THEN
+    CREATE POLICY dr_update ON disposal_requests FOR UPDATE
       USING (
+        -- DEPT_HEAD/ADMIN có thể update bất kỳ
         fn_user_is_admin_or_head()
-        OR EXISTS (
-          SELECT 1 FROM auth.users u
-          WHERE u.id = auth.uid()
-            -- Thủ kho có thể tạo (status=DRAFT/PENDING) nhưng không approve
-        )
+        -- Hoặc creator khi còn PENDING
+        OR (created_by = auth.uid() AND status = 'PENDING')
       )
       WITH CHECK (
         fn_user_is_admin_or_head()
-        OR created_by = auth.uid()  -- Tạo mới với created_by = mình
+        OR created_by = auth.uid()
       );
+  END IF;
+END $$;
+
+-- disposal_requests: DELETE (chỉ ADMIN)
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public'
+      AND tablename = 'disposal_requests' AND policyname = 'dr_delete'
+  ) THEN
+    CREATE POLICY dr_delete ON disposal_requests FOR DELETE
+      USING (fn_user_is_admin_or_head());
   END IF;
 END $$;
 

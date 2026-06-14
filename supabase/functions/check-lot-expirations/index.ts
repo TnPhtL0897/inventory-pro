@@ -38,9 +38,8 @@ serve(async (req: Request) => {
   const sb = serviceClient();
 
   try {
-    // Lấy danh sách alerts
+    // Lấy danh sách alerts từ RPC
     const { data: alerts, error: alertsErr } = await sb.rpc("fn_check_lot_expirations");
-
     if (alertsErr) {
       console.error("[check-lot-expirations] RPC error:", alertsErr);
       return Response.json(
@@ -52,50 +51,54 @@ serve(async (req: Request) => {
     const alertList = (alerts ?? []) as ExpirationAlert[];
     console.log(`[check-lot-expirations] Found ${alertList.length} alerts`);
 
-    // Insert lot_alerts (idempotent: chỉ insert nếu chưa có unresolved)
-    let inserted = 0;
-    let skipped = 0;
-    for (const alert of alertList) {
-      // Check đã tồn tại alert chưa resolve chưa
-      const { data: existing } = await sb
-        .from("lot_alerts")
-        .select("id")
-        .eq("lot_id", alert.lot_id)
-        .eq("alert_type", alert.alert_type)
-        .eq("resolved", false)
-        .limit(1);
-
-      if (existing && existing.length > 0) {
-        skipped++;
-        continue;
-      }
-
-      // Lấy tenant_id từ lot
-      const { data: lot } = await sb
-        .from("lots")
-        .select("tenant_id")
-        .eq("id", alert.lot_id)
-        .single();
-
-      if (!lot) {
-        skipped++;
-        continue;
-      }
-
-      const { error: insertErr } = await sb.from("lot_alerts").insert({
-        tenant_id: (lot as any).tenant_id,
-        lot_id: alert.lot_id,
-        alert_type: alert.alert_type,
-        alert_level: alert.alert_level,
-        message: alert.message,
-      });
-
-      if (!insertErr) inserted++;
+    if (alertList.length === 0) {
+      return Response.json({ success: true, total_alerts: 0, inserted: 0, run_at: new Date().toISOString() });
     }
 
-    console.log(
-      `[check-lot-expirations] Inserted ${inserted} alerts, skipped ${skipped} duplicates`
-    );
+    // OPTIMIZE Fix Issue #4: bulk fetch lot_tenant + check existing + bulk insert
+    const lotIds = alertList.map((a) => a.lot_id);
+
+    // 1 query: lấy tenant_id cho tất cả lots
+    const { data: lots, error: lotsErr } = await sb
+      .from("lots")
+      .select("id, tenant_id")
+      .in("id", lotIds);
+    if (lotsErr) throw lotsErr;
+    const lotMap = new Map(((lots ?? []) as any[]).map((l) => [l.id, l.tenant_id]));
+
+    // 1 query: check existing alerts (idempotent)
+    const { data: existingAlerts } = await sb
+      .from("lot_alerts")
+      .select("lot_id")
+      .eq("alert_type", "EXPIRING_SOON")
+      .eq("resolved", false)
+      .in("lot_id", lotIds);
+    const existingSet = new Set(((existingAlerts ?? []) as any[]).map((a) => a.lot_id));
+
+    // Bulk insert (chỉ insert những lot chưa có alert)
+    const toInsert = alertList
+      .filter((a) => !existingSet.has(a.lot_id))
+      .map((a) => {
+        const tenantId = lotMap.get(a.lot_id);
+        if (!tenantId) return null;
+        return {
+          tenant_id: tenantId,
+          lot_id: a.lot_id,
+          alert_type: a.alert_type,
+          alert_level: a.alert_level,
+          message: a.message,
+        };
+      })
+      .filter(Boolean) as any[];
+
+    let inserted = 0;
+    if (toInsert.length > 0) {
+      const { error: insertErr } = await sb.from("lot_alerts").insert(toInsert);
+      if (!insertErr) inserted = toInsert.length;
+    }
+
+    const skipped = alertList.length - inserted;
+    console.log(`[check-lot-expirations] Inserted ${inserted} alerts, skipped ${skipped} duplicates`);
 
     return Response.json({
       success: true,

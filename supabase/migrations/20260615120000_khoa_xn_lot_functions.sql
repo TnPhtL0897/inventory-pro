@@ -137,12 +137,17 @@ BEGIN
 
     v_total_disposal := v_total_disposal + 1;
 
-    -- Tạo lot_alert để thủ kho biết
+    -- Tạo lot_alert để thủ kho biết (idempotent - Fix Issue #1)
     INSERT INTO lot_alerts (tenant_id, lot_id, alert_type, alert_level, message)
-    VALUES (
+    SELECT
       v_lot.tenant_id, v_lot.id, 'EXPIRING_SOON'::lot_alert_type,
       'CRITICAL'::lot_alert_level,
       'Lô đã hết hạn — đã tạo phiếu hủy tự động'
+    WHERE NOT EXISTS (
+      SELECT 1 FROM lot_alerts
+      WHERE lot_id = v_lot.id
+        AND alert_type = 'EXPIRING_SOON'
+        AND resolved = FALSE
     );
   END LOOP;
 
@@ -162,6 +167,7 @@ COMMENT ON FUNCTION fn_auto_expire_lots() IS
 CREATE OR REPLACE FUNCTION fn_apply_recall_to_lots(p_recall_id UUID)
 RETURNS INT
 LANGUAGE plpgsql
+SECURITY DEFINER  -- Bypass RLS khi update lots (Fix Issue #3)
 AS $$
 DECLARE
   v_count INT;
@@ -257,6 +263,15 @@ BEGIN
   v_user_id := auth.uid();
   IF v_user_id IS NULL THEN
     RAISE EXCEPTION 'Not authenticated';
+  END IF;
+
+  -- Permission check: chỉ QC_OFFICER, DEPT_HEAD, hoặc ADMIN
+  -- (Fix Issue #2: trước đó chỉ check auth.uid())
+  IF NOT (
+    fn_user_has_role('QC_OFFICER')
+    OR fn_user_is_admin_or_head()
+  ) THEN
+    RAISE EXCEPTION 'Permission denied: chỉ QC_OFFICER hoặc Admin/DeptHead mới được complete QC';
   END IF;
 
   SELECT * INTO v_lot FROM lots WHERE id = p_lot_id;

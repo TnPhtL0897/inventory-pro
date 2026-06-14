@@ -471,7 +471,33 @@ export function useCreateDisposalRequest() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (input: CreateDisposalRequestInput) => {
-      // Tạo request header
+      // Bước 1: Lookup product_id từ lots (Fix Issue #7)
+      const lotIds = input.lines.map((l) => l.lotId);
+      const { data: lots, error: lotErr } = await sb()
+        .from("lots")
+        .select("id, product_id, quantity")
+        .in("id", lotIds);
+      if (lotErr) throw lotErr;
+      if (!lots || lots.length === 0) {
+        throw new Error("Không tìm thấy lots");
+      }
+
+      const lotMap = new Map((lots as any[]).map((l) => [l.id, l]));
+
+      // Bước 2: Validate quantity vs current_lot.quantity
+      for (const line of input.lines) {
+        const lot = lotMap.get(line.lotId);
+        if (!lot) {
+          throw new Error(`Lot ${line.lotId} không tồn tại`);
+        }
+        if (line.quantity > lot.quantity) {
+          throw new Error(
+            `Lượng hủy (${line.quantity}) vượt quá tồn kho (${lot.quantity}) của lô`
+          );
+        }
+      }
+
+      // Bước 3: Tạo request header
       const requestNumber = `DR-MAN-${Date.now()}`;
       const { data: dr, error: drErr } = await sb()
         .from("disposal_requests")
@@ -488,15 +514,17 @@ export function useCreateDisposalRequest() {
       if (drErr) throw drErr;
       const drData = dr as any;
 
-      // Tạo lines
-      const lines = input.lines.map((line) => ({
-        disposal_request_id: drData.id,
-        lot_id: line.lotId,
-        // product_id lookup omitted for brevity - can be done via join
-        product_id: line.lotId, // FIXME: lookup thực tế từ lots table
-        quantity: line.quantity,
-        reason: line.reason || null,
-      }));
+      // Bước 4: Tạo lines (với product_id lookup từ lots)
+      const lines = input.lines.map((line) => {
+        const lot = lotMap.get(line.lotId)!;
+        return {
+          disposal_request_id: drData.id,
+          lot_id: line.lotId,
+          product_id: lot.product_id,  // Fix: lookup thực tế
+          quantity: line.quantity,
+          reason: line.reason || null,
+        };
+      });
       const { error: lErr } = await sb().from("disposal_request_lines").insert(lines);
       if (lErr) throw lErr;
 

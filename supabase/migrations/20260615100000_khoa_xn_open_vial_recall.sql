@@ -235,13 +235,13 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- recall_lot_actions: thủ kho + DEPT_HEAD
+-- recall_lot_actions: SELECT
 DO $$ BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM pg_policies WHERE schemaname = 'public'
-      AND tablename = 'recall_lot_actions' AND policyname = 'rla_all'
+      AND tablename = 'recall_lot_actions' AND policyname = 'rla_select'
   ) THEN
-    CREATE POLICY rla_all ON recall_lot_actions FOR ALL
+    CREATE POLICY rla_select ON recall_lot_actions FOR SELECT
       USING (
         tenant_id = auth_tenant_id()
         AND (
@@ -254,6 +254,32 @@ DO $$ BEGIN
           )
         )
       );
+  END IF;
+END $$;
+
+-- recall_lot_actions: INSERT (thủ kho xử lý hoặc admin) - Fix Issue #12
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public'
+      AND tablename = 'recall_lot_actions' AND policyname = 'rla_insert'
+  ) THEN
+    CREATE POLICY rla_insert ON recall_lot_actions FOR INSERT
+      WITH CHECK (
+        tenant_id = auth_tenant_id()
+        AND (processed_by = auth.uid() OR fn_user_is_admin_or_head())
+      );
+  END IF;
+END $$;
+
+-- recall_lot_actions: UPDATE (DEPT_HEAD/ADMIN only)
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies WHERE schemaname = 'public'
+      AND tablename = 'recall_lot_actions' AND policyname = 'rla_update'
+  ) THEN
+    CREATE POLICY rla_update ON recall_lot_actions FOR UPDATE
+      USING (fn_user_is_admin_or_head())
+      WITH CHECK (fn_user_is_admin_or_head());
   END IF;
 END $$;
 
