@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catalog — Phần mềm Quản lý Kho Xét Nghiệm</title>
+  <style>
+    /* Reset & base */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #1f2937;
+      background: #ffffff;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 50px;
+      font-size: 14px;
+    }
+
+    /* Print styles */
+    @media print {
+      body { padding: 20px 30px; font-size: 12px; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none !important; }
+      a { color: inherit; text-decoration: none; }
+      section { break-inside: avoid; }
+    }
+
+    /* Typography */
+    h1 {
+      font-size: 28px;
+      color: #1e3a8a;
+      margin-bottom: 8px;
+      border-bottom: 4px solid #2563eb;
+      padding-bottom: 12px;
+    }
+    h2 {
+      font-size: 22px;
+      color: #1e40af;
+      margin-top: 32px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #93c5fd;
+      padding-bottom: 8px;
+    }
+    h3 {
+      font-size: 17px;
+      color: #1e3a8a;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    h4 {
+      font-size: 15px;
+      color: #374151;
+      margin-top: 14px;
+      margin-bottom: 6px;
+    }
+    p { margin-bottom: 10px; text-align: justify; }
+    ul, ol { margin-left: 24px; margin-bottom: 12px; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      background: #f3f4f6;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 13px;
+      color: #be123c;
+    }
+    pre {
+      background: #1f2937;
+      color: #e5e7eb;
+      padding: 12px 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      margin: 8px 0 14px;
+    }
+    pre code { background: transparent; color: inherit; padding: 0; }
+
+    /* Cover */
+    .cover {
+      text-align: center;
+      padding: 80px 20px;
+      border: 3px solid #1e3a8a;
+      border-radius: 8px;
+      margin-bottom: 40px;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    }
+    .cover .logo { font-size: 60px; margin-bottom: 16px; }
+    .cover h1 {
+      border: none;
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    .cover .subtitle {
+      font-size: 16px;
+      color: #475569;
+      margin-bottom: 28px;
+    }
+    .cover .meta {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .cover .meta strong { color: #1f2937; }
+
+    /* Info card */
+    .info-card {
+      background: #f0f9ff;
+      border-left: 4px solid #2563eb;
+      padding: 12px 18px;
+      margin: 14px 0;
+      border-radius: 4px;
+    }
+    .info-card.warning { background: #fffbeb; border-left-color: #f59e0b; }
+    .info-card.danger { background: #fef2f2; border-left-color: #ef4444; }
+    .info-card.success { background: #f0fdf4; border-left-color: #22c55e; }
+    .info-card strong { display: block; margin-bottom: 4px; }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 18px;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 8px 12px;
+      text-align: left;
+    }
+    th {
+      background: #1e3a8a;
+      color: white;
+      font-weight: 600;
+    }
+    tr:nth-child(even) { background: #f9fafb; }
+    td code { font-size: 12px; }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge.p0 { background: #fee2e2; color: #991b1b; }
+    .badge.p1 { background: #fef3c7; color: #92400e; }
+    .badge.p2 { background: #dbeafe; color: #1e3a8a; }
+    .badge.done { background: #d1fae5; color: #065f46; }
+    .badge.todo { background: #f3f4f6; color: #6b7280; }
+
+    /* Feature grid */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 14px 0;
+    }
+    .feature-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 12px 16px;
+      background: #fafafa;
+    }
+    .feature-card .num {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 26px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .feature-card h4 {
+      display: inline;
+      vertical-align: middle;
+      margin: 0;
+    }
+    .feature-card p { margin: 6px 0 0 34px; font-size: 13px; }
+
+    /* Warehouse diagram */
+    .warehouse-diagram {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin: 16px 0;
+      padding: 20px;
+      background: #f8fafc;
+      border-radius: 8px;
+    }
+    .warehouse-box {
+      background: white;
+      border: 2px solid #94a3b8;
+      border-radius: 6px;
+      padding: 12px;
+      text-align: center;
+    }
+    .warehouse-box.bulk { border-color: #2563eb; }
+    .warehouse-box.daily { border-color: #16a34a; }
+    .warehouse-box h4 { margin-bottom: 8px; }
+    .arrow {
+      font-size: 32px;
+      color: #2563eb;
+      font-weight: bold;
+    }
+
+    /* Footer */
+    footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 2px solid #e5e7eb;
+      text-align: center;
+      color: #6b7280;
+      font-size: 12px;
+    }
+
+    /* TOC */
+    .toc { background: #f9fafb; padding: 20px 28px; border-radius: 8px; margin-bottom: 30px; }
+    .toc h3 { margin-top: 0; color: #1e3a8a; }
+    .toc ol { list-style: none; margin: 0; }
+    .toc li { margin-bottom: 4px; }
+    .toc a { color: #1e40af; text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    .toc .sub { padding-left: 20px; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <!-- COVER -->
+  <div class="cover">
+    <div class="logo">📦🧪</div>
+    <h1>PHẦN MỀM QUẢN LÝ KHO XÉT NGHIỆM</h1>
+    <p class="subtitle">Catalog giới thiệu tính năng & hướng dẫn sử dụng</p>
+    <p style="font-size: 18px; margin-bottom: 24px;"><strong>Bệnh viện Trường ĐHYD Cần Thơ</strong></p>
+    <div class="meta">
+      <span><strong>Phiên bản:</strong> 1.0 (Phase 1)</span>
+      <span><strong>Ngày:</strong> 14/06/2026</span>
+      <span><strong>Trạng thái:</strong> Sẵn sàng triển khai</span>
+    </div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <h3>Mục lục</h3>
+    <ol>
+      <li><a href="#sec1">Giới thiệu chung</a></li>
+      <li><a href="#sec2">Mô hình nghiệp vụ Khoa XN</a></li>
+      <li><a href="#sec3">9 Modules chức năng</a>
+        <ol class="sub">
+          <li><a href="#sec3-1">N1. Warehouse Role + Permission</a></li>
+          <li><a href="#sec3-2">#1. Lot Lifecycle Management</a></li>
+          <li><a href="#sec3-3">#1 (SPEC). Internal Replenishment Weekly</a></li>
+        </ol>
+      </li>
+      <li><a href="#sec4">Kiến trúc kỹ thuật</a></li>
+      <li><a href="#sec5">Hướng dẫn sử dụng</a></li>
+      <li><a href="#sec6">Tuân thủ quy định</a></li>
+      <li><a href="#sec7">Triển khai & Bảo trì</a></li>
+      <li><a href="#sec8">Liên hệ</a></li>
+    </ol>
+  </div>
+
+  <!-- SECTION 1 -->
+  <section id="sec1">
+    <h2>1. Giới thiệu chung</h2>
+
+    <h3>1.1. Mục đích</h3>
+    <p>Phần mềm <strong>Quản lý Kho Xét Nghiệm</strong> là hệ thống chuyên biệt được thiết kế riêng cho <strong>Khoa Xét Nghiệm (XN)</strong> của Bệnh viện Trường ĐHYD Cần Thơ, hỗ trợ đầy đủ nghiệp vụ kho chuyên ngành xét nghiệm y khoa:</p>
+    <ul>
+      <li>Quản lý 4 kho vật lý theo mảng nghiệp vụ (HC-SP / VTYT × BULK / DAILY)</li>
+      <li>Quản lý vòng đời lô sản phẩm (Lot Lifecycle) với QC, open-vial, recall</li>
+      <li>Tự động đề xuất bổ sung vật tư từ kho chẵn sang kho lẻ (hàng tuần)</li>
+      <li>Kiểm kê định kỳ, cảnh báo hạn sử dụng, xuất hủy tự động</li>
+    </ul>
+
+    <h3>1.2. Tuân thủ quy định</h3>
+    <p>Hệ thống được thiết kế tuân thủ nghiêm ngặt các quy định y tế Việt Nam và tiêu chuẩn quốc tế:</p>
+    <table>
+      <tr>
+        <th>Quy định / Tiêu chuẩn</th>
+        <th>Phạm vi áp dụng</th>
+        <th>Mục đích</th>
+      </tr>
+      <tr>
+        <td><strong>QĐ 2429/QĐ-BYT</strong></td>
+        <td>Tiêu chí 7.2 (Chương VII)</td>
+        <td>Quản lý hóa chất, sinh phẩm xét nghiệm</td>
+      </tr>
+      <tr>
+        <td><strong>ISO 15189:2022</strong></td>
+        <td>Điều 6.5.3</td>
+        <td>Kiểm soát vật tư tiêu hao trong phòng xét nghiệm</td>
+      </tr>
+      <tr>
+        <td><strong>TT 54/2017/BYT</strong></td>
+        <td>Điều 14</td>
+        <td>An toàn thông tin y tế, audit log</td>
+      </tr>
+      <tr>
+        <td><strong>CLSI EP26-A</strong></td>
+        <td>(Module tương lai)</td>
+        <td>Lot-to-Lot Verification</td>
+      </tr>
+      <tr>
+        <td><strong>NĐ 24/2024/NĐ-CP</strong></td>
+        <td>Đấu thầu mua sắm công</td>
+        <td>Theo dõi hợp đồng thầu</td>
+      </tr>
+    </table>
+
+    <h3>1.3. Đối tượng sử dụng</h3>
+    <table>
+      <tr><th>Vai trò</th><th>Số lượng</th><th>Phạm vi công việc</th></tr>
+      <tr><td>Thủ kho kho chẵn HC-SP</td><td>1+</td><td>Quản lý nhập/xuất lô HC-SP từ Khoa Dược</td></tr>
+      <tr><td>Thủ kho kho lẻ HC-SP</td><td>2+</td><td>Quản lý xuất HC-SP cho KTV xét nghiệm</td></tr>
+      <tr><td>Thủ kho kho chẵn VTYT</td><td>1+</td><td>Quản lý nhập/xuất lô VTYT từ Phòng VTYT</td></tr>
+      <tr><td>Thủ kho kho lẻ VTYT</td><td>1+</td><td>Quản lý xuất VTYT cho Khoa lâm sàng</td></tr>
+      <tr><td>Trưởng khoa</td><td>1</td><td>Duyệt đề xuất, kiểm kê, theo dõi tổng thể</td></tr>
+      <tr><td>KTV xét nghiệm (QC)</td><td>1+</td><td>Duyệt QC cho lô HC-SP, QC lại open-vial</td></tr>
+      <tr><td>Admin hệ thống</td><td>1</td><td>Quản lý user, phân quyền</td></tr>
+    </table>
+  </section>
+
+  <!-- SECTION 2 -->
+  <section id="sec2">
+    <h2>2. Mô hình nghiệp vụ Khoa XN</h2>
+
+    <h3>2.1. 4 kho vật lý tách biệt</h3>
+    <p>Hệ thống quản lý 4 kho vật lý riêng biệt, mỗi kho có 1 role riêng:</p>
+    <div class="warehouse-diagram">
+      <div class="warehouse-box bulk">
+        <h4>Kho chẵn HC-SP</h4>
+        <p><code>BULK_HC_SP</code></p>
+        <p>📥 Nhận từ Khoa Dược</p>
+        <p>📊 ~8 vị trí lưu trữ</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="warehouse-box daily">
+        <h4>Kho lẻ HC-SP</h4>
+        <p><code>DAILY_HC_SP</code></p>
+        <p>📤 Xuất cho KTV</p>
+        <p>📊 ~4 vị trí</p>
+      </div>
+    </div>
+    <div class="warehouse-diagram">
+      <div class="warehouse-box bulk">
+        <h4>Kho chẵn VTYT</h4>
+        <p><code>BULK_VTYT</code></p>
+        <p>📥 Nhận từ Phòng VTYT</p>
+        <p>📊 ~6 vị trí lưu trữ</p>
+      </div>
+      <div class="arrow">→</div>
+      <div class="warehouse-box daily">
+        <h4>Kho lẻ VTYT</h4>
+        <p><code>DAILY_VTYT</code></p>
+        <p>📤 Xuất cho Khoa LS</p>
+        <p>📊 ~3 vị trí</p>
+      </div>
+    </div>
+
+    <h3>2.2. Quy trình bổ sung hàng tuần (BULK → DAILY)</h3>
+    <p>Thứ 6 hàng tuần (có thể chạy manual bất kỳ lúc nào), hệ thống tự động:</p>
+    <ol>
+      <li>Tính toán nhu cầu dựa trên <strong>tiêu hao 3 tháng gần nhất</strong> (xu hướng dài hạn) + <strong>tiêu hao tuần gần nhất</strong> (nhu cầu cấp thiết)</li>
+      <li>Áp dụng công thức: <code>(avg_3m × 0.6 + last_week × 0.4) × 1.5 tuần buffer</code></li>
+      <li>Auto-pick lô theo FEFO (ưu tiên open-vial trước, hạn gốc sau)</li>
+      <li>Cảnh báo nếu kho chẵn hết hoặc không đủ</li>
+      <li>Thủ kho kho chẵn review + điều chỉnh (nếu cần) + gửi kho lẻ</li>
+      <li>Thủ kho kho lẻ xác nhận số lượng</li>
+      <li>Nếu tổng giá trị ≤ 5M VNĐ → tự động duyệt. Nếu &gt; 5M → Trưởng khoa duyệt.</li>
+    </ol>
+
+    <h3>2.3. Quy trình kiểm kê tháng</h3>
+    <ol>
+      <li>Đối chiếu sổ sách giấy trước (offline)</li>
+      <li>Kiểm kê kho chẵn (cùng mảng)</li>
+      <li>Kiểm kê kho lẻ (cùng mảng)</li>
+      <li>Nhập số liệu vào hệ thống, ghi lý do chênh lệch</li>
+      <li>Trưởng khoa duyệt chênh lệch</li>
+      <li>Hệ thống tự động tạo StockMovement điều chỉnh</li>
+    </ol>
+  </section>
+
+  <!-- SECTION 3: MODULES -->
+  <section id="sec3">
+    <h2>3. 9 Modules chức năng</h2>
+    <p>Phase 1 tập trung vào 3 module nền tảng (đã code xong) và 6 module bổ sung (kế hoạch tương lai).</p>
+
+    <table>
+      <tr>
+        <th>#</th>
+        <th>Module</th>
+        <th>Ưu tiên</th>
+        <th>Trạng thái</th>
+        <th>SPEC</th>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Warehouse Role + Permission (gộp N1+N2+N3)</td>
+        <td><span class="badge p0">P0</span></td>
+        <td><span class="badge done">✅ Code xong</span></td>
+        <td><a href="plans/2026-06-14-warehouse-role-spec.md">SPEC</a></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Lot Lifecycle Management (kèm Open-Vial, QC, Recall, Disposal)</td>
+        <td><span class="badge p0">P0</span></td>
+        <td><span class="badge done">✅ Code xong</span></td>
+        <td><a href="plans/2026-06-14-lot-lifecycle-spec.md">SPEC</a></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Internal Replenishment Weekly</td>
+        <td><span class="badge p0">P0</span></td>
+        <td><span class="badge done">✅ Code xong</span></td>
+        <td><a href="plans/2026-06-14-internal-replenishment-spec.md">SPEC</a></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Monthly Stock Take (Dual Scope)</td>
+        <td><span class="badge p0">P0</span></td>
+        <td><span class="badge todo">⏳ Kế hoạch</span></td>
+        <td><a href="plans/2026-06-14-monthly-stocktake-spec.md">SPEC</a></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Monthly Replenishment Request (Excel Export)</td>
+        <td><span class="badge p0">P0</span></td>
+        <td><span class="badge todo">⏳ Kế hoạch</span></td>
+        <td><a href="plans/2026-06-14-monthly-replenishment-spec.md">SPEC</a></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>FEFO Enforcement (kèm Lot-to-Lot)</td>
+        <td><span class="badge p1">P1</span></td>
+        <td><span class="badge todo">⏳ Kế hoạch</span></td>
+        <td><a href="plans/2026-06-14-fefo-spec.md">SPEC</a></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Bid Tracking (Hợp đồng thầu)</td>
+        <td><span class="badge p1">P1</span></td>
+        <td><span class="badge todo">⏳ Kế hoạch</span></td>
+        <td><a href="plans/2026-06-14-bid-tracking-spec.md">SPEC</a></td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Audit Log Viewer (TT54)</td>
+        <td><span class="badge p0">P0</span></td>
+        <td><span class="badge todo">⏳ Kế hoạch</span></td>
+        <td><a href="plans/2026-06-14-audit-log-spec.md">SPEC</a></td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Internal Supplier Scorecard</td>
+        <td><span class="badge p1">P1</span></td>
+        <td><span class="badge todo">⏳ Kế hoạch</span></td>
+        <td>—</td>
+      </tr>
+    </table>
+
+    <!-- MODULE 1 -->
+    <h3 id="sec3-1">Module N1+N2+N3: Warehouse Role + Product Group + Permission</h3>
+    <div class="info-card success">
+      <strong>✅ Trạng thái: Code xong — Sẵn sàng triển khai</strong>
+      Effort: 3 tuần. Routes: <code>/admin/users</code>
+    </div>
+
+    <h4>Mục đích</h4>
+    <p>Thiết lập hệ thống phân quyền cho 4-5 thủ kho riêng biệt, đảm bảo mỗi user chỉ thấy dữ liệu trong phạm vi mình phụ trách.</p>
+
+    <h4>Tính năng chính</h4>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="num">1</span><h4>4 Warehouse Roles</h4>
+        <p>BULK_HC_SP / DAILY_HC_SP / BULK_VTYT / DAILY_VTYT — mỗi kho vật lý có 1 role riêng</p>
+      </div>
+      <div class="feature-card">
+        <span class="num">2</span><h4>2 Product Groups</h4>
+        <p>HC-SP (Hóa chất - Sinh phẩm) và VTYT (Vật tư y tế) — phân loại sản phẩm theo mảng nghiệp vụ</p>
+      </div>
+      <div class="feature-card">
+        <span class="num">3</span><h4>Phân quyền linh hoạt</h4>
+        <p>1 user có thể có nhiều role ở nhiều kho (vd: cover ca)</p>
+      </div>
+      <div class="feature-card">
+        <span class="num">4</span><h4>Thủ kho tự tạo SP</h4>
+        <p>Thủ kho tự tạo sản phẩm mới trong mảng mình (product_group auto-fill)</p>
+      </div>
+      <div class="feature-card">
+        <span class="num">5</span><h4>Trưởng khoa xem tất cả</h4>
+        <p>DEPT_HEAD có quyền xem toàn bộ 4 kho + audit log</p>
+      </div>
+      <div class="feature-card">
+        <span class="num">6</span><h4>RLS bảo mật</h4>
+        <p>Row-Level Security chặn truy cập chéo giữa các mảng</p>
+      </div>
+    </div>
+
+    <h4>Quy trình sử dụng</h4>
+    <ol>
+      <li>Admin/Trưởng khoa truy cập <code>/admin/users</code></li>
+      <li>Tìm user theo email → gán role + warehouse (vd: KEEPER_BULK_HC_SP @ XN-BULK-HC)</li>
+      <li>Đánh dấu primary (nếu user có nhiều role)</li>
+      <li>User logout/login → JWT claim cập nhật role_codes</li>
+      <li>User thấy đúng kho + sản phẩm trong mảng mình</li>
+    </ol>
+
+    <h4>Bảo mật (RLS)</h4>
+    <p>Áp dụng cho <code>products</code>, <code>warehouses</code>, <code>user_roles</code>:</p>
+    <ul>
+      <li>Thủ kho HC-SP chỉ thấy sản phẩm <code>product_group = 'HOA_CHAT_SINH_PHAM'</code></li>
+      <li>Thủ kho VTYT chỉ thấy sản phẩm <code>product_group = 'VAT_TU_Y_TE'</code></li>
+      <li>Trưởng khoa xem tất cả (qua <code>fn_user_is_admin_or_head()</code>)</li>
+    </ul>
+  </section>
+
+  <!-- SECTION 4 -->
+  <section id="sec4">
+    <h2>4. Kiến trúc kỹ thuật</h2>
+
+    <h3>4.1. Tech Stack</h3>
+    <table>
+      <tr><th>Layer</th><th>Công nghệ</th></tr>
+      <tr><td>Frontend</td><td>Next.js 15 (App Router) + TypeScript + Tailwind + shadcn/ui</td></tr>
+      <tr><td>Backend</td><td>Supabase (PostgREST + Edge Functions + Auth)</td></tr>
+      <tr><td>Database</td><td>PostgreSQL 15 với Row-Level Security</td></tr>
+      <tr><td>Auth</td><td>Supabase Auth + Auth Hook (inject tenant_id, role_codes vào JWT)</td></tr>
+      <tr><td>Validation</td><td>Zod schemas (<code>packages/validation/</code>)</td></tr>
+      <tr><td>Cron</td><td>pg_cron trên Supabase</td></tr>
+      <tr><td>Deploy Web</td><td>Cloudflare Pages</td></tr>
+      <tr><td>Deploy DB</td><td>Supabase Cloud (<code>ituyoplyuhbdxkhabcpy</code>)</td></tr>
+    </table>
+
+    <h3>4.2. Luồng dữ liệu</h3>
+    <pre><code>┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│  Next.js Client │ →  │  PostgREST + RL S │ →  │  PostgreSQL 15 │
+│  (apps/web)     │ ←  │  (Supabase API)   │ ←  │  (Supabase DB)  │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+       │                       │                       │
+       │              ┌────────┴────────┐              │
+       └─────────────→│  Edge Functions │←─────────────┘
+                      │  (Deno)         │     pg_cron
+                      └─────────────────┘
+                              │
+                      ┌───────┴────────┐
+                      │  auto-expire   │
+                      │  check-expir   │
+                      │  compute-wkly  │
+                      └────────────────┘</code></pre>
+
+    <h3>4.3. Cấu trúc Monorepo</h3>
+    <pre><code>inventory-pro/
+├── apps/
+│   ├── web/                  # Next.js 15 web app
+│   │   ├── src/app/         # Routes
+│   │   ├── src/features/    # Business logic
+│   │   │   ├── admin/      # Module 1
+│   │   │   ├── lots/       # Module 2
+│   │   │   ├── replenishment-weekly/  # Module 3
+│   │   │   ├── warehouses/ # Modified
+│   │   │   └── products/   # Modified
+│   │   └── src/lib/         # Helpers
+│   └── api/                  # ASP.NET (legacy)
+├── packages/
+│   ├── shared-types/         # TS types (Supabase + Khoa XN)
+│   ├── validation/          # Zod schemas
+│   ├── tsconfig/
+│   └── eslint-config/
+├── supabase/
+│   ├── migrations/           # 11 migrations Module 1-3
+│   └── functions/            # 3 edge functions
+├── docs/
+│   ├── plans/                # 9 SPEC + handoff
+│   └── catalog.html          # File này
+└── scripts/
+    └── auto-test-module2.sh  # Test tự động</code></pre>
+  </section>
+
+  <!-- SECTION 5 -->
+  <section id="sec5">
+    <h2>5. Hướng dẫn sử dụng</h2>
+
+    <h3>5.1. Đăng nhập</h3>
+    <ol>
+      <li>Truy cập URL: <code>https://quankho.pages.dev</code></li>
+      <li>Đăng nhập bằng email + mật khẩu</li>
+      <li>Hệ thống tự động load role + warehouse từ JWT</li>
+    </ol>
+
+    <h3>5.2. Các tác vụ thường ngày</h3>
+
+    <h4>5.2.1. Thủ kho kho chẵn — Nhập lô mới từ Khoa Dược/Phòng VTYT</h4>
+    <ol>
+      <li>Vào <code>/lots</code> → tab mảng (HC-SP / VTYT)</li>
+      <li>Nhấn "Tạo lô" → nhập: số lô, ngày hết hạn, số lượng, certificate</li>
+      <li>HC-SP → status = PENDING_QC (chờ QC duyệt), VTYT → APPROVED tự động</li>
+    </ol>
+
+    <h4>5.2.2. KTV xét nghiệm — Duyệt QC</h4>
+    <ol>
+      <li>Vào <code>/lots</code> → lọc "Chờ QC"</li>
+      <li>Click "QC" → nhập phương pháp, kết quả (PASS/FAIL), ghi chú</li>
+      <li>PASS → status = APPROVED. FAIL → QC_FAILED (xử lý hủy)</li>
+    </ol>
+
+    <h4>5.2.3. Thủ kho — Mở nắp lọ (HC-SP)</h4>
+    <ol>
+      <li>Scan QR code lô hoặc tìm trong danh sách</li>
+      <li>Click "Mở nắp" → nhập ngày, lượng lấy ra</li>
+      <li>Hệ thống tự tính open-vial expiration + in nhãn</li>
+    </ol>
+
+    <h4>5.2.4. Thủ kho kho chẵn — Xem đề xuất bổ sung tuần</h4>
+    <ol>
+      <li>Thứ 6 hàng tuần, đề xuất tự động được tạo</li>
+      <li>Vào <code>/replenishment/weekly</code> → chọn tab HC-SP / VTYT</li>
+      <li>Click vào run → điều chỉnh số lượng + gửi kho lẻ</li>
+    </ol>
+
+    <h4>5.2.5. Trưởng khoa — Duyệt đề xuất lớn</h4>
+    <ol>
+      <li>Nhận notification khi có đề xuất &gt; 5M VNĐ</li>
+      <li>Vào <code>/replenishment/weekly</code> → tab "Chờ duyệt"</li>
+      <li>Xem chi tiết → "Duyệt" hoặc "Từ chối" (có lý do)</li>
+    </ol>
+
+    <h3>5.3. Kiểm kê tháng (sẽ có ở Phase 1 mở rộng)</h3>
+    <ol>
+      <li>Đối chiếu sổ sách giấy trước</li>
+      <li>Kiểm kê từng lô (theo QR code)</li>
+      <li>Nhập số thực tế + lý do chênh lệch</li>
+      <li>Trưởng khoa duyệt → hệ thống cập nhật tồn kho</li>
+    </ol>
+  </section>
+
+  <!-- SECTION 6 -->
+  <section id="sec6">
+    <h2>6. Tuân thủ quy định</h2>
+    <p>Hệ thống thiết kế để hỗ trợ Khoa XN đáp ứng các yêu cầu kiểm tra, thanh tra:</p>
+
+    <h3>6.1. QĐ 2429/QĐ-BYT (Tiêu chí 7.2)</h3>
+    <ul>
+      <li>✅ Theo dõi hạn sử dụng cả <strong>hạn gốc</strong> và <strong>open-vial stability</strong></li>
+      <li>✅ Điều kiện bảo quản (nhiệt độ phòng, tủ lạnh 2-8°C, đông lạnh)</li>
+      <li>✅ Phân loại hóa chất theo mảng nghiệp vụ</li>
+      <li>✅ Xuất hủy tự động khi hết hạn với biên bản</li>
+    </ul>
+
+    <h3>6.2. ISO 15189:2022 (Điều 6.5.3)</h3>
+    <ul>
+      <li>✅ Kiểm soát vật tư tiêu hao đầy đủ (nhập → lưu trữ → sử dụng → xuất hủy)</li>
+      <li>✅ QC trước khi sử dụng (HC-SP)</li>
+      <li>✅ FEFO (First-Expire-First-Out) — Phase 2</li>
+      <li>✅ Lot-to-Lot Verification (CLSI EP26-A) — Phase 2</li>
+    </ul>
+
+    <h3>6.3. TT 54/2017/BYT (An toàn thông tin y tế)</h3>
+    <ul>
+      <li>✅ Phân quyền theo role, nguyên tắc tối thiểu</li>
+      <li>✅ Mã hóa dữ liệu khi truyền (HTTPS + JWT)</li>
+      <li>✅ Audit log mọi thao tác (sẽ có ở Module 8)</li>
+      <li>✅ Multi-tenant isolation chặt chẽ</li>
+    </ul>
+
+    <h3>6.4. Báo cáo cho thanh tra</h3>
+    <p>Hệ thống cung cấp các báo cáo tự động:</p>
+    <ul>
+      <li>Danh sách lô hết hạn trong kỳ</li>
+      <li>Lịch sử xuất nhập theo từng lô</li>
+      <li>Báo cáo đề xuất bổ sung hàng tháng</li>
+      <li>Chênh lệch kiểm kê (khi có)</li>
+    </ul>
+  </section>
+
+  <!-- SECTION 7 -->
+  <section id="sec7">
+    <h2>7. Triển khai & Bảo trì</h2>
+
+    <h3>7.1. Yêu cầu hệ thống</h3>
+    <table>
+      <tr><th>Thành phần</th><th>Yêu cầu</th></tr>
+      <tr><td>Trình duyệt</td><td>Chrome 100+, Edge 100+, Safari 15+, Firefox 100+</td></tr>
+      <tr><td>Mobile</td><td>iOS 15+, Android 10+ (responsive web)</td></tr>
+      <tr><td>Internet</td><td>Băng thông ≥ 5 Mbps</td></tr>
+    </table>
+
+    <h3>7.2. Cài đặt ban đầu (cho IT)</h3>
+    <ol>
+      <li>Apply 11 SQL migrations lên Supabase (theo thứ tự)</li>
+      <li>Deploy 3 Edge Functions</li>
+      <li>Setup Auth Hook (inject role_codes)</li>
+      <li>Tạo user admin đầu tiên + gán role ADMIN</li>
+      <li>Tạo 4 kho Khoa XN (XN-BULK-HC, XN-DAILY-HC, XN-BULK-VT, XN-DAILY-VT)</li>
+      <li>Gán role thủ kho + Trưởng khoa + KTV QC</li>
+      <li>Setup cron (chạy 00:30, 06:00, thứ 6 08:00)</li>
+      <li>Train sử dụng cho nhân viên Khoa XN</li>
+    </ol>
+
+    <h3>7.3. Bảo trì định kỳ</h3>
+    <ul>
+      <li><strong>Hàng ngày</strong>: Hệ thống tự động xử lý (cron)</li>
+      <li><strong>Hàng tuần</strong>: Thứ 6 tự động đề xuất bổ sung</li>
+      <li><strong>Hàng tháng</strong>: Thủ kho kiểm kê + báo cáo (Phase 1 mở rộng)</li>
+      <li><strong>Hàng quý</strong>: Review audit log, dọn dẹp data cũ</li>
+    </ul>
+
+    <h3>7.4. Troubleshooting</h3>
+    <table>
+      <tr><th>Vấn đề</th><th>Nguyên nhân thường gặp</th><th>Giải pháp</th></tr>
+      <tr>
+        <td>Không thấy sản phẩm HC-SP/VTYT</td>
+        <td>Chưa được gán role đúng</td>
+        <td>Liên hệ Admin kiểm tra <code>user_warehouse_roles</code></td>
+      </tr>
+      <tr>
+        <td>Không tạo được lô</td>
+        <td>Thiếu trường bắt buộc (số lô, HSD, số lượng)</td>
+        <td>Nhập đầy đủ theo form</td>
+      </tr>
+      <tr>
+        <td>QC không save được</td>
+        <td>Không có role QC_OFFICER</td>
+        <td>Liên hệ Admin gán role</td>
+      </tr>
+      <tr>
+        <td>Đề xuất tuần không tự tạo</td>
+        <td>Cron chưa setup hoặc service_role_key sai</td>
+        <td>Verify <code>SELECT * FROM cron.job</code></td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- SECTION 8 -->
+  <section id="sec8">
+    <h2>8. Liên hệ & Tài liệu</h2>
+
+    <h3>8.1. Nhà phát triển</h3>
+    <ul>
+      <li><strong>Team</strong>: Inventory Pro Development Team</li>
+      <li><strong>Email hỗ trợ</strong>: support@quankho.vn</li>
+      <li><strong>Hotline IT</strong>: 0292-xxx-xxx</li>
+      <li><strong>Repository</strong>: <code>github.com/TnPhtL0897/inventory-pro</code></li>
+    </ul>
+
+    <h3>8.2. Tài liệu tham khảo</h3>
+    <h4>SPEC kỹ thuật (trong <code>docs/plans/</code>)</h4>
+    <ul>
+      <li><a href="plans/2026-06-14-warehouse-role-spec.md">Warehouse Role + Permission</a></li>
+      <li><a href="plans/2026-06-14-lot-lifecycle-spec.md">Lot Lifecycle Management</a></li>
+      <li><a href="plans/2026-06-14-internal-replenishment-spec.md">Internal Replenishment Weekly</a></li>
+      <li><a href="plans/2026-06-14-fefo-spec.md">FEFO Enforcement</a></li>
+      <li><a href="plans/2026-06-14-bid-tracking-spec.md">Bid Tracking</a></li>
+      <li><a href="plans/2026-06-14-audit-log-spec.md">Audit Log Viewer</a></li>
+    </ul>
+
+    <h4>Tài liệu vận hành</h4>
+    <ul>
+      <li><a href="plans/2026-06-14-khoa-xn-phase1-handoff.md">Handoff toàn diện Phase 1</a></li>
+      <li><a href="plans/2026-06-14-khoa-xn-handover.md">Handover tổng quan 18 modules</a></li>
+      <li><a href="plans/2026-06-14-module2-test-guide.md">Hướng dẫn test Module 2</a></li>
+      <li><a href="https://supabase.com/dashboard/project/ituyoplyuhbdxkhabcpy">Supabase Dashboard</a></li>
+    </ul>
+
+    <h3>8.3. Báo lỗi & Hỗ trợ</h3>
+    <p>Khi gặp sự cố, vui lòng chuẩn bị:</p>
+    <ol>
+      <li>Mô tả chi tiết vấn đề (steps to reproduce)</li>
+      <li>Screenshots / screen recording nếu có</li>
+      <li>Thời gian xảy ra + user/role đang dùng</li>
+      <li>Browser + thiết bị</li>
+    </ol>
+    <p>Gửi về <code>support@quankho.vn</code> hoặc tạo issue trên GitHub.</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p><strong>Bệnh viện Trường ĐHYD Cần Thơ — Khoa Xét Nghiệm</strong></p>
+    <p>Phần mềm Quản lý Kho vật tư Pro — Phiên bản 1.0 (Phase 1)</p>
+    <p>© 2026 Inventory Pro. Proprietary Software.</p>
+    <p style="margin-top: 8px; font-size: 11px;">Catalog cập nhật: 14/06/2026 • Tuân thủ QĐ 2429/BYT, ISO 15189, TT 54/2017</p>
+  </footer>
+</body>
+</html>
