@@ -77,12 +77,13 @@ export default function BidPackagesPage() {
   const isLoading = pkgsQuery.isLoading && items.length === 0;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Gói thầu</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Mỗi gói có thể chia thành nhiều lô • <strong>{total}</strong> gói
+          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Trang</p>
+<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Gói thầu</h1>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+            Mỗi gói có thể chia thành nhiều lô • {total} gói
           </p>
         </div>
       </div>

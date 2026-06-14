@@ -20,12 +20,13 @@ export default function ProductsPage() {
   const errorMsg = error instanceof Error ? error.message : null;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Vật tư</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Danh mục sản phẩm, vật tư trong kho • <strong>{total}</strong> sản phẩm
+          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Trang</p>
+<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Vật tư</h1>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+            Danh mục sản phẩm, vật tư trong kho • {total} sản phẩm
           </p>
         </div>
         <Link href="/inventory/products/import">

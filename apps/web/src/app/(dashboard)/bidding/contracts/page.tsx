@@ -16,12 +16,13 @@ export default function BidContractsPage() {
   const total = data?.total ?? 0;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Hợp đồng thầu</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Quản lý hợp đồng đã ký với nhà thầu trúng • <strong>{total}</strong> hợp đồng
+          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Trang</p>
+<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Hợp đồng thầu</h1>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+            Quản lý hợp đồng đã ký với nhà thầu trúng • {total} hợp đồng
           </p>
         </div>
       </div>

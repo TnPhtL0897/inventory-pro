@@ -71,12 +71,13 @@ export default function BidLotsPage() {
   const total = data?.total ?? 0;
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-6 sm:space-y-8">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Lô / Phần thầu</h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
-            Mỗi lô thầu có thể trúng 1 nhà thầu riêng • <strong>{total}</strong> lô
+          <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-muted-foreground">Trang</p>
+<h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Lô / Phần thầu</h1>
+          <p className="mt-1 text-sm text-muted-foreground sm:text-base">
+            Mỗi lô thầu có thể trúng 1 nhà thầu riêng • {total} lô
           </p>
         </div>
       </div>
