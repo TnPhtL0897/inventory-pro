@@ -82,7 +82,7 @@ const NAV_ITEMS: NavGroup[] = [
  { label: "Tổng quan", href: "/dashboard" },
  { label: "Vật tư", href: "/inventory/products" },
  { label: "Nhập/Xuất", href: "/goods-receipts" },
- { label: "Kiểm kê", href: "/stock-takes" },
+ { label: "Kiểm kê", href: "/stocktake" },
  { label: "Dự trù/PO", href: "/replenishment" },
  { label: "Đối tác", href: "/parties" },
 ];
@@ -98,7 +98,7 @@ const MOBILE_NAV: NavGroup[] = [
  { label: "Nhập kho (GRN)", href: "/goods-receipts" },
  { label: "Chuyển kho", href: "/transfers" },
  { label: "Xuất kho", href: "/stock-issues" },
- { label: "Kiểm kê", href: "/stock-takes" },
+ { label: "Kiểm kê", href: "/stocktake" },
  { label: "Dự trù cuối tháng", href: "/replenishment" },
  { label: "Dự trù năm", href: "/inventory/replenishment/yearly" },
  { label: "Đấu thầu", href: "/bidding/contracts" },

@@ -215,7 +215,7 @@ export default function DashboardPage() {
  tone="mint"
  value={isLoading ? null : stockTakesTotal}
  subtext="Lịch kiểm kê định kỳ cuối tháng"
- href="/stock-takes"
+ href="/stocktake"
  />
  <QuickAccessCard
  title="Đối tác"
