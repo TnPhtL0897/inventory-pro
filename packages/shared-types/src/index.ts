@@ -1061,6 +1061,141 @@ export const REPLENISHMENT_LINE_STATUS_COLORS: Record<ReplenishmentLineStatus, s
 export const REPLENISHMENT_APPROVAL_THRESHOLD_VND = 5_000_000;
 
 // =============================================================================
+// Khoa XN — Module #4: Monthly Stock Take (Dual Scope)
+// =============================================================================
+
+/** Stocktake line status (mở rộng từ status gốc DRAFT|COUNTED|POSTED|CANCELLED) */
+export type StockTakeLineStatus =
+  | "PENDING"
+  | "COUNTED"
+  | "DISCREPANCY"
+  | "ADJUSTED"
+  | "REJECTED"
+  | "SKIPPED";
+
+/** Discrepancy category (lý do chênh lệch) */
+export type StockTakeDiscrepancyCategory =
+  | "BROKEN"
+  | "EXPIRED_BUT_NOT_FLAGGED"
+  | "MISCOUNT"
+  | "THEFT"
+  | "SHRINKAGE"
+  | "OTHER";
+
+/** Stocktake adjustment history item */
+export interface StockTakeAdjustmentItem {
+  by: string;
+  from?: number;
+  to?: number;
+  discrepancy?: number;
+  category?: string;
+  reason?: string;
+  at: string;
+}
+
+/** StockTake Line (Khoa XN - extended) */
+export interface StockTakeLineKhoaXn {
+  id: UUID;
+  tenant_id: UUID;
+  stock_take_id: UUID;
+  line_no: number;
+  product_id: UUID;
+  unit_id: UUID;
+  location_id: UUID | null;
+  product_name: string;
+  unit_code: string | null;
+  location_code: string | null;
+  batch_no: string | null;
+  serial_no: string | null;
+  system_qty: number;
+  counted_qty: number | null;
+  unit_cost: number | null;
+  notes: string | null;
+  adjust_movement_id: UUID | null;
+  status: string;  // StockTakeStatus từ schema gốc
+  created_at: ISODateString;
+  updated_at: ISODateString;
+
+  // Khoa XN fields (mới)
+  discrepancy: number | null;
+  discrepancy_value: number | null;
+  discrepancy_category: StockTakeDiscrepancyCategory | null;
+  discrepancy_reason: string | null;
+  line_status: StockTakeLineStatus;
+  adjustment_history: StockTakeAdjustmentItem[];
+  approved_by: UUID | null;
+  approved_at: ISODateString | null;
+  rejected_by: UUID | null;
+  rejected_at: ISODateString | null;
+  rejection_reason: string | null;
+}
+
+/** StockTake (Khoa XN - extended) */
+export interface StockTakeKhoaXn {
+  id: UUID;
+  tenant_id: UUID;
+  branch_id: UUID;
+  warehouse_id: UUID;
+  stock_take_number: string;
+  stock_take_date: ISODateString;
+  notes: string | null;
+  status: string;  // StockTakeStatus từ schema gốc
+  counted_by: UUID | null;
+  counted_at: ISODateString | null;
+  posted_by: UUID | null;
+  posted_at: ISODateString | null;
+  cancel_reason: string | null;
+  cancelled_by: UUID | null;
+  cancelled_at: ISODateString | null;
+  created_by: UUID | null;
+  created_at: ISODateString;
+  updated_at: ISODateString;
+
+  // Khoa XN fields (mới)
+  product_group: ProductGroup | null;
+  period_year: number | null;
+  period_month: number | null;
+  assigned_to: UUID | null;
+  warehouse_ids: UUID[];
+  total_estimated_value: number;
+  total_discrepancies: number;
+}
+
+// =============================================================================
+// Labels & Colors
+// =============================================================================
+
+export const STOCK_TAKE_LINE_STATUS_LABELS: Record<StockTakeLineStatus, string> = {
+  PENDING: "Chờ đếm",
+  COUNTED: "Đã đếm (khớp)",
+  DISCREPANCY: "Có chênh lệch",
+  ADJUSTED: "Đã duyệt (tạo StockMovement)",
+  REJECTED: "Bị từ chối - cần đếm lại",
+  SKIPPED: "Bỏ qua",
+};
+
+export const STOCK_TAKE_LINE_STATUS_COLORS: Record<StockTakeLineStatus, string> = {
+  PENDING: "bg-gray-100 text-gray-800",
+  COUNTED: "bg-green-100 text-green-800",
+  DISCREPANCY: "bg-amber-100 text-amber-800",
+  ADJUSTED: "bg-blue-100 text-blue-800",
+  REJECTED: "bg-red-100 text-red-800",
+  SKIPPED: "bg-stone-100 text-stone-600",
+};
+
+export const STOCK_TAKE_DISCREPANCY_CATEGORY_LABELS: Record<StockTakeDiscrepancyCategory, string> = {
+  BROKEN: "Vỡ/hỏng vật lý",
+  EXPIRED_BUT_NOT_FLAGGED: "Hết hạn nhưng chưa flag",
+  MISCOUNT: "Sai số đếm",
+  THEFT: "Mất cắp",
+  SHRINKAGE: "Hao hụt tự nhiên",
+  OTHER: "Khác",
+};
+
+/** Ngưỡng giá trị tổng chênh lệch để bắt buộc Trưởng khoa duyệt (VNĐ) */
+export const STOCK_TAKE_APPROVAL_THRESHOLD_VND = 1_000_000;
+
+// =============================================================================
 // Database (sẽ được generate tự động bởi supabase gen types)
 // =============================================================================
 export type Database = {

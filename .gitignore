@@ -69,6 +69,14 @@ supabase/.temp/
 *.swo
 deploy-package/
 
+# CodeGraph (local index + daemon state)
+.codegraph/
+!.codegraph/.gitkeep
+
+# Khoa XN reference documents (3MB docx, binary, not source code)
+*Xây*dựng*.docx
+X*.docx
+
 # Deploy package (chứa source code cho upload GitHub qua web UI)
 tmp_apply_db.env
 
