@@ -29,6 +29,9 @@ import {
   MOCK_OPEN_VIAL_EXPIRING,
   MOCK_OPEN_VIAL_STATUS,
   MOCK_OPEN_VIAL_LOTS,
+  MOCK_BID_DASHBOARD,
+  MOCK_BID_EXPIRING,
+  MOCK_AUDIT_LOG,
   paginatedMock,
 } from "./dev-mock";
 
@@ -193,6 +196,26 @@ function devMockResponse<T>(path: string, method: string, body: unknown): T | nu
   }
   if (pathname.startsWith("/lots") && params.get("status") === "IN_USE") {
     return paginatedMock(MOCK_OPEN_VIAL_LOTS.data, page, pageSize) as unknown as T;
+  }
+  // Bid Tracking Dashboard
+  if (pathname.includes("/functions/v1/bid-tracking-dashboard/expiring")) {
+    return MOCK_BID_EXPIRING as unknown as T;
+  }
+  if (pathname.includes("/functions/v1/bid-tracking-dashboard")) {
+    return MOCK_BID_DASHBOARD as unknown as T;
+  }
+  // Audit Log
+  if (pathname.includes("/functions/v1/audit-log-query")) {
+    let items = MOCK_AUDIT_LOG.items as Array<Record<string, unknown>>;
+    const tn = params.get("table_name");
+    const op = params.get("operation");
+    if (tn) items = items.filter((x) => x.tableName === tn);
+    if (op) items = items.filter((x) => x.operation === op);
+    return {
+      items,
+      page: 1,
+      pageSize: 50,
+    } as unknown as T;
   }
   return null;
 }

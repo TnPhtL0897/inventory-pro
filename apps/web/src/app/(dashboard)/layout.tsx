@@ -103,6 +103,8 @@ const MOBILE_NAV: NavGroup[] = [
  { label: "Kiểm kê", href: "/stocktake" },
  { label: "FEFO (Lot)", href: "/fefo" },
  { label: "Open-Vial", href: "/open-vial" },
+ { label: "Theo dõi HĐ thầu", href: "/bid-tracking" },
+ { label: "Audit Log", href: "/audit-log" },
  { label: "Dự trù cuối tháng", href: "/replenishment" },
  { label: "Dự trù năm", href: "/inventory/replenishment/yearly" },
  { label: "Đấu thầu", href: "/bidding/contracts" },

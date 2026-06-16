@@ -443,3 +443,111 @@ export const MOCK_OPEN_VIAL_LOTS = {
   page: 1,
   pageSize: 50,
 };
+
+// =============================================================================
+// BID TRACKING MOCKS
+// =============================================================================
+
+export const MOCK_BID_DASHBOARD = {
+  totalContracts: 18,
+  activeContracts: 12,
+  expiring30Days: 2,
+  expiring60Days: 4,
+  expiring90Days: 7,
+  totalContractValue: 8_540_000_000,
+  totalUsedValue: 3_215_000_000,
+  totalRemainingValue: 5_325_000_000,
+  avgUsagePercent: 0.3765,
+};
+
+export const MOCK_BID_EXPIRING = [
+  {
+    contractId: "bc1",
+    contractNumber: "HD-2026-001",
+    supplierName: "Công ty CP Thiết bị Y tế Hà Nội",
+    endDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    daysUntilExpiry: 25,
+    alertLevel: "CRITICAL",
+    totalContractValue: 1_250_000_000,
+    usedValue: 1_180_000_000,
+    remainingValue: 70_000_000,
+    usagePercent: 0.944,
+    message: "🔴 [30 NGÀY] HĐ HD-2026-001 - Công ty CP Thiết bị Y tế Hà Nội hết hạn",
+  },
+  {
+    contractId: "bc2",
+    contractNumber: "HD-2026-008",
+    supplierName: "Công ty TNHH Merck Việt Nam",
+    endDate: new Date(Date.now() + 55 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    daysUntilExpiry: 55,
+    alertLevel: "WARNING",
+    totalContractValue: 2_800_000_000,
+    usedValue: 1_400_000_000,
+    remainingValue: 1_400_000_000,
+    usagePercent: 0.5,
+    message: "🟡 [60 NGÀY] HĐ HD-2026-008 - Công ty TNHH Merck Việt Nam hết hạn",
+  },
+  {
+    contractId: "bc3",
+    contractNumber: "HD-2026-012",
+    supplierName: "Công ty CP Sinh phẩm Roche",
+    endDate: new Date(Date.now() + 85 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    daysUntilExpiry: 85,
+    alertLevel: "INFO",
+    totalContractValue: 980_000_000,
+    usedValue: 220_000_000,
+    remainingValue: 760_000_000,
+    usagePercent: 0.2245,
+    message: "ℹ️ [90 NGÀY] HĐ HD-2026-012 - Công ty CP Sinh phẩm Roche hết hạn",
+  },
+];
+
+// =============================================================================
+// AUDIT LOG MOCKS
+// =============================================================================
+
+export const MOCK_AUDIT_LOG = {
+  items: [
+    {
+      id: "al1",
+      tableName: "lots",
+      recordId: "lot-uuid-001",
+      operation: "UPDATE",
+      oldData: { status: "APPROVED", quantity: 100 },
+      newData: { status: "IN_USE", quantity: 100, open_vial_opened_at: new Date().toISOString() },
+      changedFields: ["status", "open_vial_opened_at"],
+      changedBy: "u1",
+      changedByEmail: "nguyen.a@khoaxn.vn",
+      changedByRole: "KEEPER_DAILY_HC_SP",
+      createdAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "al2",
+      tableName: "products",
+      recordId: "prod-uuid-002",
+      operation: "INSERT",
+      oldData: null,
+      newData: { sku: "HBS-001", name: "HBsAg Test", cost_price: 250000 },
+      changedFields: null,
+      changedBy: "u2",
+      changedByEmail: "tran.b@khoaxn.vn",
+      changedByRole: "DEPT_HEAD",
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "al3",
+      tableName: "stock_movements",
+      recordId: "sm-uuid-003",
+      operation: "DELETE",
+      oldData: { product_id: "p1", quantity: 50, type: "OUT" },
+      newData: null,
+      changedFields: null,
+      changedBy: "u1",
+      changedByEmail: "nguyen.a@khoaxn.vn",
+      changedByRole: "KEEPER_DAILY_HC_SP",
+      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
+    },
+  ],
+  page: 1,
+  pageSize: 50,
+};
