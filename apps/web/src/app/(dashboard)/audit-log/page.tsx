@@ -29,6 +29,8 @@ import {
   type AuditLogEntry,
   type AuditOperation,
 } from "@/features/audit-log/api";
+import { exportAuditLogToExcel } from "@/lib/excel-export";
+import { toast } from "sonner";
 
 export default function AuditLogPage() {
   const [tableName, setTableName] = useState<string>("all");
@@ -70,7 +72,18 @@ export default function AuditLogPage() {
             Tra cứu lịch sử thao tác INSERT/UPDATE/DELETE (lưu 5 năm theo TT54)
           </p>
         </div>
-        <Button variant="outline" size="sm">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            try {
+              exportAuditLogToExcel(items);
+              toast.success(`Đã xuất ${items.length} bản ghi ra Excel`);
+            } catch (e: any) {
+              toast.error("Lỗi xuất Excel", { description: e.message });
+            }
+          }}
+        >
           <Download className="mr-2 h-4 w-4" />
           Xuất Excel
         </Button>
