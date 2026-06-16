@@ -1,0 +1,27 @@
+name = "quankho-api"
+main = "src/worker.ts"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+
+# Dev environment
+[env.dev]
+name = "quankho-api-dev"
+
+# Production environment
+[env.production]
+name = "quankho-api"
+
+# Secrets (set via: wrangler secret put SUPABASE_URL)
+# SUPABASE_URL
+# SUPABASE_ANON_KEY
+# SUPABASE_SERVICE_ROLE_KEY
+# SUPABASE_JWT_SECRET
+# DATABASE_URL (direct Postgres connection for Drizzle)
+
+# Cron triggers
+[triggers]
+crons = []
+
+# Vars (non-secret)
+[vars]
+LOG_LEVEL = "info"
