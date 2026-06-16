@@ -116,3 +116,5 @@ FIX-WORKFLOWS.md
 .supabase-credentials
 apps/web/deps.json
 apps/web/package-lock.json
+
+.vercel
