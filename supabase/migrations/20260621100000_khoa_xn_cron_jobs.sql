@@ -120,11 +120,12 @@ SELECT cron.schedule(
   $$
 );
 
--- Job 6: FEFO compliance report cuối tháng (23:00 ngày cuối tháng)
+-- Job 6: FEFO compliance report cuối tháng (23:00 ngày 28 hàng tháng)
+-- (pg_cron không hỗ trợ 'L' = last day, dùng 28 là ngày an toàn)
 -- Gọi Edge Function fefo-pick/compliance
 SELECT cron.schedule(
   'khoaxn-fefo-monthly-compliance',
-  '0 23 L * *',
+  '0 23 28 * *',
   $$
   SELECT net.http_post(
     url := current_setting('app.supabase_url', TRUE) || '/functions/v1/fefo-pick/compliance',
