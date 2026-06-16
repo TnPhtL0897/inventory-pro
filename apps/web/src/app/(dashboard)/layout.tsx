@@ -84,6 +84,7 @@ const NAV_ITEMS: NavGroup[] = [
  { label: "Nhập/Xuất", href: "/goods-receipts" },
  { label: "Kiểm kê", href: "/stocktake" },
  { label: "Dự trù/PO", href: "/replenishment" },
+ { label: "FEFO", href: "/fefo" },
  { label: "Đối tác", href: "/parties" },
 ];
 
@@ -99,6 +100,7 @@ const MOBILE_NAV: NavGroup[] = [
  { label: "Chuyển kho", href: "/transfers" },
  { label: "Xuất kho", href: "/stock-issues" },
  { label: "Kiểm kê", href: "/stocktake" },
+ { label: "FEFO (Lot)", href: "/fefo" },
  { label: "Dự trù cuối tháng", href: "/replenishment" },
  { label: "Dự trù năm", href: "/inventory/replenishment/yearly" },
  { label: "Đấu thầu", href: "/bidding/contracts" },

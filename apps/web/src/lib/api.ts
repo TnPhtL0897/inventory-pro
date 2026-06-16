@@ -23,6 +23,9 @@ import {
   MOCK_BID_CONTRACTS,
   MOCK_REPLENISHMENT_RUNS,
   MOCK_FORECAST_LINES,
+  MOCK_FEFO_PICK_RESPONSE,
+  MOCK_FEFO_COMPLIANCE,
+  MOCK_FEFO_AUDIT_LOG,
   paginatedMock,
 } from "./dev-mock";
 
@@ -139,6 +142,27 @@ function devMockResponse<T>(path: string, method: string, body: unknown): T | nu
   if (pathname.startsWith("/api/v1/replenishment/run")) {
     // Mock run: thêm record mới vào danh sách (chỉ trả record mới)
     return MOCK_REPLENISHMENT_RUNS[0] as unknown as T;
+  }
+  // FEFO (First-Expire-First-Out) - Khoa XN Module 2
+  if (pathname.includes("/functions/v1/fefo-pick/compliance")) {
+    return MOCK_FEFO_COMPLIANCE as unknown as T;
+  }
+  if (pathname.includes("/functions/v1/fefo-pick")) {
+    return MOCK_FEFO_PICK_RESPONSE as unknown as T;
+  }
+  if (pathname.includes("/functions/v1/fefo-override")) {
+    return {
+      success: true,
+      auditId: "fefo-audit-mock-" + Date.now(),
+      auditLevel: "WARNING",
+      message: "⚠️ Đã ghi audit log override (mock)",
+    } as unknown as T;
+  }
+  if (pathname.startsWith("/fefo_audit_log")) {
+    let items = MOCK_FEFO_AUDIT_LOG.data as Array<Record<string, unknown>>;
+    const al = params.get("audit_level");
+    if (al) items = items.filter((x) => x.auditLevel === al);
+    return paginatedMock(items, page, pageSize) as unknown as T;
   }
   return null;
 }

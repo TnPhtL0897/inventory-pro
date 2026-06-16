@@ -15,3 +15,4 @@ export * from "./goods-receipt";
 export * from "./stock-issue";
 export * from "./bidding";
 export * from "./replenishment";
+export * from "./fefo";

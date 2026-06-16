@@ -251,3 +251,109 @@ export const MOCK_LOTS = [
     createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
   },
 ];
+
+// =============================================================================
+// FEFO MOCKS (Module 2 - Khoa XN)
+// =============================================================================
+
+export const MOCK_FEFO_PICK_RESPONSE = {
+  picks: [
+    {
+      lotId: "lot1",
+      lotNumber: "L-GLUC-2026-001",
+      expirationDate: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      openVialExpirationDate: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      isOpenVial: true,
+      pickQuantity: 5,
+      pickOrder: 1,
+      pickReason: "Open-vial (còn 6 ngày)",
+    },
+    {
+      lotId: "lot2",
+      lotNumber: "L-GLUC-2026-002",
+      expirationDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      openVialExpirationDate: null,
+      isOpenVial: false,
+      pickQuantity: 5,
+      pickOrder: 2,
+      pickReason: "FEFO (còn 5 ngày)",
+    },
+  ],
+  totalRequested: 10,
+  totalPicked: 10,
+  shortage: 0,
+  isSufficient: true,
+  warnings: ["⚠️ Lô L-GLUC-2026-001 (open-vial) còn 6 ngày"],
+};
+
+export const MOCK_FEFO_COMPLIANCE = {
+  totalPicks: 145,
+  compliantPicks: 138,
+  overridePicks: 6,
+  expiredPicks: 1,
+  complianceRate: 0.9517,
+  overrideRate: 0.0414,
+  topOverriddenProducts: [
+    { productId: "pxn1", sku: "GLUC-001", name: "Glucose (HC-SP)", overrideCount: 3 },
+    { productId: "pxn2", sku: "HBS-001", name: "HBsAg Test (HC-SP)", overrideCount: 2 },
+    { productId: "pxn3", sku: "EDTA-005", name: "EDTA Tube (VTYT)", overrideCount: 1 },
+  ],
+  topOverrideUsers: [
+    { userId: "u1", email: "nguyen.a@khoaxn.vn", overrideCount: 3 },
+    { userId: "u2", email: "tran.b@khoaxn.vn", overrideCount: 2 },
+  ],
+  topOverrideReasons: [
+    { overrideReason: "FEFO_INSUFFICIENT", reasonCount: 4 },
+    { overrideReason: "FEFO_EXPIRED_SOON", reasonCount: 2 },
+  ],
+};
+
+export const MOCK_FEFO_AUDIT_LOG = {
+  data: [
+    {
+      id: "fal1",
+      documentType: "STOCK_ISSUE",
+      documentNumber: "SI-2026-0142",
+      productId: "pxn1",
+      warehouseId: "wxn1",
+      requestedQuantity: 10,
+      fefoFirstLotId: "lot1",
+      fefoFirstLotExpiration: new Date(Date.now() + 12 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      actualLotId: "lot2",
+      actualLotNumber: "L-GLUC-2026-002",
+      actualLotExpiration: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      actualLotStatus: "IN_USE",
+      isFefoCompliant: false,
+      isExpiredUsed: false,
+      overrideReason: "FEFO_INSUFFICIENT",
+      overrideDescription: "Lô L-GLUC-2026-001 chỉ còn 5 chai, không đủ cho 10 yêu cầu",
+      auditLevel: "WARNING",
+      userEmail: "nguyen.a@khoaxn.vn",
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+    {
+      id: "fal2",
+      documentType: "STOCK_ISSUE",
+      documentNumber: "SI-2026-0138",
+      productId: "pxn2",
+      warehouseId: "wxn1",
+      requestedQuantity: 5,
+      fefoFirstLotId: "lot3",
+      fefoFirstLotExpiration: new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      actualLotId: "lot-expired",
+      actualLotNumber: "L-HBS-2025-099",
+      actualLotExpiration: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      actualLotStatus: "EXPIRED",
+      isFefoCompliant: false,
+      isExpiredUsed: true,
+      overrideReason: "EMERGENCY",
+      overrideDescription: "Cấp cứu bệnh nhân lúc 23h, không có lô APPROVED. Kết quả XN sẽ được kiểm tra chéo với control.",
+      auditLevel: "CRITICAL",
+      userEmail: "tran.b@khoaxn.vn",
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    },
+  ],
+  total: 2,
+  page: 1,
+  pageSize: 50,
+};
