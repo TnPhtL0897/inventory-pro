@@ -1,6 +1,6 @@
 {
   "name": "Quản kho",
-  "short_name": "Kho Pro",
+  "short_name": "Quản kho",
   "description": "Phần mềm quản lý kho chuyên nghiệp",
   "start_url": "/dashboard",
   "scope": "/",

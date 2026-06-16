@@ -6,12 +6,12 @@ import { PwaRegister } from "@/components/pwa-register";
 export const metadata: Metadata = {
   title: "Quản kho",
   description: "Phần mềm quản lý kho chuyên nghiệp",
-  applicationName: "Kho Pro",
+  applicationName: "Quản kho",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Kho Pro",
+    title: "Quản kho",
   },
   icons: {
     icon: [
