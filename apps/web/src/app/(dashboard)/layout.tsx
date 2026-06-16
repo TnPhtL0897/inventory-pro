@@ -137,9 +137,9 @@ export default async function DashboardLayout({
  className="flex items-center gap-2 font-semibold tracking-tight"
  >
  <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-blue-700 text-sm font-bold text-white shadow-sm">
- KV
+ QK
  </span>
- <span className="hidden text-base sm:inline">Kho vật tư Pro</span>
+ <span className="hidden text-base sm:inline">Quản kho</span>
  </Link>
 
  {/* Pill nav (desktop) */}

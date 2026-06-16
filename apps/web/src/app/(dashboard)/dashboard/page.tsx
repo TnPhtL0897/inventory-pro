@@ -127,7 +127,7 @@ export default function DashboardPage() {
 
  <div className="relative">
  <p className="mb-1 text-xs font-semibold uppercase tracking-widest text-white/70">
- Kho vật tư Pro
+ Hệ thống quản lý kho
  </p>
  <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
  Quản kho
