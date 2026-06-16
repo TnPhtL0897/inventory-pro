@@ -9,7 +9,7 @@
 ## 1. BỐI CẢNH
 
 ### 1.1. Dự án hiện tại
-- **Tên**: Quản lý Kho Vật tư Pro (`inventory-pro`)
+- **Tên**: Quản lý Kho Pro (`inventory-pro`)
 - **Stack**: Next.js 15.5.2 (App Router) + TypeScript + Supabase (Postgres + Auth + Edge Functions) + Tailwind + shadcn/ui
 - **Hosting**: Cloudflare Pages (`quankho.pages.dev`)
 - **Repo**: GitHub `TnPhtL0897/inventory-pro`
@@ -23,7 +23,7 @@ User muốn xây dựng **phần mềm quản lý kho chuyên biệt cho Khoa X�
 - **Thông tư 54/2017/TT-BYT** (an toàn thông tin y tế)
 - **Nghị định 24/2024/NĐ-CP** (đấu thầu, mua sắm công)
 
-File yêu cầu gốc: `D:\Tự động hóa\Quản kho vật tư Pro\Xây dựng phần mềm quản lý kho xét nghiệm.docx` (171 đoạn, 46,477 ký tự, đã đọc).
+File yêu cầu gốc: `D:\Tự động hóa\Quản kho Pro\Xây dựng phần mềm quản lý kho xét nghiệm.docx` (171 đoạn, 46,477 ký tự, đã đọc).
 
 ---
 

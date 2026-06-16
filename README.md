@@ -1,6 +1,6 @@
-# Quản lý kho vật tư Pro
+# Quản kho
 
-Phần mềm quản lý kho vật tư chuyên nghiệp cho doanh nghiệp Việt Nam. Multi-tenant, multi-branch, hỗ trợ đầy đủ nghiệp vụ kho + tuân thủ pháp lý VN (hóa đơn điện tử, chữ ký số, sổ sách theo TT133/TT200).
+Phần mềm quản lý kho chuyên nghiệp cho doanh nghiệp Việt Nam. Multi-tenant, multi-branch, hỗ trợ đầy đủ nghiệp vụ kho + tuân thủ pháp lý VN (hóa đơn điện tử, chữ ký số, sổ sách theo TT133/TT200).
 
 **Phase 1 — Khoa Xét Nghiệm** (2026-06-14): 3 module core đã code xong (Warehouse Role + Permission, Lot Lifecycle, Internal Replenishment Weekly). Xem [docs/plans/2026-06-14-khoa-xn-phase1-handoff.md](docs/plans/2026-06-14-khoa-xn-phase1-handoff.md) để biết chi tiết.
 

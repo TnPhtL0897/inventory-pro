@@ -130,7 +130,7 @@ export default function DashboardPage() {
  Kho vật tư Pro
  </p>
  <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
- Quản lý kho vật tư
+ Quản kho
  </h1>
  <p className="mt-1 text-sm text-white/80 sm:text-base">
  {heroSubtitle}

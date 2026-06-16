@@ -4,8 +4,8 @@ import { Providers } from "@/components/providers";
 import { PwaRegister } from "@/components/pwa-register";
 
 export const metadata: Metadata = {
-  title: "Quản lý kho vật tư Pro",
-  description: "Phần mềm quản lý kho vật tư chuyên nghiệp",
+  title: "Quản kho",
+  description: "Phần mềm quản lý kho chuyên nghiệp",
   applicationName: "Kho Pro",
   manifest: "/manifest.json",
   appleWebApp: {

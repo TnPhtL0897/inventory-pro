@@ -87,7 +87,7 @@ export default function LoginPage() {
     <Card className="w-full max-w-md">
       <CardHeader className="space-y-1">
         <CardTitle className="text-2xl font-bold">
-          Quản lý kho vật tư Pro
+          Quản kho
         </CardTitle>
         <CardDescription>
           Đăng nhập vào hệ thống để tiếp tục

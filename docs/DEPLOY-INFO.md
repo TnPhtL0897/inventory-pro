@@ -71,7 +71,7 @@ supabase db push  # apply tất cả 9 migrations
 | `SUPABASE_SERVICE_ROLE_KEY` | `<service_role>` | All (nhưng thực tế web không cần) |
 | `SUPABASE_JWT_SECRET` | `<JWT Secret>` | All |
 | `NEXT_PUBLIC_API_BASE_URL` | `https://inventory-prod.fly.dev` | Production |
-| `NEXT_PUBLIC_APP_NAME` | `Quản lý kho vật tư Pro` | All |
+| `NEXT_PUBLIC_APP_NAME` | `Quản kho` | All |
 | `NEXT_PUBLIC_APP_VERSION` | `0.1.0` | All |
 
 ### Account email

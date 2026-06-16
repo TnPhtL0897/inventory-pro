@@ -22,7 +22,7 @@
 ### Bước 1: BẠN apply migration (30 giây)
 
 1. Mở: https://supabase.com/dashboard/project/ituyoplyuhbdxkhabcpy/sql/new
-2. Mở file: `D:\Tự động hóa\Quản kho vật tư Pro\supabase\migrations\20260610150000_yearly_forecast.sql`
+2. Mở file: `D:\Tự động hóa\Quản kho Pro\supabase\migrations\20260610150000_yearly_forecast.sql`
 3. Ctrl+A → Ctrl+C trong file
 4. Ctrl+V vào SQL Editor → Ctrl+Enter
 5. Verify: chạy query này trong editor:

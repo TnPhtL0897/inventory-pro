@@ -1,7 +1,7 @@
 {
-  "name": "Quản lý kho vật tư Pro",
+  "name": "Quản kho",
   "short_name": "Kho Pro",
-  "description": "Phần mềm quản lý kho vật tư chuyên nghiệp",
+  "description": "Phần mềm quản lý kho chuyên nghiệp",
   "start_url": "/dashboard",
   "scope": "/",
   "display": "standalone",
