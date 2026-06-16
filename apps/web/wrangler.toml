@@ -1,13 +1,12 @@
 # =============================================================================
-# Cloudflare Pages configuration (auto-detected by Cloudflare from wrangler.toml)
+# Cloudflare Workers (NOT Pages) configuration
 # =============================================================================
-# Env vars (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY) are set
-# in Cloudflare Dashboard > Pages > Settings > Environment variables
-# (NOT in this file, because Pages wrangler.toml doesn't support [vars]).
+# Dự án này deploy chính lên Vercel. File wrangler.toml giữ lại để tham khảo
+# cho Cloudflare Workers (Edge API nếu cần) nhưng KHÔNG dùng cho build.
 #
-# Compatibility flags here are the fallback if Dashboard doesn't have them set.
+# Để deploy lên Cloudflare Pages: dùng @opennextjs/cloudflare (xem git log)
+# Để deploy lên Vercel: chỉ cần `next build` (Vercel tự detect)
 
 name = "inventorypro-web"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".next"
