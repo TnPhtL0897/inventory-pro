@@ -150,10 +150,9 @@ export default async function DashboardLayout({
  {/* Spacer for mobile */}
  <div className="flex-1 lg:hidden" />
 
- {/* User menu (right) */}
+ {/* User menu (right) - signOut xử lý client-side trong component */}
  <UserMenu
  user={user}
- signOutAction={handleSignOut}
  notificationCount={0}
  />
  </div>
