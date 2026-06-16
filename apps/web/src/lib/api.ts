@@ -26,6 +26,9 @@ import {
   MOCK_FEFO_PICK_RESPONSE,
   MOCK_FEFO_COMPLIANCE,
   MOCK_FEFO_AUDIT_LOG,
+  MOCK_OPEN_VIAL_EXPIRING,
+  MOCK_OPEN_VIAL_STATUS,
+  MOCK_OPEN_VIAL_LOTS,
   paginatedMock,
 } from "./dev-mock";
 
@@ -163,6 +166,33 @@ function devMockResponse<T>(path: string, method: string, body: unknown): T | nu
     const al = params.get("audit_level");
     if (al) items = items.filter((x) => x.auditLevel === al);
     return paginatedMock(items, page, pageSize) as unknown as T;
+  }
+  // Open-Vial
+  if (pathname.includes("/functions/v1/open-vial-action/expiring")) {
+    return MOCK_OPEN_VIAL_EXPIRING as unknown as T;
+  }
+  if (pathname.includes("/functions/v1/open-vial-action/status")) {
+    return MOCK_OPEN_VIAL_STATUS as unknown as T;
+  }
+  if (pathname.includes("/functions/v1/open-vial-action")) {
+    return {
+      success: true,
+      action: "open",
+      historyId: "ov-history-mock-" + Date.now(),
+      openVialExpirationDate: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      printQueueId: "ov-queue-mock-" + Date.now(),
+      message: "🧪 Đã mở nắp (mock). Nhãn sẽ in tự động.",
+    } as unknown as T;
+  }
+  if (pathname.includes("/functions/v1/open-vial-qc")) {
+    return {
+      success: true,
+      qcRecordId: "ov-qc-mock-" + Date.now(),
+      message: "✅ QC lại thành công (mock).",
+    } as unknown as T;
+  }
+  if (pathname.startsWith("/lots") && params.get("status") === "IN_USE") {
+    return paginatedMock(MOCK_OPEN_VIAL_LOTS.data, page, pageSize) as unknown as T;
   }
   return null;
 }

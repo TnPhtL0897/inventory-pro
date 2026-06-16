@@ -357,3 +357,89 @@ export const MOCK_FEFO_AUDIT_LOG = {
   page: 1,
   pageSize: 50,
 };
+
+// =============================================================================
+// OPEN-VIAL MOCKS (Module 2 - Khoa XN)
+// =============================================================================
+
+export const MOCK_OPEN_VIAL_EXPIRING = [
+  {
+    lotId: "ov1",
+    lotNumber: "L-GLUC-2026-OV-001",
+    productName: "Glucose (HC-SP)",
+    productSku: "GLUC-001",
+    openVialExpirationDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    daysUntilExpiry: -3,
+    alertLevel: "CRITICAL",
+    message: "🔴 [QUÁ HẠN 3 ngày] Glucose (lô L-GLUC-2026-OV-001) — open-vial hết hạn",
+  },
+  {
+    lotId: "ov2",
+    lotNumber: "L-HBS-2026-OV-005",
+    productName: "HBsAg Test (HC-SP)",
+    productSku: "HBS-001",
+    openVialExpirationDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    daysUntilExpiry: 1,
+    alertLevel: "CRITICAL",
+    message: "🔴 [1 NGÀY] HBsAg Test (lô L-HBS-2026-OV-005) — open-vial hết hạn",
+  },
+  {
+    lotId: "ov3",
+    lotNumber: "L-ALT-2026-OV-002",
+    productName: "ALT (HC-SP)",
+    productSku: "ALT-001",
+    openVialExpirationDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+    daysUntilExpiry: 5,
+    alertLevel: "WARNING",
+    message: "🟡 [5 NGÀY] ALT (lô L-ALT-2026-OV-002) — open-vial hết hạn",
+  },
+];
+
+export const MOCK_OPEN_VIAL_STATUS = {
+  isOpen: true,
+  openedAt: new Date(Date.now() - 25 * 24 * 60 * 60 * 1000).toISOString(),
+  openedByUser: "u1",
+  openVialExpirationDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+  daysUntilExpiry: 3,
+  volumeRemaining: 72.5,
+  needsQcRetest: false,
+  qcRetestReason: "Còn hạn open-vial",
+  lastQcRetestAt: null,
+  lastQcRetestResult: null,
+  qcRetestValidUntil: null,
+  openVialCount: 1,
+};
+
+export const MOCK_OPEN_VIAL_LOTS = {
+  data: [
+    {
+      id: "ov1",
+      lotNumber: "L-GLUC-2026-OV-001",
+      productId: "pxn1",
+      productSku: "GLUC-001",
+      productName: "Glucose (HC-SP)",
+      warehouseId: "wxn1",
+      openVialOpenedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      openVialExpirationDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      openVialQuantityRemaining: 25,
+      openVialCount: 1,
+      status: "IN_USE",
+    },
+    {
+      id: "ov2",
+      lotNumber: "L-HBS-2026-OV-005",
+      productId: "pxn2",
+      productSku: "HBS-001",
+      productName: "HBsAg Test (HC-SP)",
+      warehouseId: "wxn1",
+      openVialOpenedAt: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000).toISOString(),
+      openVialExpirationDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      openVialQuantityRemaining: 18,
+      openVialCount: 2,
+      status: "IN_USE",
+    },
+  ],
+  total: 2,
+  page: 1,
+  pageSize: 50,
+};

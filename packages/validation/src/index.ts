@@ -16,3 +16,4 @@ export * from "./stock-issue";
 export * from "./bidding";
 export * from "./replenishment";
 export * from "./fefo";
+export * from "./open-vial";
