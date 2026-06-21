@@ -1,8 +1,8 @@
 /**
- * Drizzle schema placeholder
- * Sẽ import schema files từng module: products.ts, warehouses.ts, etc.
+ * Drizzle schema barrel export
  *
- * Ví dụ: export * from "./schema/products";
+ * Thêm file mới cho mỗi module: products.ts, warehouses.ts, stock.ts, ...
+ * Mỗi file export table + types. RLS tự động enforce qua tenant_id.
  */
 
-export {};
+export * from "./schema/products";

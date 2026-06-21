@@ -5,64 +5,83 @@
 
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
 import { health } from "./routes/health";
+import { productsRoute } from "./routes/products";
+import { requireAuth } from "./middleware/auth";
+import { requestLogger } from "./middleware/logger";
+import { rateLimit } from "./middleware/rate-limit";
+import { errorHandler } from "./errors";
+import type { AppContext } from "./types";
 
-type Bindings = {
-  SUPABASE_URL: string;
-  SUPABASE_ANON_KEY: string;
-  SUPABASE_SERVICE_ROLE_KEY: string;
-  SUPABASE_JWT_SECRET: string;
-  DATABASE_URL: string;
-  LOG_LEVEL: string;
-};
+const app = new Hono<AppContext>();
 
-const app = new Hono<{ Bindings: Bindings }>();
+// =============================================================================
+// Global middleware (apply to all routes)
+// =============================================================================
 
-// Global middleware
-app.use("*", logger());
+// 1. CORS (must be first)
 app.use(
   "*",
   cors({
     origin: [
       "https://quankho.pages.dev",
       "https://inventory-pro-web-letanphatptt-9690s-projects.vercel.app",
-      "http://localhost:3000", // dev
+      "http://localhost:3000",
+      "http://localhost:3001",
     ],
     allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
+    allowHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
     credentials: true,
+    exposeHeaders: ["X-Request-Id", "X-RateLimit-Limit", "X-RateLimit-Remaining"],
   })
 );
 
-// Health check (no auth)
+// 2. Request logger (set requestId, log start/end)
+app.use("*", requestLogger);
+
+// 3. Rate limit (per IP + per user)
+app.use("*", rateLimit);
+
+// 4. 404
+app.notFound((c) =>
+  c.json(
+    {
+      error: "NOT_FOUND",
+      message: `Route ${c.req.method} ${c.req.path} not found`,
+      requestId: c.get("requestId"),
+    },
+    404
+  )
+);
+
+// 5. Error handler
+app.onError(errorHandler);
+
+// =============================================================================
+// Public routes (no auth)
+// =============================================================================
+
+// Health check
 app.route("/health", health);
 
-// Root
+// Root info
 app.get("/", (c) =>
   c.json({
     name: "quankho-api",
-    version: "0.1.0",
+    version: "0.2.0",
     runtime: "cloudflare-workers",
     docs: "/health",
   })
 );
 
-// 404
-app.notFound((c) =>
-  c.json({ error: "Not Found", path: c.req.path }, 404)
-);
+// =============================================================================
+// Protected routes (require JWT)
+// =============================================================================
 
-// Error handler
-app.onError((err, c) => {
-  console.error("Unhandled error:", err);
-  return c.json(
-    {
-      error: "Internal Server Error",
-      message: err instanceof Error ? err.message : "Unknown error",
-    },
-    500
-  );
-});
+// /api/v1/* - all require auth
+app.use("/api/*", requireAuth);
+
+// Mount modules
+app.route("/api/v1/products", productsRoute);
 
 export default app;
