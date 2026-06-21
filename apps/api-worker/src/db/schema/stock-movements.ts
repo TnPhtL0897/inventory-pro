@@ -26,7 +26,7 @@ export const stockMovements = pgTable(
     notes: text("notes"),
     batchNo: text("batch_no").notNull().default(""),
     serialNo: text("serial_no").notNull().default(""),
-    expiryDate: timestamp("expiry_date", { mode: "date" }),
+    expiryDate: text("expiry_date"),
     idempotencyKey: uuid("idempotency_key").notNull(),
     createdBy: uuid("created_by"),
     postedAt: timestamp("posted_at", { withTimezone: true }),

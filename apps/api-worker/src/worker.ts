@@ -17,6 +17,8 @@ import { stockRoute } from "./routes/stock";
 import { stockIssuesRoute } from "./routes/stock-issues";
 import { stockTransfersRoute } from "./routes/stock-transfers";
 import { stockTakesRoute } from "./routes/stock-takes";
+import { purchaseOrdersRoute } from "./routes/purchasing";
+import { goodsReceiptsRoute } from "./routes/goods-receipts";
 import { requireAuth } from "./middleware/auth";
 import { requestLogger } from "./middleware/logger";
 import { rateLimit } from "./middleware/rate-limit";
@@ -103,5 +105,7 @@ app.route("/api/v1/stock", stockRoute);
 app.route("/api/v1/stock-issues", stockIssuesRoute);
 app.route("/api/v1/stock-transfers", stockTransfersRoute);
 app.route("/api/v1/stock-takes", stockTakesRoute);
+app.route("/api/v1/purchase-orders", purchaseOrdersRoute);
+app.route("/api/v1/goods-receipts", goodsReceiptsRoute);
 
 export default app;

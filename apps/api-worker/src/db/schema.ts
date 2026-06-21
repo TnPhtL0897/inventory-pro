@@ -8,3 +8,4 @@ export * from "./schema/parties";
 export * from "./schema/stock";
 export * from "./schema/stock-movements";
 export * from "./schema/stock-documents";
+export * from "./schema/purchasing";
