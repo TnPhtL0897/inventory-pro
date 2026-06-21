@@ -129,41 +129,6 @@ app.route("/api/v1/bid-contracts", bidContractsRoute);
 app.route("/api/v1/purchase-requests", purchaseRequestsRoute);
 app.route("/api/v1/replenishment", replenishmentRoute);
 
-// =============================================================================
-// TEMPORARY: Admin endpoint để apply migrations từ Worker
-// XÓA SAU KHI MIGRATIONS DONE
-// =============================================================================
-app.post("/admin/migrate", async (c) => {
-  const body = await c.req.json().catch(() => ({}));
-  const key = body.key as string;
-  if (key !== "MIGRATE_2026_06_21") {
-    return c.json({ error: "FORBIDDEN", message: "Invalid migration key" }, 403);
-  }
-  const sql = body.sql as string;
-  if (!sql) {
-    return c.json({ error: "VALIDATION_ERROR", message: "sql required" }, 400);
-  }
-
-  // Per-request connection (avoid CF Workers I/O isolation issue)
-  const { createDb } = await import("./db");
-  const { db, client } = createDb(c.env.DATABASE_URL);
-  try {
-    // Use client.unsafe() for raw multi-statement SQL (handles DO $$ blocks correctly)
-    const result = await client.unsafe(sql);
-    const rowCount = Array.isArray(result) ? result.length : 0;
-    return c.json({ success: true, message: "Migration applied", rowCount });
-  } catch (err) {
-    return c.json({
-      error: "MIGRATION_FAILED",
-      message: err instanceof Error ? err.message : String(err),
-      detail: (err as { detail?: string })?.detail,
-      code: (err as { code?: string })?.code,
-    }, 500);
-  } finally {
-    await client.end();
-  }
-});
-
 export default {
   fetch: app.fetch,
   scheduled: handleScheduled,
