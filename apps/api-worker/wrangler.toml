@@ -19,8 +19,13 @@ name = "quankho-api"
 # DATABASE_URL (direct Postgres connection for Drizzle)
 
 # Cron triggers
+# - "0 2 25 * *" = 02:00 ngày 25 hàng tháng (chạy dự trù cuối tháng)
+# CF Cron không hỗ trợ day-of-week (chỉ day-of-month). Stock expiry check
+# sẽ dùng pg_cron trên Supabase thay thế.
 [triggers]
-crons = []
+crons = [
+  "0 2 25 * *",
+]
 
 # Vars (non-secret)
 [vars]

@@ -27,7 +27,8 @@ import { requireAuth } from "./middleware/auth";
 import { requestLogger } from "./middleware/logger";
 import { rateLimit } from "./middleware/rate-limit";
 import { errorHandler } from "./errors";
-import type { AppContext } from "./types";
+import { handleScheduled } from "./scheduled";
+import type { AppContext, Bindings } from "./types";
 
 const app = new Hono<AppContext>();
 
@@ -118,4 +119,7 @@ app.route("/api/v1/bid-contracts", bidContractsRoute);
 app.route("/api/v1/purchase-requests", purchaseRequestsRoute);
 app.route("/api/v1/replenishment", replenishmentRoute);
 
-export default app;
+export default {
+  fetch: app.fetch,
+  scheduled: handleScheduled,
+} satisfies ExportedHandler<Bindings>;
