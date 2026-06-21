@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 
 // Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
@@ -20,11 +21,18 @@ export default function GoodsReceiptsPage() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const post = usePostGrn();
+  const confirmDialog = useConfirm();
 
   const handleNew = () => setOpen(true);
   const close = () => setOpen(false);
-  const handlePost = (g: GoodsReceipt) => {
-    if (confirm(`Post GRN ${g.grnNumber}? Hành Ä‘á»™ng này sế ghi stock_movements và cập nhật tá»“n kho.`)) {
+  const handlePost = async (g: GoodsReceipt) => {
+    const ok = await confirmDialog.confirm({
+      title: `Post GRN ${g.grnNumber}?`,
+      description: "Hành động này sẽ ghi stock_movements và cập nhật tồn kho. Phiếu sau khi post không thể chỉnh sửa.",
+      variant: "warning",
+      confirmLabel: "Post GRN",
+    });
+    if (ok) {
       post.mutate(g.id, { onSuccess: () => router.push(`/goods-receipts/${g.id}`) });
     }
   };
@@ -51,6 +59,8 @@ export default function GoodsReceiptsPage() {
         <CardHeader><CardTitle>Danh sách</CardTitle></CardHeader>
         <CardContent><GrnTable onNew={handleNew} onPost={handlePost} /></CardContent>
       </Card>
+
+      <confirmDialog.ConfirmHost />
     </div>
   );
 }

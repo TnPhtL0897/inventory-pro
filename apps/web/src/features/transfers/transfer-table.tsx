@@ -15,6 +15,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Plus, Truck, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export function TransferTable({ onNew, initialData }: { onNew: () => void; initialData?: { items: StockTransfer[]; total: number; page: number; pageSize: number; hasMore: boolean } }) {
   const [page, setPage] = useState(1);
@@ -22,6 +24,9 @@ export function TransferTable({ onNew, initialData }: { onNew: () => void; initi
   const [status, setStatus] = useState<StockTransferStatus | "">("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [shippingTarget, setShippingTarget] = useState<StockTransfer | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<StockTransfer | null>(null);
+  const [cancelReason, setCancelReason] = useState("");
 
   const params = {
     page, pageSize: 20,
@@ -96,16 +101,14 @@ export function TransferTable({ onNew, initialData }: { onNew: () => void; initi
                 <td className="px-2 sm:px-3 py-2 text-right">
                   <div className="flex justify-end gap-1">
                     {t.status === "DRAFT" && (
-                      <Button size="icon" variant="ghost" onClick={() => {
-                        if (confirm(`Ship phiếu ${t.transferNumber}?`)) ship.mutate(t.id);
-                      }} className="h-10 w-10 sm:h-8 sm:w-10" aria-label="Ship phiếu">
+                      <Button size="icon" variant="ghost" onClick={() => setShippingTarget(t)} className="h-10 w-10 sm:h-8 sm:w-10" aria-label="Ship phiếu">
                         <Truck className="h-4 w-4 text-amber-600" />
                       </Button>
                     )}
                     {(t.status === "DRAFT" || t.status === "IN_TRANSIT") && (
                       <Button size="icon" variant="ghost" onClick={() => {
-                        const reason = prompt("Lý do hủy:");
-                        if (reason) cancel.mutate({ id: t.id, reason });
+                        setCancelTarget(t);
+                        setCancelReason("");
                       }} className="h-10 w-10 sm:h-8 sm:w-10" aria-label="Hủy phiếu">
                         <X className="h-4 w-4 text-red-600" />
                       </Button>
@@ -127,6 +130,56 @@ export function TransferTable({ onNew, initialData }: { onNew: () => void; initi
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!shippingTarget}
+        onOpenChange={(o) => !o && setShippingTarget(null)}
+        title={`Ship phiếu ${shippingTarget?.transferNumber}?`}
+        description="Phiếu sẽ chuyển sang trạng thái IN_TRANSIT. Kho nguồn sẽ bị trừ tồn ngay khi ship."
+        variant="warning"
+        confirmLabel="Ship phiếu"
+        onConfirm={async () => {
+          if (shippingTarget) await ship.mutateAsync(shippingTarget.id);
+          setShippingTarget(null);
+        }}
+        isLoading={ship.isPending}
+      />
+
+      <Dialog open={!!cancelTarget} onOpenChange={(o) => !o && setCancelTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Hủy phiếu {cancelTarget?.transferNumber}?</DialogTitle>
+            <DialogDescription>
+              Vui lòng nhập lý do hủy để lưu lại lịch sử.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            placeholder="Lý do hủy (bắt buộc)"
+            value={cancelReason}
+            onChange={(e) => setCancelReason(e.target.value)}
+            autoFocus
+          />
+          <DialogFooter className="gap-2 sm:gap-2">
+            <Button type="button" variant="outline" onClick={() => setCancelTarget(null)} disabled={cancel.isPending}>
+              Đóng
+            </Button>
+            <Button
+              type="button"
+              className="bg-red-600 text-white hover:bg-red-700"
+              onClick={async () => {
+                if (cancelTarget && cancelReason.trim()) {
+                  await cancel.mutateAsync({ id: cancelTarget.id, reason: cancelReason.trim() });
+                  setCancelTarget(null);
+                  setCancelReason("");
+                }
+              }}
+              disabled={!cancelReason.trim() || cancel.isPending}
+            >
+              {cancel.isPending ? "Đang hủy..." : "Hủy phiếu"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

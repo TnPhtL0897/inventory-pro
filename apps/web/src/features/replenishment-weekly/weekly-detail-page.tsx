@@ -23,6 +23,7 @@ import {
 } from "@inventorypro/shared-types";
 import { AdjustQtyModal } from "./adjust-qty-modal";
 import { ChevronLeft, Send, Check, X, Ban } from "lucide-react";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 export function WeeklyDetailPage({ runId }: { runId: string }) {
   const router = useRouter();
@@ -31,6 +32,7 @@ export function WeeklyDetailPage({ runId }: { runId: string }) {
   const confirmByDaily = useConfirmReplenishmentByDailyRun();
   const approve = useApproveReplenishment();
   const cancel = useCancelReplenishment();
+  const confirmDialog = useConfirm();
 
   const [adjustLine, setAdjustLine] = useState<{
     id: string;
@@ -158,8 +160,14 @@ export function WeeklyDetailPage({ runId }: { runId: string }) {
         {canCancel && (
           <Button
             variant="outline"
-            onClick={() => {
-              if (confirm("Hủy đề xuất này?")) {
+            onClick={async () => {
+              const ok = await confirmDialog.confirm({
+                title: "Hủy đề xuất này?",
+                description: "Đề xuất sẽ bị hủy và không thể khôi phục. Các dòng đã điều chỉnh sẽ bị mất.",
+                variant: "warning",
+                confirmLabel: "Hủy đề xuất",
+              });
+              if (ok) {
                 cancel.mutate({ runId });
               }
             }}
@@ -288,6 +296,8 @@ export function WeeklyDetailPage({ runId }: { runId: string }) {
           onOpenChange={(o) => !o && setAdjustLine(null)}
         />
       )}
+
+      <confirmDialog.ConfirmHost />
     </div>
   );
 }
