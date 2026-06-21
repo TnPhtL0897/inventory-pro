@@ -22,6 +22,7 @@ import { goodsReceiptsRoute } from "./routes/goods-receipts";
 import {
   bidPlansRoute, bidPackagesRoute, bidLotsRoute, bidContractsRoute, purchaseRequestsRoute,
 } from "./routes/bidding";
+import { replenishmentRoute } from "./routes/replenishment";
 import { requireAuth } from "./middleware/auth";
 import { requestLogger } from "./middleware/logger";
 import { rateLimit } from "./middleware/rate-limit";
@@ -115,5 +116,6 @@ app.route("/api/v1/bid-packages", bidPackagesRoute);
 app.route("/api/v1/bid-lots", bidLotsRoute);
 app.route("/api/v1/bid-contracts", bidContractsRoute);
 app.route("/api/v1/purchase-requests", purchaseRequestsRoute);
+app.route("/api/v1/replenishment", replenishmentRoute);
 
 export default app;
