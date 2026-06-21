@@ -9,3 +9,4 @@ export * from "./schema/stock";
 export * from "./schema/stock-movements";
 export * from "./schema/stock-documents";
 export * from "./schema/purchasing";
+export * from "./schema/bidding";

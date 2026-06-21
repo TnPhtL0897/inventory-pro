@@ -19,6 +19,9 @@ import { stockTransfersRoute } from "./routes/stock-transfers";
 import { stockTakesRoute } from "./routes/stock-takes";
 import { purchaseOrdersRoute } from "./routes/purchasing";
 import { goodsReceiptsRoute } from "./routes/goods-receipts";
+import {
+  bidPlansRoute, bidPackagesRoute, bidLotsRoute, bidContractsRoute, purchaseRequestsRoute,
+} from "./routes/bidding";
 import { requireAuth } from "./middleware/auth";
 import { requestLogger } from "./middleware/logger";
 import { rateLimit } from "./middleware/rate-limit";
@@ -107,5 +110,10 @@ app.route("/api/v1/stock-transfers", stockTransfersRoute);
 app.route("/api/v1/stock-takes", stockTakesRoute);
 app.route("/api/v1/purchase-orders", purchaseOrdersRoute);
 app.route("/api/v1/goods-receipts", goodsReceiptsRoute);
+app.route("/api/v1/bid-plans", bidPlansRoute);
+app.route("/api/v1/bid-packages", bidPackagesRoute);
+app.route("/api/v1/bid-lots", bidLotsRoute);
+app.route("/api/v1/bid-contracts", bidContractsRoute);
+app.route("/api/v1/purchase-requests", purchaseRequestsRoute);
 
 export default app;
