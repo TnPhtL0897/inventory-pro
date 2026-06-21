@@ -10,7 +10,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { stock } from "../db/schema";
 import { listStockQuery } from "../validators/stock";
 import { requireRole } from "./_helpers";
@@ -21,7 +21,7 @@ export const stockRoute = new Hono<AppContext>();
 stockRoute.get("/", async (c) => {
   const q = listStockQuery.parse(c.req.query());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   const conditions: SQL[] = [eq(stock.tenantId, user.tenantId)];
   if (q.branchId) conditions.push(eq(stock.branchId, q.branchId));
@@ -57,7 +57,7 @@ stockRoute.get("/", async (c) => {
 stockRoute.get("/by-product/:productId", async (c) => {
   const user = c.get("user")!;
   const productId = c.req.param("productId");
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   const items = await db
     .select()
@@ -69,7 +69,7 @@ stockRoute.get("/by-product/:productId", async (c) => {
 
 stockRoute.get("/summary", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   const [result] = await db
     .select({

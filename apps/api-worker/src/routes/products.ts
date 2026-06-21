@@ -20,7 +20,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, ilike, or, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { products } from "../db/schema";
 import {
   listProductsQuery,
@@ -42,7 +42,7 @@ export const productsRoute = new Hono<AppContext>();
 productsRoute.get("/", async (c) => {
   const query = listProductsQuery.parse(c.req.query());
   const user = c.get("user")!; // requireAuth ensures this
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   // Build WHERE conditions
   const conditions: SQL[] = [eq(products.tenantId, user.tenantId)];
@@ -108,7 +108,7 @@ productsRoute.get("/", async (c) => {
 productsRoute.get("/:id", async (c) => {
   const id = c.req.param("id");
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   const [product] = await db
     .select()
@@ -133,7 +133,7 @@ productsRoute.get("/:id", async (c) => {
 productsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const body = createProductRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   // Check SKU uniqueness
   const [existingSku] = await db
@@ -213,7 +213,7 @@ productsRoute.put("/:id", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP",
   const id = c.req.param("id");
   const body = updateProductRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   // Check exists
   const [existing] = await db
@@ -281,7 +281,7 @@ productsRoute.put("/:id", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP",
 productsRoute.delete("/:id", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const id = c.req.param("id");
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   // Check exists
   const [existing] = await db

@@ -10,7 +10,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { stockIssues, stockIssueLines, stock, stockMovements } from "../db/schema";
 import { createStockIssueRequest } from "../validators/stock";
 import { NotFoundError, ValidationError } from "../errors";
@@ -21,7 +21,7 @@ export const stockIssuesRoute = new Hono<AppContext>();
 
 stockIssuesRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const status = c.req.query("status");
@@ -54,7 +54,7 @@ stockIssuesRoute.get("/", async (c) => {
 
 stockIssuesRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
 
   const [header] = await db
@@ -71,7 +71,7 @@ stockIssuesRoute.get("/:id", async (c) => {
 stockIssuesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_DAILY_HC_SP", "KEEPER_DAILY_VTYT"), async (c) => {
   const body = createStockIssueRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   // Auto-generate issue number nếu không có
   const issueNumber = body.issueNumber ?? `ISS-${Date.now()}`;
@@ -117,7 +117,7 @@ stockIssuesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_DAILY_HC_SP
 // POST /:id/post - Tạo stock_movements OUT và update stock
 stockIssuesRoute.post("/:id/post", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_DAILY_HC_SP", "KEEPER_DAILY_VTYT"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
 
   const [header] = await db
@@ -205,7 +205,7 @@ stockIssuesRoute.post("/:id/post", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_DAI
 // POST /:id/cancel
 stockIssuesRoute.post("/:id/cancel", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const reason = (await c.req.json().catch(() => ({}))).reason ?? null;
 

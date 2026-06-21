@@ -14,7 +14,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, gte, lte, lt, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import {
   warehouses, products, stock, stockMovements, bidContracts,
   purchaseRequests, purchaseRequestLines, monthEndForecastRuns,
@@ -36,7 +36,7 @@ export const replenishmentRoute = new Hono<AppContext>();
 // =============================================================================
 replenishmentRoute.get("/runs", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const year = c.req.query("year");
   const conditions: SQL[] = [eq(monthEndForecastRuns.tenantId, user.tenantId)];
   if (year) conditions.push(eq(monthEndForecastRuns.fiscalYear, Number(year)));
@@ -57,7 +57,8 @@ replenishmentRoute.get("/runs", async (c) => {
 replenishmentRoute.post("/preview", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = runReplenishmentRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const preview = await runForecast(c.env.DATABASE_URL, user.tenantId, body, user.id, false);
+  const db = c.get("db")!;
+  const preview = await runForecast(db, user.tenantId, body, user.id, false);
   return c.json({ success: true, data: preview, requestId: c.get("requestId") });
 });
 
@@ -69,7 +70,7 @@ replenishmentRoute.post("/run", requireRole("ADMIN", "DEPT_HEAD"), async (c) => 
   const user = c.get("user")!;
 
   // Idempotency: 1 run/tenant/month
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [existing] = await db
     .select()
     .from(monthEndForecastRuns)
@@ -85,7 +86,7 @@ replenishmentRoute.post("/run", requireRole("ADMIN", "DEPT_HEAD"), async (c) => 
     throw new ValidationError(`Đã chạy dự trù tháng ${body.fiscalMonth}/${body.fiscalYear} rồi (run id: ${existing.id})`);
   }
 
-  const result = await runForecast(c.env.DATABASE_URL, user.tenantId, body, user.id, body.saveAsPurchaseRequest);
+  const result = await runForecast(c.get("db")!, user.tenantId, body, user.id, body.saveAsPurchaseRequest);
 
   // Save run history
   const asOfDate = body.asOfDate ?? new Date().toISOString().split("T")[0];
@@ -110,13 +111,12 @@ replenishmentRoute.post("/run", requireRole("ADMIN", "DEPT_HEAD"), async (c) => 
 // Forecast algorithm (shared giữa preview + run + scheduled cron)
 // =============================================================================
 export async function runForecast(
-  databaseUrl: string,
+  db: import("drizzle-orm/postgres-js").PostgresJsDatabase<typeof import("../db/schema")>,
   tenantId: string,
   body: { fiscalMonth: number; fiscalYear: number; asOfDate?: string; saveAsPurchaseRequest: boolean; notes?: string | null },
   userId: string,
   saveAsPR: boolean
 ) {
-  const db = getDb(databaseUrl);
   const asOfDate = body.asOfDate ? new Date(body.asOfDate) : new Date();
   const historyStart = new Date(asOfDate);
   historyStart.setDate(historyStart.getDate() - HISTORY_DAYS);

@@ -7,7 +7,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import {
   stockTakes, stockTakeLines, stock, stockMovements,
 } from "../db/schema";
@@ -20,7 +20,7 @@ export const stockTakesRoute = new Hono<AppContext>();
 
 stockTakesRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const status = c.req.query("status");
@@ -45,7 +45,7 @@ stockTakesRoute.get("/", async (c) => {
 
 stockTakesRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
@@ -60,7 +60,7 @@ stockTakesRoute.get("/:id", async (c) => {
 stockTakesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const body = createStockTakeRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const stockTakeNumber = body.stockTakeNumber ?? `STK-${Date.now()}`;
 
   const [header] = await db
@@ -116,7 +116,7 @@ stockTakesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP",
 // POST /:id/count - Mark counted (counted_qty đã có sẵn trong lines)
 stockTakesRoute.post("/:id/count", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
@@ -147,7 +147,7 @@ stockTakesRoute.post("/:id/count", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BUL
 // POST /:id/post - Tạo ADJUST_IN/OUT movements + update stock
 stockTakesRoute.post("/:id/post", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
 
   const [header] = await db
@@ -216,7 +216,7 @@ stockTakesRoute.post("/:id/post", requireRole("ADMIN", "DEPT_HEAD"), async (c) =
 
 stockTakesRoute.post("/:id/cancel", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()

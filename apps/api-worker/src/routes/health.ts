@@ -1,22 +1,14 @@
 /**
  * Health check endpoint
  * GET /health - basic
- * GET /health/db - check DB connection
+ * GET /health/db - check DB connection (per-request connection)
  */
 
 import { Hono } from "hono";
-import { getDb } from "../db";
+import { createDb } from "../db";
+import type { AppContext } from "../types";
 
-type Bindings = {
-  DATABASE_URL: string;
-  SUPABASE_URL: string;
-  SUPABASE_ANON_KEY: string;
-  SUPABASE_SERVICE_ROLE_KEY: string;
-  SUPABASE_JWT_SECRET: string;
-  LOG_LEVEL: string;
-};
-
-export const health = new Hono<{ Bindings: Bindings }>();
+export const health = new Hono<AppContext>();
 
 health.get("/", (c) =>
   c.json({
@@ -27,8 +19,8 @@ health.get("/", (c) =>
 );
 
 health.get("/db", async (c) => {
+  const { db, client } = createDb(c.env.DATABASE_URL);
   try {
-    const db = getDb(c.env.DATABASE_URL);
     const result = await db.execute("SELECT 1 as ok");
     return c.json({
       status: "ok",
@@ -44,5 +36,7 @@ health.get("/db", async (c) => {
       },
       503
     );
+  } finally {
+    await client.end();
   }
 });

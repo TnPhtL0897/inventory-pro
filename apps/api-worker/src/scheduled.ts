@@ -8,7 +8,7 @@
  * createdBy của PR sẽ là null. Mỗi tenant tự chạy riêng.
  */
 
-import { getDb } from "./db";
+import { createDb } from "./db";
 import { runForecast } from "./routes/replenishment";
 import { sql } from "drizzle-orm";
 import type { Bindings } from "./types";
@@ -63,7 +63,7 @@ async function runScheduledReplenishment(
   env: Bindings,
   triggeredAt: string
 ): Promise<void> {
-  const db = getDb(env.DATABASE_URL);
+  const { db, client } = createDb(env.DATABASE_URL);
   const now = new Date();
   const nextMonth = now.getMonth() + 2; // 1..12 (next month)
   const fiscalYear = nextMonth === 13 ? now.getFullYear() + 1 : now.getFullYear();

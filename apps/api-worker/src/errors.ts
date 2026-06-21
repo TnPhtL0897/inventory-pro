@@ -121,6 +121,10 @@ export function errorHandler(err: Error, c: Context<AppContext>) {
       request_id: requestId,
       message: "Unhandled error",
       error: err.message,
+      errorName: (err as { name?: string })?.name,
+      errorCode: (err as { code?: string })?.code,
+      errorDetail: (err as { detail?: string })?.detail,
+      errorHint: (err as { hint?: string })?.hint,
       stack: err.stack,
       path: c.req.path,
       method: c.req.method,
@@ -130,6 +134,7 @@ export function errorHandler(err: Error, c: Context<AppContext>) {
     {
       error: "INTERNAL_ERROR",
       message: "Internal server error",
+      debug: err.message, // tạm thời để debug
       requestId,
     },
     500

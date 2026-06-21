@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { eq, and } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { branches } from "../db/schema";
 import {
   listBranchesQuery,
@@ -39,7 +39,7 @@ branchesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = createBranchRequest.parse(await c.req.json());
   const user = c.get("user")!;
   await checkUnique(c, branches, branches.code, body.code);
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(branches)
     .values({ tenantId: user.tenantId, ...body })
@@ -52,7 +52,7 @@ branchesRoute.put("/:id", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = updateBranchRequest.parse(await c.req.json());
   if (body.code) await checkUnique(c, branches, branches.code, body.code, id);
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [updated] = await db
     .update(branches)
     .set({ ...body, updatedAt: new Date() })

@@ -7,7 +7,7 @@
 
 import type { Context } from "hono";
 import { eq, and, ilike, or, sql, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { NotFoundError, ConflictError } from "../errors";
 import { requireRole } from "../middleware/auth";
 import type { AppContext, PaginatedResult, AuthUser } from "../types";
@@ -51,7 +51,7 @@ export async function listRows<
   }
 ) {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const conditions: SQL[] = [eq(table.tenantId, user.tenantId)];
 
   if (options.search && options.searchColumns?.length) {
@@ -100,7 +100,7 @@ export async function getRowById<
   id: string
 ) {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   const [row] = await db
     .select()
@@ -126,7 +126,7 @@ export async function softDeleteRow<
   },
 >(c: Context<AppContext>, table: T, id: string) {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   const [existing] = await db
     .select({ id: table.id })
@@ -157,7 +157,7 @@ export async function checkUnique<
   excludeId?: string
 ) {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   const conditions = [
     eq(table.tenantId, user.tenantId),

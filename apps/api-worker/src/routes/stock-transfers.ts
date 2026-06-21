@@ -7,7 +7,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import {
   stockTransfers, stockTransferLines, stock, stockMovements,
 } from "../db/schema";
@@ -20,7 +20,7 @@ export const stockTransfersRoute = new Hono<AppContext>();
 
 stockTransfersRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const status = c.req.query("status");
@@ -45,7 +45,7 @@ stockTransfersRoute.get("/", async (c) => {
 
 stockTransfersRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
@@ -60,7 +60,7 @@ stockTransfersRoute.get("/:id", async (c) => {
 stockTransfersRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const body = createStockTransferRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   if (body.fromWarehouseId === body.toWarehouseId) {
     throw new ValidationError("fromWarehouse and toWarehouse must be different");
   }
@@ -103,7 +103,7 @@ stockTransfersRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_
 // POST /:id/post - Xuất khỏi from_warehouse, tạo TRANSFER_OUT movements
 stockTransfersRoute.post("/:id/post", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
 
   const [header] = await db
@@ -167,7 +167,7 @@ stockTransfersRoute.post("/:id/post", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_
 // POST /:id/receive - Nhập vào to_warehouse, tạo TRANSFER_IN movements
 stockTransfersRoute.post("/:id/receive", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
 
   const [header] = await db
@@ -235,7 +235,7 @@ stockTransfersRoute.post("/:id/receive", requireRole("ADMIN", "DEPT_HEAD", "KEEP
 
 stockTransfersRoute.post("/:id/cancel", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()

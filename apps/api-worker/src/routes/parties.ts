@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { eq, and, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { parties } from "../db/schema";
 import {
   listPartiesQuery,
@@ -44,7 +44,7 @@ partiesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = createPartyRequest.parse(await c.req.json());
   const user = c.get("user")!;
   await checkUnique(c, parties, parties.code, body.code);
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(parties)
     .values({
@@ -62,7 +62,7 @@ partiesRoute.put("/:id", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = updatePartyRequest.parse(await c.req.json());
   if (body.code) await checkUnique(c, parties, parties.code, body.code, id);
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   const updateSet: Record<string, unknown> = { updatedAt: new Date() };
   for (const [k, v] of Object.entries(body)) {

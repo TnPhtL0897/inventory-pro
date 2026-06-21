@@ -5,7 +5,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import {
   bidPlans, bidPackages, bidLots, bidContracts,
   purchaseRequests, purchaseRequestLines,
@@ -26,7 +26,7 @@ export const bidPlansRoute = new Hono<AppContext>();
 
 bidPlansRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const status = c.req.query("status");
@@ -49,7 +49,7 @@ bidPlansRoute.get("/", async (c) => {
 
 bidPlansRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [row] = await db
     .select()
@@ -63,7 +63,7 @@ bidPlansRoute.get("/:id", async (c) => {
 bidPlansRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = createBidPlanRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(bidPlans)
     .values({
@@ -85,7 +85,7 @@ bidPlansRoute.put("/:id", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const id = c.req.param("id");
   const body = updateBidPlanRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const updateSet: Record<string, unknown> = { updatedAt: new Date() };
   for (const [k, v] of Object.entries(body)) {
     if (v === undefined) continue;
@@ -107,7 +107,7 @@ export const bidPackagesRoute = new Hono<AppContext>();
 
 bidPackagesRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const bidPlanId = c.req.query("bidPlanId");
@@ -129,7 +129,7 @@ bidPackagesRoute.get("/", async (c) => {
 bidPackagesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = createBidPackageRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(bidPackages)
     .values({
@@ -151,7 +151,7 @@ bidPackagesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
 
 bidPackagesRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [row] = await db
     .select()
@@ -169,7 +169,7 @@ export const bidLotsRoute = new Hono<AppContext>();
 
 bidLotsRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const bidPackageId = c.req.query("bidPackageId");
   const conditions: SQL[] = [eq(bidLots.tenantId, user.tenantId)];
   if (bidPackageId) conditions.push(eq(bidLots.bidPackageId, bidPackageId));
@@ -181,7 +181,7 @@ bidLotsRoute.get("/", async (c) => {
 bidLotsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = createBidLotRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(bidLots)
     .values({
@@ -208,7 +208,7 @@ export const bidContractsRoute = new Hono<AppContext>();
 
 bidContractsRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const status = c.req.query("status");
@@ -231,7 +231,7 @@ bidContractsRoute.get("/", async (c) => {
 
 bidContractsRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [row] = await db
     .select()
@@ -245,7 +245,7 @@ bidContractsRoute.get("/:id", async (c) => {
 bidContractsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = createBidContractRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(bidContracts)
     .values({
@@ -274,7 +274,7 @@ export const purchaseRequestsRoute = new Hono<AppContext>();
 
 purchaseRequestsRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const status = c.req.query("status");
@@ -295,7 +295,7 @@ purchaseRequestsRoute.get("/", async (c) => {
 
 purchaseRequestsRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
@@ -310,7 +310,7 @@ purchaseRequestsRoute.get("/:id", async (c) => {
 purchaseRequestsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const body = createPurchaseRequestRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   let total = 0;
   for (const l of body.lines) {
@@ -355,7 +355,7 @@ purchaseRequestsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_H
 
 purchaseRequestsRoute.post("/:id/approve", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
@@ -375,7 +375,7 @@ purchaseRequestsRoute.post("/:id/approve", requireRole("ADMIN", "DEPT_HEAD"), as
 
 purchaseRequestsRoute.post("/:id/reject", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const { reason } = (await c.req.json().catch(() => ({}))) as { reason?: string };
   const [header] = await db

@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import {
   goodsReceipts, goodsReceiptLines,
   stock, stockMovements, purchaseOrders, purchaseOrderLines,
@@ -18,7 +18,7 @@ export const goodsReceiptsRoute = new Hono<AppContext>();
 
 goodsReceiptsRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const status = c.req.query("status");
@@ -40,7 +40,7 @@ goodsReceiptsRoute.get("/", async (c) => {
 
 goodsReceiptsRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
@@ -55,7 +55,7 @@ goodsReceiptsRoute.get("/:id", async (c) => {
 goodsReceiptsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const body = createGoodsReceiptRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   let totalAmount = 0, taxAmount = 0;
   for (const l of body.lines) {
@@ -109,7 +109,7 @@ goodsReceiptsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_S
 
 goodsReceiptsRoute.post("/:id/post", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", "KEEPER_BULK_VTYT"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
 
   const [header] = await db
@@ -199,7 +199,7 @@ goodsReceiptsRoute.post("/:id/post", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_B
 
 goodsReceiptsRoute.post("/:id/cancel", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()

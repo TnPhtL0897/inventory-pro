@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { eq, and } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { units } from "../db/schema";
 import {
   listUnitsQuery,
@@ -39,7 +39,7 @@ unitsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = createUnitRequest.parse(await c.req.json());
   const user = c.get("user")!;
   await checkUnique(c, units, units.code, body.code);
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(units)
     .values({ tenantId: user.tenantId, ...body })
@@ -52,7 +52,7 @@ unitsRoute.put("/:id", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = updateUnitRequest.parse(await c.req.json());
   if (body.code) await checkUnique(c, units, units.code, body.code, id);
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [updated] = await db
     .update(units)
     .set({ ...body, updatedAt: new Date() })

@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { eq, and, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { locations } from "../db/schema";
 import {
   listLocationsQuery,
@@ -46,7 +46,7 @@ locationsRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP", 
   const user = c.get("user")!;
   // Check unique code within warehouse
   await checkUnique(c, locations, locations.code, body.code);
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(locations)
     .values({ tenantId: user.tenantId, ...body })
@@ -59,7 +59,7 @@ locationsRoute.put("/:id", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP"
   const body = updateLocationRequest.parse(await c.req.json());
   if (body.code) await checkUnique(c, locations, locations.code, body.code, id);
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [updated] = await db
     .update(locations)
     .set({ ...body, updatedAt: new Date() })

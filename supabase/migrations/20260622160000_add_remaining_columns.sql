@@ -1,0 +1,14 @@
+-- Migration: Add more missing columns (is_active, zone, etc.)
+
+ALTER TABLE public.warehouses ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE public.parties ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS zone TEXT;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS rack TEXT;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS shelf TEXT;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS bin TEXT;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS capacity_volume TEXT;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS capacity_weight TEXT;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS is_pickable BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS is_receivable BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS sort_order INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE public.locations ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT TRUE;

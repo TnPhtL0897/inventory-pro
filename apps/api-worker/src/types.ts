@@ -25,6 +25,7 @@ export type AuthUser = {
 export type AppVariables = {
   requestId: string;
   user?: AuthUser;
+  db?: import("drizzle-orm/postgres-js").PostgresJsDatabase<typeof import("./db/schema")>;
 };
 
 export type AppContext = {

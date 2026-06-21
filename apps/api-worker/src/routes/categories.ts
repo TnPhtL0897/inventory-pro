@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { eq, and, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { categories } from "../db/schema";
 import {
   listCategoriesQuery,
@@ -43,7 +43,7 @@ categoriesRoute.post("/", requireRole("ADMIN", "DEPT_HEAD", "KEEPER_BULK_HC_SP",
   const body = createCategoryRequest.parse(await c.req.json());
   const user = c.get("user")!;
   await checkUnique(c, categories, categories.code, body.code);
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [created] = await db
     .insert(categories)
     .values({ tenantId: user.tenantId, ...body })
@@ -56,7 +56,7 @@ categoriesRoute.put("/:id", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = updateCategoryRequest.parse(await c.req.json());
   if (body.code) await checkUnique(c, categories, categories.code, body.code, id);
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const [updated] = await db
     .update(categories)
     .set({ ...body, updatedAt: new Date() })

@@ -4,7 +4,7 @@
 
 import { Hono } from "hono";
 import { eq, and, sql, type SQL } from "drizzle-orm";
-import { getDb } from "../db";
+
 import { purchaseOrders, purchaseOrderLines } from "../db/schema";
 import { createPurchaseOrderRequest } from "../validators/purchasing";
 import { NotFoundError, ValidationError } from "../errors";
@@ -15,7 +15,7 @@ export const purchaseOrdersRoute = new Hono<AppContext>();
 
 purchaseOrdersRoute.get("/", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const page = Number(c.req.query("page") ?? 1);
   const pageSize = Number(c.req.query("pageSize") ?? 20);
   const status = c.req.query("status");
@@ -39,7 +39,7 @@ purchaseOrdersRoute.get("/", async (c) => {
 
 purchaseOrdersRoute.get("/:id", async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
@@ -54,7 +54,7 @@ purchaseOrdersRoute.get("/:id", async (c) => {
 purchaseOrdersRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const body = createPurchaseOrderRequest.parse(await c.req.json());
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
 
   // Validate bid contract nếu có
   if (body.bidContractId && !body.bidLotId) {
@@ -112,7 +112,7 @@ purchaseOrdersRoute.post("/", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
 
 purchaseOrdersRoute.post("/:id/approve", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
@@ -130,7 +130,7 @@ purchaseOrdersRoute.post("/:id/approve", requireRole("ADMIN", "DEPT_HEAD"), asyn
 
 purchaseOrdersRoute.post("/:id/cancel", requireRole("ADMIN", "DEPT_HEAD"), async (c) => {
   const user = c.get("user")!;
-  const db = getDb(c.env.DATABASE_URL);
+  const db = c.get("db")!;
   const id = c.req.param("id");
   const [header] = await db
     .select()
