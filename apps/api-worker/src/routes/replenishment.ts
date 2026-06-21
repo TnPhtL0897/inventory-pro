@@ -107,9 +107,9 @@ replenishmentRoute.post("/run", requireRole("ADMIN", "DEPT_HEAD"), async (c) => 
 });
 
 // =============================================================================
-// Forecast algorithm (shared giữa preview + run)
+// Forecast algorithm (shared giữa preview + run + scheduled cron)
 // =============================================================================
-async function runForecast(
+export async function runForecast(
   databaseUrl: string,
   tenantId: string,
   body: { fiscalMonth: number; fiscalYear: number; asOfDate?: string; saveAsPurchaseRequest: boolean; notes?: string | null },

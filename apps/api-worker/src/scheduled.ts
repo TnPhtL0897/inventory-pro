@@ -2,14 +2,14 @@
  * Scheduled handler - chạy bởi CF Cron Triggers
  *
  * Patterns (từ wrangler.toml):
- * - "0 2 25 * *" = 02:00 ngày 25 hàng tháng → Replenishment auto-run
- * - "0 3 * * 0" = 03:00 Chủ nhật → Stock expiry check
+ * - "0 2 25 * *" = 02:00 ngày 25 hàng tháng → Replenishment auto-run cho TẤT CẢ tenants
  *
- * Lưu ý: handler này KHÔNG có auth context (cron không có JWT).
- * Cần dùng SERVICE_ROLE_KEY để bypass RLS, hoặc gọi SQL functions trực tiếp.
+ * Lưu ý: scheduled handler KHÔNG có auth context (cron không có JWT).
+ * createdBy của PR sẽ là null. Mỗi tenant tự chạy riêng.
  */
 
 import { getDb } from "./db";
+import { runForecast } from "./routes/replenishment";
 import { sql } from "drizzle-orm";
 import type { Bindings } from "./types";
 
@@ -19,24 +19,25 @@ export async function handleScheduled(
   ctx: ExecutionContext
 ): Promise<void> {
   const cron = event.cron;
+  const triggeredAt = new Date(event.scheduledTime).toISOString();
   console.log(JSON.stringify({
     level: "info",
     msg: "scheduled.trigger",
     cron,
-    scheduledTime: new Date(event.scheduledTime).toISOString(),
+    triggeredAt,
   }));
 
-  ctx.waitUntil(runScheduledTask(cron, env));
+  ctx.waitUntil(runScheduledTask(cron, env, triggeredAt));
 }
 
-async function runScheduledTask(cron: string, env: Bindings): Promise<void> {
+async function runScheduledTask(
+  cron: string,
+  env: Bindings,
+  triggeredAt: string
+): Promise<void> {
   try {
     if (cron === "0 2 25 * *") {
-      // 25 hàng tháng: Replenishment cho tháng tiếp theo
-      await runScheduledReplenishment(env);
-    } else if (cron === "0 3 * * 0") {
-      // Chủ nhật: Stock expiry check
-      await runScheduledExpiryCheck(env);
+      await runScheduledReplenishment(env, triggeredAt);
     } else {
       console.log(JSON.stringify({
         level: "warn",
@@ -56,31 +57,95 @@ async function runScheduledTask(cron: string, env: Bindings): Promise<void> {
 }
 
 // =============================================================================
-// 25 hàng tháng: Replenishment auto-run
+// 25 hàng tháng: Replenishment cho tháng tiếp theo
 // =============================================================================
-async function runScheduledReplenishment(env: Bindings): Promise<void> {
+async function runScheduledReplenishment(
+  env: Bindings,
+  triggeredAt: string
+): Promise<void> {
   const db = getDb(env.DATABASE_URL);
   const now = new Date();
-  const fiscalMonth = now.getMonth() + 1; // 1..12 (current month)
-  const fiscalYear = now.getFullYear();
+  const nextMonth = now.getMonth() + 2; // 1..12 (next month)
+  const fiscalYear = nextMonth === 13 ? now.getFullYear() + 1 : now.getFullYear();
+  const adjustedMonth = nextMonth === 13 ? 1 : nextMonth;
+  const asOfDate = now.toISOString().split("T")[0];
 
   // Tìm tất cả tenants active
-  const tenants = await db.execute<{ id: string }>(sql`SELECT id FROM tenants WHERE is_active = true`);
+  const tenants = await db.execute<{ id: string; name: string }>(
+    sql`SELECT id, name FROM tenants WHERE is_active = true`
+  );
+
+  console.log(JSON.stringify({
+    level: "info",
+    msg: "scheduled.replenishment.start",
+    tenantCount: tenants.length,
+    fiscalMonth: adjustedMonth,
+    fiscalYear,
+    asOfDate,
+  }));
+
+  let successCount = 0;
+  let failCount = 0;
 
   for (const tenant of tenants) {
     try {
-      // Gọi lại logic forecast + save PR (giống POST /replenishment/run)
-      // TODO: extract runForecast thành reusable function
-      // Tạm thời chỉ log
+      // Idempotency check: skip nếu đã chạy tháng này
+      const [existing] = await db.execute<{ id: string }>(
+        sql`SELECT id FROM month_end_forecast_runs
+            WHERE tenant_id = ${tenant.id}
+              AND fiscal_year = ${fiscalYear}
+              AND fiscal_month = ${adjustedMonth}
+            LIMIT 1`
+      );
+      if (existing) {
+        console.log(JSON.stringify({
+          level: "info",
+          msg: "scheduled.replenishment.skipped",
+          tenantId: tenant.id,
+          reason: "already run this month",
+        }));
+        continue;
+      }
+
+      // Gọi runForecast với saveAsPR=true (scheduled = auto-create PR)
+      const result = await runForecast(
+        env.DATABASE_URL,
+        tenant.id,
+        {
+          fiscalMonth: adjustedMonth,
+          fiscalYear,
+          asOfDate,
+          saveAsPurchaseRequest: true,
+          notes: `[AUTO] Scheduled run on ${triggeredAt}`,
+        },
+        // system user (null vì cron không có user context)
+        // createTable tạo createdBy null OK
+        null as unknown as string,
+        true // saveAsPR
+      );
+
+      // Save run history
+      await db.execute(
+        sql`INSERT INTO month_end_forecast_runs
+            (tenant_id, run_type, fiscal_year, fiscal_month, as_of_date, status,
+             warehouse_count, product_count, total_estimated_value, created_purchase_request_ids)
+            VALUES (${tenant.id}, 'SCHEDULED', ${fiscalYear}, ${adjustedMonth}, ${asOfDate},
+                    'COMPLETED', ${result.warehouseCount}, ${result.productCount},
+                    ${result.totalEstimatedValue}, ${JSON.stringify(result.createdPurchaseRequestIds)}::jsonb)`
+      );
+
+      successCount++;
       console.log(JSON.stringify({
         level: "info",
-        msg: "scheduled.replenishment.tenant_skipped",
+        msg: "scheduled.replenishment.tenant_done",
         tenantId: tenant.id,
-        fiscalMonth,
-        fiscalYear,
-        note: "Scheduled replenishment chưa wired - dùng POST /replenishment/run manually",
+        warehouseCount: result.warehouseCount,
+        productCount: result.productCount,
+        totalEstimatedValue: result.totalEstimatedValue,
+        prCount: result.createdPurchaseRequestIds.length,
       }));
     } catch (err) {
+      failCount++;
       console.error(JSON.stringify({
         level: "error",
         msg: "scheduled.replenishment.tenant_failed",
@@ -89,29 +154,12 @@ async function runScheduledReplenishment(env: Bindings): Promise<void> {
       }));
     }
   }
-}
 
-// =============================================================================
-// Chủ nhật: Stock expiry check
-// =============================================================================
-async function runScheduledExpiryCheck(env: Bindings): Promise<void> {
-  const db = getDb(env.DATABASE_URL);
-
-  // Tìm lots sắp expire trong 30 ngày
-  const expiring = await db.execute<{ tenant_id: string; count: number }>(sql`
-    SELECT tenant_id, COUNT(*)::int as count
-    FROM lots
-    WHERE status = 'ACTIVE'
-      AND expiry_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
-    GROUP BY tenant_id
-  `);
-
-  for (const row of expiring) {
-    console.log(JSON.stringify({
-      level: "info",
-      msg: "scheduled.expiry.tenant_alert",
-      tenantId: row.tenant_id,
-      expiringCount: row.count,
-    }));
-  }
+  console.log(JSON.stringify({
+    level: "info",
+    msg: "scheduled.replenishment.complete",
+    successCount,
+    failCount,
+    totalTenants: tenants.length,
+  }));
 }
