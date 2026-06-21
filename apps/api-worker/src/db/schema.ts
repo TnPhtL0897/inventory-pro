@@ -6,3 +6,8 @@
  */
 
 export * from "./schema/products";
+export * from "./schema/categories";
+export * from "./schema/units";
+export * from "./schema/branches";
+export * from "./schema/warehouses";
+export * from "./schema/locations";

@@ -7,6 +7,11 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { health } from "./routes/health";
 import { productsRoute } from "./routes/products";
+import { categoriesRoute } from "./routes/categories";
+import { unitsRoute } from "./routes/units";
+import { branchesRoute } from "./routes/branches";
+import { warehousesRoute } from "./routes/warehouses";
+import { locationsRoute } from "./routes/locations";
 import { requireAuth } from "./middleware/auth";
 import { requestLogger } from "./middleware/logger";
 import { rateLimit } from "./middleware/rate-limit";
@@ -83,5 +88,10 @@ app.use("/api/*", requireAuth);
 
 // Mount modules
 app.route("/api/v1/products", productsRoute);
+app.route("/api/v1/categories", categoriesRoute);
+app.route("/api/v1/units", unitsRoute);
+app.route("/api/v1/branches", branchesRoute);
+app.route("/api/v1/warehouses", warehousesRoute);
+app.route("/api/v1/locations", locationsRoute);
 
 export default app;
