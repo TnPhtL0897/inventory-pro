@@ -8,10 +8,8 @@ import { useRealtimeStockMovements } from "@/lib/realtime";
 import { StockTable } from "@/features/stock/stock-table";
 import { MovementsTable } from "@/features/stock/movements-table";
 
-// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
 export const dynamic = "force-dynamic";
 
-export const runtime = "edge";
 
 export default function StockPage() {
   // Realtime: auto-refresh stock levels + movements when new movements are inserted

@@ -12,10 +12,8 @@ import { Plus } from "lucide-react";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 
 
-// Force dynamic rendering - skip static gen (edge runtime)
 export const dynamic = "force-dynamic"
 
-export const runtime = "edge";
 
 export default function GoodsReceiptsPage() {
   const router = useRouter();

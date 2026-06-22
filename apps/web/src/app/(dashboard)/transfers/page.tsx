@@ -11,10 +11,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
 export const dynamic = "force-dynamic";
 
-export const runtime = "edge";
 
 export default function TransfersPage() {
   const { data, isLoading, error, refetch, isRefetching } = useStockTransfers({ pageSize: 100 });

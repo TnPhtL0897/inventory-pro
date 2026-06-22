@@ -16,7 +16,6 @@ import { LotRecallModal } from "@/features/lots/lot-recall-modal";
 import type { ProductGroup } from "@inventorypro/shared-types";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 export default function LotsPage() {
   const [tab, setTab] = useState("hc-sp");

@@ -8,7 +8,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 export default function StockTakeDetailRoute() {
   const params = useParams();

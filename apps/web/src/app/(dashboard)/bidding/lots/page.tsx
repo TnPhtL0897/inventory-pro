@@ -6,10 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { sb } from "@/lib/data-access";
 import { BidLotListClient } from "./list-client";
 
-// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
 export const dynamic = "force-dynamic";
 
-export const runtime = "edge";
 
 interface BidLotRow {
   id: string;

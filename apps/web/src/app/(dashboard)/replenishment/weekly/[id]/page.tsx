@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { WeeklyDetailPage } from "@/features/replenishment-weekly/weekly-detail-page";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 export default function WeeklyReplenishmentDetailRoute() {
   const params = useParams();

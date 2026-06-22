@@ -3,10 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList } from "lucide-react";
 
 
-// Force dynamic rendering - skip static gen (edge runtime)
 export const dynamic = "force-dynamic"
 
-export const runtime = "edge";
 
 export default async function PurchaseRequestsPage() {
   return (

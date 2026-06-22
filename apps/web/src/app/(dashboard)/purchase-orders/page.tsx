@@ -10,10 +10,8 @@ import { Plus } from "lucide-react";
 import type { PurchaseOrder } from "@/features/purchase-orders/api";
 
 
-// Force dynamic rendering - skip static gen (edge runtime)
 export const dynamic = "force-dynamic"
 
-export const runtime = "edge";
 
 export default function PurchaseOrdersPage() {
   const [open, setOpen] = useState(false);

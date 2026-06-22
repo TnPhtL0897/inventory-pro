@@ -13,10 +13,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { Button as Button_ } from "@/components/ui/button";
 
-// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
 export const dynamic = "force-dynamic";
 
-export const runtime = "edge";
 
 export default function ProductsPage() {
   const { data, isLoading, error, refetch, isRefetching } = useProducts({ pageSize: 100 });

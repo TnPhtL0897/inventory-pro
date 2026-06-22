@@ -11,7 +11,6 @@ import { Users, UserPlus, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 export default function AdminUsersPage() {
   const [inviteOpen, setInviteOpen] = useState(false);

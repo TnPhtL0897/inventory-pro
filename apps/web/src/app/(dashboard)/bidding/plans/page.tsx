@@ -6,10 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listTable } from "@/lib/data-access";
 import { BidPlanListClient } from "./list-client";
 
-// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
 export const dynamic = "force-dynamic";
 
-export const runtime = "edge";
 
 interface BidPlanRow {
   id: string;

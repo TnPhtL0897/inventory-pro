@@ -6,10 +6,8 @@ import { ClipboardList, TrendingUp } from "lucide-react";
 import { useReplenishmentRuns } from "@/features/replenishment/api";
 import { ReplenishmentListClient } from "./list-client";
 
-// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
 export const dynamic = "force-dynamic";
 
-export const runtime = "edge";
 
 export default function ReplenishmentPage() {
   const { data, isLoading } = useReplenishmentRuns({ pageSize: 100 });

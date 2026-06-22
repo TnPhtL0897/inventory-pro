@@ -5,7 +5,6 @@ import { WeeklyDashboard } from "@/features/replenishment-weekly/weekly-dashboar
 import { Truck } from "lucide-react";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 export default function WeeklyReplenishmentPage() {
   return (

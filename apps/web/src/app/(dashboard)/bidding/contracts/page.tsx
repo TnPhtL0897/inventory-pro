@@ -5,10 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBidContracts } from "@/features/bid-contracts/api";
 import { BidContractListClient } from "./list-client";
 
-// Force dynamic rendering - skip static gen (Cloudflare Pages edge)
 export const dynamic = "force-dynamic";
 
-export const runtime = "edge";
 
 export default function BidContractsPage() {
   // Page-level query just to display the total count in the header

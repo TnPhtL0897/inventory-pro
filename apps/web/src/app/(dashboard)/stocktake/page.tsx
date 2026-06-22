@@ -5,7 +5,6 @@ import { StockTakeDashboard } from "@/features/stocktake/stocktake-dashboard";
 import { ClipboardList } from "lucide-react";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 export default function StockTakePage() {
   return (

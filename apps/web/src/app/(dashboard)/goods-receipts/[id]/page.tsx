@@ -10,10 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { ArrowLeft, Send, X } from "lucide-react";
 
 
-// Force dynamic rendering - skip static gen (edge runtime)
 export const dynamic = "force-dynamic"
 
-export const runtime = "edge";
 
 export default function GrnDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

@@ -5,10 +5,8 @@ import { useParty } from "@/features/parties/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 
-// Force dynamic rendering - skip static gen (edge runtime)
 export const dynamic = "force-dynamic"
 
-export const runtime = "edge";
 
 export default function PartyDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

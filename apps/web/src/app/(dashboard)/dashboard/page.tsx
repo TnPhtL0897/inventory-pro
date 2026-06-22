@@ -14,7 +14,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export const dynamic = "force-dynamic";
-export const runtime = "edge";
 
 function formatTime(d: Date) {
  const hh = d.getHours().toString().padStart(2, "0");
