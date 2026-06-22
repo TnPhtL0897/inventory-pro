@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
-    "build": "next build",
+    "build": "opennextjs-cloudflare build",
+    "build:next": "next build",
+    "build:cf": "opennextjs-cloudflare build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -51,6 +53,7 @@
     "zustand": "^5.0.1"
   },
   "devDependencies": {
+    "@opennextjs/cloudflare": "^1.19.11",
     "@playwright/test": "^1.48.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",

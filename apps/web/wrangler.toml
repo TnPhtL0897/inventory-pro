@@ -1,0 +1,18 @@
+# =============================================================================
+# Cloudflare Pages configuration for apps/web (OpenNext adapter)
+# =============================================================================
+# @opennextjs/cloudflare generates `.open-next/` which CF Pages serves as a
+# Worker (Node compatibility mode). This wrangler.toml tells wrangler/CF
+# how to bundle the OpenNext worker output.
+#
+# Build pipeline:
+#   pnpm install
+#   pnpm --filter web build   # runs `next build && opennextjs-cloudflare build`
+# CF Pages build_config sets destination_dir to `.open-next`.
+# =============================================================================
+
+name = "inventorypro-web"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+main = ".open-next/worker.js"
+assets = { directory = ".open-next/assets", binding = "ASSETS" }
