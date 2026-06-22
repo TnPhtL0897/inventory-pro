@@ -49,14 +49,14 @@ jobs:
           fi
           ls -la apps/web/.open-next/
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: quankho
-          directory: apps/web/.open-next
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          wranglerVersion: '4'
+      - name: Deploy to Cloudflare Pages via wrangler
+        working-directory: apps/web
+        run: |
+          npx --no wrangler@4 pages deploy .open-next \
+            --project-name=quankho \
+            --branch=main \
+            --commit-dirty=true \
+            --skip-confirmation
         env:
-          NODE_VERSION: 20
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
