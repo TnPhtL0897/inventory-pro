@@ -1,4 +1,4 @@
-name: Deploy Web (CF Pages via OpenNext)
+name: Deploy Web (CF Worker via OpenNext)
 
 on:
   push:
@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build-and-deploy:
-    name: Build + Deploy to CF Pages
+    name: Build + Deploy to CF Worker
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -49,13 +49,27 @@ jobs:
           fi
           ls -la apps/web/.open-next/
 
-      - name: Deploy to Cloudflare Pages via wrangler
+      - name: Ensure R2 cache bucket exists
         working-directory: apps/web
         run: |
-          npx --no wrangler@4 pages deploy .open-next \
-            --project-name=quankho \
-            --branch=main \
-            --commit-dirty=true
+          if ! npx --no wrangler@4 r2 bucket list 2>/dev/null | grep -q "inventorypro-web-cache"; then
+            echo "Creating R2 bucket inventorypro-web-cache..."
+            npx --no wrangler@4 r2 bucket create inventorypro-web-cache
+          else
+            echo "R2 bucket inventorypro-web-cache already exists"
+          fi
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Deploy to Cloudflare Worker via wrangler
+        working-directory: apps/web
+        run: |
+          npx --no wrangler@4 deploy \
+            --name=inventorypro-web \
+            --compatibility-date=2024-09-23 \
+            --compatibility-flags=nodejs_compat \
+            --main=.open-next/worker.js
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
