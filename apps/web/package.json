@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
+    "build": "next build",
     "build:cf": "pnpm build:next && pnpm build:adapter",
     "build:next": "next build",
     "build:adapter": "opennextjs-cloudflare build",
