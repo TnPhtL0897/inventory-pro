@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev",
     "dev:turbo": "next dev --turbopack",
-    "build": "pnpm build:next && pnpm build:cf",
+    "build:cf": "pnpm build:next && pnpm build:adapter",
     "build:next": "next build",
-    "build:cf": "pnpm exec opennextjs-cloudflare build",
+    "build:adapter": "opennextjs-cloudflare build",
+    "deploy:cf": "pnpm build:cf",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",

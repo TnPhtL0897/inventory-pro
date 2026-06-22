@@ -39,7 +39,7 @@ jobs:
         run: pnpm --filter web type-check
 
       - name: Build with OpenNext for Cloudflare
-        run: pnpm --filter web build
+        run: pnpm --filter web deploy:cf
 
       - name: Verify .open-next exists
         run: |
