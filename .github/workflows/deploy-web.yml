@@ -1,0 +1,62 @@
+name: Deploy Web (CF Pages via OpenNext)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/**'
+      - 'packages/**'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/deploy-web.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-web
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build + Deploy to CF Pages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9.12.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Type-check
+        run: pnpm --filter web type-check
+
+      - name: Build with OpenNext for Cloudflare
+        run: pnpm --filter web build
+
+      - name: Verify .open-next exists
+        run: |
+          if [ ! -d "apps/web/.open-next" ]; then
+            echo "::error::.open-next directory not created"
+            exit 1
+          fi
+          ls -la apps/web/.open-next/
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: quankho
+          directory: apps/web/.open-next
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          wranglerVersion: '4'
+        env:
+          NODE_VERSION: 20
