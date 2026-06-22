@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # =============================================================================
 # InventoryPro — Full deploy script ($0 cost)
-# Chạy script này SAU KHI đã setup accounts (Supabase, Vercel, Fly.io, GitHub).
-# Yêu cầu: đã cài supabase, fly, vercel, gh, pnpm, dotnet CLI.
+# Stack: Next.js web → Cloudflare Pages | CF Workers API → Cloudflare
+# Run script này SAU KHI đã setup accounts (Cloudflare, Supabase, GitHub)
+# và fill values trong .env.local.
+#
+# Yêu cầu: đã cài pnpm, supabase, gh, wrangler CLI.
 # =============================================================================
 
 set -e
@@ -22,7 +25,7 @@ fail() { echo -e "${RED}❌${NC}  $1"; exit 1; }
 # =============================================================================
 step "Pre-flight checks"
 
-for cmd in pnpm dotnet supabase fly vercel git; do
+for cmd in pnpm supabase gh wrangler git; do
   command -v "$cmd" >/dev/null 2>&1 || fail "Missing CLI: $cmd. Cài đặt trước khi chạy script."
 done
 
@@ -58,50 +61,52 @@ supabase link --project-ref "$SUPABASE_PROJECT_REF" || warn "Supabase link faile
 supabase db push || fail "Supabase migrations failed"
 
 # =============================================================================
-# Step 3: Vercel deploy (Web)
+# Step 3: Deploy CF Workers (API backend)
 # =============================================================================
-step "Deploy Web to Vercel"
-vercel --prod \
-  --yes \
-  --token "$VERCEL_TOKEN" \
-  -b "NEXT_PUBLIC_SUPABASE_URL=$(grep NEXT_PUBLIC_SUPABASE_URL .env.local | cut -d= -f2-)" \
-  -b "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(grep NEXT_PUBLIC_SUPABASE_ANON_KEY .env.local | cut -d= -f2-)" \
-  -b "NEXT_PUBLIC_API_BASE_URL=https://inventory-prod.fly.dev" \
-  -b "NEXT_PUBLIC_APP_NAME=Quản lý kho vật tư Pro" \
-  -b "NEXT_PUBLIC_APP_VERSION=0.1.0"
+step "Deploy API Worker (Cloudflare Workers)"
+cd apps/api-worker
 
-WEB_URL=$(vercel ls --token "$VERCEL_TOKEN" 2>/dev/null | grep inventory-prod | awk '{print $2}' | head -1)
-[ -z "$WEB_URL" ] && WEB_URL="https://inventory-prod.vercel.app"
-step "Web deployed: $WEB_URL"
-
-# =============================================================================
-# Step 4: Fly.io deploy (API)
-# =============================================================================
-step "Deploy API to Fly.io"
-fly apps create inventory-prod 2>/dev/null || warn "App đã tồn tại hoặc tạo thất bại"
-
-# Set secrets
-SUPABASE_URL=$(grep NEXT_PUBLIC_SUPABASE_URL .env.local | cut -d= -f2-)
-SUPABASE_JWT_SECRET=$(grep SUPABASE_JWT_SECRET .env.local | cut -d= -f2-)
-SUPABASE_ANON_KEY=$(grep NEXT_PUBLIC_SUPABASE_ANON_KEY .env.local | cut -d= -f2-)
-SUPABASE_SERVICE_ROLE_KEY=$(grep SUPABASE_SERVICE_ROLE_KEY .env.local | cut -d= -f2-)
-DB_PASSWORD=$(grep DB_PASSWORD .env.local | cut -d= -f2-)
+# Đọc secrets từ .env.local
+SUPABASE_URL=$(grep NEXT_PUBLIC_SUPABASE_URL ../../.env.local | cut -d= -f2-)
+SUPABASE_ANON_KEY=$(grep NEXT_PUBLIC_SUPABASE_ANON_KEY ../../.env.local | cut -d= -f2-)
+SUPABASE_SERVICE_ROLE_KEY=$(grep SUPABASE_SERVICE_ROLE_KEY ../../.env.local | cut -d= -f2-)
+SUPABASE_JWT_SECRET=$(grep SUPABASE_JWT_SECRET ../../.env.local | cut -d= -f2-)
+DATABASE_URL=$(grep "^DATABASE_URL=" ../../.env.local | cut -d= -f2-)
 
 [ -n "$SUPABASE_URL" ] || fail "Missing SUPABASE_URL"
 [ -n "$SUPABASE_JWT_SECRET" ] || fail "Missing SUPABASE_JWT_SECRET"
-[ -n "$DB_PASSWORD" ] || fail "Missing DB_PASSWORD"
+[ -n "$DATABASE_URL" ] || fail "Missing DATABASE_URL"
 
-fly secrets set \
-  Supabase__Url="$SUPABASE_URL" \
-  Supabase__JwtSecret="$SUPABASE_JWT_SECRET" \
-  Supabase__AnonKey="$SUPABASE_ANON_KEY" \
-  Supabase__ServiceRoleKey="$SUPABASE_SERVICE_ROLE_KEY" \
-  ConnectionStrings__Supabase="Host=db.${SUPABASE_PROJECT_REF}.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=${DB_PASSWORD};SslMode=Require;TrustServerCertificate=true" \
-  --app inventory-prod
+# Set secrets (KHÔNG echo, KHÔNG commit)
+echo "$SUPABASE_URL"           | wrangler secret put SUPABASE_URL
+echo "$SUPABASE_ANON_KEY"      | wrangler secret put SUPABASE_ANON_KEY
+echo "$SUPABASE_SERVICE_ROLE_KEY" | wrangler secret put SUPABASE_SERVICE_ROLE_KEY
+echo "$SUPABASE_JWT_SECRET"    | wrangler secret put SUPABASE_JWT_SECRET
+echo "$DATABASE_URL"           | wrangler secret put DATABASE_URL
 
-fly deploy --remote-only --strategy bluegreen
+npm run deploy
 
-step "API deployed: https://inventory-prod.fly.dev"
+step "API Worker deployed: https://quankho-api.letanphatptt.workers.dev"
+cd ../..
+
+# =============================================================================
+# Step 4: Cloudflare Pages (Web)
+# =============================================================================
+step "Deploy Web to Cloudflare Pages"
+echo ""
+echo "Cloudflare Pages deploy trigger qua git push — Pages tự build khi push main:"
+echo "  git push origin main"
+echo ""
+echo "Đảm bảo CF Pages Project 'quankho-web' đã connect repo này (Settings → Builds):"
+echo "  - Root directory: apps/web"
+echo "  - Build command: pnpm install && pnpm --filter web build"
+echo "  - Output directory: .next"
+echo "  - Compatibility flags: nodejs_compat"
+echo "  - Env vars (runtime, KHÔNG dùng cho build):"
+echo "      NEXT_PUBLIC_SUPABASE_URL = $SUPABASE_URL"
+echo ""
+
+WEB_URL="https://quankho.pages.dev"
 
 # =============================================================================
 # Step 5: Smoke test
@@ -109,10 +114,9 @@ step "API deployed: https://inventory-prod.fly.dev"
 step "Smoke test"
 sleep 10
 
-# Health API
 echo "Testing API health..."
 for i in 1 2 3 4 5; do
-  if curl -fsSL "https://inventory-prod.fly.dev/health/live" >/dev/null 2>&1; then
+  if curl -fsSL "https://quankho-api.letanphatptt.workers.dev/health" >/dev/null 2>&1; then
     echo -e "${GREEN}✅ API live${NC}"
     break
   fi
@@ -120,32 +124,23 @@ for i in 1 2 3 4 5; do
   sleep 10
 done
 
-curl -fsSL "https://inventory-prod.fly.dev/health/ready" || warn "API ready check failed (DB?)"
-
-# Health Web
 echo "Testing Web..."
-curl -fsSL "$WEB_URL/login" | grep -q "Đăng nhập" && echo -e "${GREEN}✅ Web live${NC}" || warn "Web check failed"
+curl -fsSL "$WEB_URL" >/dev/null && echo -e "${GREEN}✅ Web live${NC}" || warn "Web check failed"
 
 # =============================================================================
-# Step 6: Update Auth + CORS
+# Step 6: Update Supabase Auth
 # =============================================================================
-step "Update Supabase Auth + CORS"
+step "Update Supabase Auth"
 echo ""
-echo "Manual steps cần làm:"
-echo "1. Supabase Dashboard > Authentication > URL Configuration"
-echo "   - Site URL: $WEB_URL"
-echo "   - Redirect URLs: $WEB_URL/auth/callback, $WEB_URL/login"
+echo "Manual steps cần làm trên Supabase Dashboard:"
+echo "  Authentication → URL Configuration:"
+echo "    - Site URL: $WEB_URL"
+echo "    - Redirect URLs: $WEB_URL/auth/callback, $WEB_URL/login"
 echo ""
-echo "2. Update CORS trong apps/api/appsettings.Production.json"
-echo "   - Thêm $WEB_URL vào Cors.AllowedOrigins"
-echo "   - Commit + fly deploy lại"
-echo ""
-echo "3. (Optional) Add custom domain trong Vercel + Fly"
 
 step "🎉 Deploy hoàn tất! Cost = \$0"
 echo ""
 echo "URLs:"
 echo "  Web: $WEB_URL"
-echo "  API: https://inventory-prod.fly.dev"
-echo "  API docs (Swagger): https://inventory-prod.fly.dev/swagger (chỉ trên dev environment)"
+echo "  API: https://quankho-api.letanphatptt.workers.dev"
 echo "  DB: Supabase Dashboard"

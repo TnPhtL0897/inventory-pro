@@ -43,7 +43,6 @@ app.use(
   cors({
     origin: [
       "https://quankho.pages.dev",
-      "https://inventory-pro-web-letanphatptt-9690s-projects.vercel.app",
       "http://localhost:3000",
       "http://localhost:3001",
     ],

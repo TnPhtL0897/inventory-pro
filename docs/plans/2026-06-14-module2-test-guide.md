@@ -239,7 +239,7 @@ Em sẽ fix thêm issues nếu phát sinh, rồi tiếp tục Module 3.
 
 | Lỗi | Nguyên nhân | Fix |
 |---|---|---|
-| `extension pg_cron does not exist` | Supabase free tier không enable pg_cron | Bỏ qua cron, dùng GitHub Actions / Vercel Cron thay thế |
+| `extension pg_cron does not exist` | Supabase free tier không enable pg_cron | Bỏ qua cron, dùng GitHub Actions / Cloudflare Cron Triggers thay thế |
 | `permission denied for schema net` | Service role chưa có quyền net.http_post | Check Supabase logs → Dashboard → Database → Roles |
 | `function fn_complete_lot_qc does not exist` | Migration #4 chưa apply OK | Re-apply migration #4 |
 | Edge function 401 Unauthorized | Service role key sai | Verify key từ Dashboard → Project Settings → API |

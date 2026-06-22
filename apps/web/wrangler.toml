@@ -1,12 +1,22 @@
 # =============================================================================
-# Cloudflare Workers (NOT Pages) configuration
+# Cloudflare Pages configuration (apps/web)
 # =============================================================================
-# Dự án này deploy chính lên Vercel. File wrangler.toml giữ lại để tham khảo
-# cho Cloudflare Workers (Edge API nếu cần) nhưng KHÔNG dùng cho build.
+# Web deploys lên Cloudflare Pages. Build script chạy `next build` rồi
+# Cloudflare adapter (next-on-pages hoặc @opennextjs/cloudflare) generate
+# output mà Pages worker runtime đọc được.
 #
-# Để deploy lên Cloudflare Pages: dùng @opennextjs/cloudflare (xem git log)
-# Để deploy lên Vercel: chỉ cần `next build` (Vercel tự detect)
+# `pages_build_output_dir` = thư mục mà Pages build pipeline đọc deploy
+# artifacts. next-on-pages output convention dùng path `.vercel/output/static/`
+# (đây là tên nội bộ của next-on-pages, không liên quan service Vercel).
+# OpenNext output dùng `.open-next/` — đổi giá trị này nếu chuyển adapter.
+#
+# Actual deploy trigger: git push → CF Pages tự build từ branch.
+# Dashboard: https://dash.cloudflare.com → Workers & Pages → quankho-web
+#
+# Env vars runtime set trên CF Dashboard (KHÔNG commit): DATABASE_URL, etc.
+# NEXT_PUBLIC_* inlines tại build time → commit ở apps/web/.env.production.
 
 name = "inventorypro-web"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
