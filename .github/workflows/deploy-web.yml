@@ -49,19 +49,6 @@ jobs:
           fi
           ls -la apps/web/.open-next/
 
-      - name: Ensure R2 cache bucket exists
-        working-directory: apps/web
-        run: |
-          if ! npx --no wrangler@4 r2 bucket list 2>/dev/null | grep -q "inventorypro-web-cache"; then
-            echo "Creating R2 bucket inventorypro-web-cache..."
-            npx --no wrangler@4 r2 bucket create inventorypro-web-cache
-          else
-            echo "R2 bucket inventorypro-web-cache already exists"
-          fi
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-
       - name: Deploy to Cloudflare Worker via wrangler
         working-directory: apps/web
         run: |

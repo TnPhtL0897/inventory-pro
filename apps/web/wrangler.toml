@@ -4,7 +4,6 @@
 # @opennextjs/cloudflare v1.x targets Cloudflare Workers (not Pages).
 # Worker entry: .open-next/worker.js
 # Static assets served via ASSETS binding from .open-next/assets
-# Incremental cache (ISR) stored in R2 bucket `inventorypro-web-cache`
 # =============================================================================
 
 name = "inventorypro-web"
@@ -19,15 +18,20 @@ services = [
   { binding = "WORKER_SELF_REFERENCE", service = "inventorypro-web" }
 ]
 
-r2_buckets = [
-  # R2 incremental cache for ISR (Incremental Static Regeneration)
-  { binding = "NEXT_INC_CACHE_R2_BUCKET", bucket_name = "inventorypro-web-cache" }
-]
+# R2 incremental cache disabled — requires CLOUDFLARE_API_TOKEN with R2 scope.
+# Enable by:
+#   1. Grant token "Workers R2 Storage" + "Account R2: Edit" permissions
+#   2. Create bucket: `wrangler r2 bucket create inventorypro-web-cache`
+#   3. Uncomment r2_buckets below and re-enable r2IncrementalCache in
+#      open-next.config.ts
+# r2_buckets = [
+#   { binding = "NEXT_INC_CACHE_R2_BUCKET", bucket_name = "inventorypro-web-cache" }
+# ]
 
 [vars]
-# Public env vars injected at build time via apps/web/.env.production
 NEXTJS_ENV = "production"
 
 # Secrets (set via `wrangler secret put` or CF dashboard, NOT committed):
 #   SUPABASE_SERVICE_ROLE_KEY
-#   SUPABASE_ANON_KEY (NEXT_PUBLIC_ already inlined by build)
+#   NEXT_PUBLIC_SUPABASE_URL (already inlined at build via .env.production)
+#   NEXT_PUBLIC_SUPABASE_ANON_KEY (already inlined at build via .env.production)
