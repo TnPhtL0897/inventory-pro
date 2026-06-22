@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-export const runtime = "edge";
 
 /**
  * ⚠ DEV ONLY - Mock login endpoint.
