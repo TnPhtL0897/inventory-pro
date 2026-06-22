@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Plus, Trash2, Edit, ChevronLeft, ChevronRight } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export function PoTable({ onEdit, onNew }: { onEdit: (po: PurchaseOrder) => void; onNew: () => void }) {
   const [page, setPage] = useState(1);
@@ -14,6 +15,7 @@ export function PoTable({ onEdit, onNew }: { onEdit: (po: PurchaseOrder) => void
   const [status, setStatus] = useState<PoStatus | "">("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [deletingTarget, setDeletingTarget] = useState<PurchaseOrder | null>(null);
 
   const params = {
     page,
@@ -89,9 +91,7 @@ export function PoTable({ onEdit, onNew }: { onEdit: (po: PurchaseOrder) => void
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => {
-                          if (confirm(`Xóa PO ${po.poNumber}?`)) del.mutate(po.id);
-                        }}
+                        onClick={() => setDeletingTarget(po)}
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>
@@ -113,6 +113,20 @@ export function PoTable({ onEdit, onNew }: { onEdit: (po: PurchaseOrder) => void
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deletingTarget}
+        onOpenChange={(o) => !o && setDeletingTarget(null)}
+        title={`Xóa PO ${deletingTarget?.poNumber}?`}
+        description="Đơn đặt hàng nháp sẽ bị xóa. Chỉ có thể xóa PO ở trạng thái DRAFT."
+        variant="destructive"
+        confirmLabel="Xóa PO"
+        onConfirm={async () => {
+          if (deletingTarget) await del.mutateAsync(deletingTarget.id);
+          setDeletingTarget(null);
+        }}
+        isLoading={del.isPending}
+      />
     </div>
   );
 }

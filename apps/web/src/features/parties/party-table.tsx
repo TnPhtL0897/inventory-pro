@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Plus, Trash2, Edit, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { PartyForm } from "./party-form";
 import type { PartyType, PartyStatus } from "./api";
 
@@ -34,6 +35,7 @@ export function PartyTable({ initialData }: { initialData?: { items: Party[]; to
   const [status, setStatus] = useState<PartyStatus | "">("");
   const [editing, setEditing] = useState<Party | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deletingTarget, setDeletingTarget] = useState<Party | null>(null);
 
   const params = {
     page,
@@ -154,9 +156,7 @@ export function PartyTable({ initialData }: { initialData?: { items: Party[]; to
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => {
-                        if (confirm(`Xóa/ngưng "${p.name}"?`)) del.mutate(p.id);
-                      }}
+                      onClick={() => setDeletingTarget(p)}
                     >
                       <Trash2 className="h-4 w-4 text-red-600" />
                     </Button>
@@ -188,6 +188,20 @@ export function PartyTable({ initialData }: { initialData?: { items: Party[]; to
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deletingTarget}
+        onOpenChange={(o) => !o && setDeletingTarget(null)}
+        title={`Xóa/ngưng "${deletingTarget?.name}"?`}
+        description="Đối tác sẽ được đánh dấu ngưng. Giao dịch cũ vẫn được giữ để truy vết."
+        variant="destructive"
+        confirmLabel="Xóa/ngưng"
+        onConfirm={async () => {
+          if (deletingTarget) await del.mutateAsync(deletingTarget.id);
+          setDeletingTarget(null);
+        }}
+        isLoading={del.isPending}
+      />
     </div>
   );
 }

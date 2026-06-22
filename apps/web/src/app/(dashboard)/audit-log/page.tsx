@@ -31,6 +31,9 @@ import {
 } from "@/features/audit-log/api";
 import { exportAuditLogToExcel } from "@/lib/excel-export";
 import { toast } from "sonner";
+import { EmptyState } from "@/components/ui/empty-state";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, RefreshCw } from "lucide-react";
 
 export default function AuditLogPage() {
   const [tableName, setTableName] = useState<string>("all");
@@ -41,7 +44,7 @@ export default function AuditLogPage() {
   const [page, setPage] = useState(1);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
-  const { data, isLoading } = useAuditLog({
+  const { data, isLoading, error, refetch, isRefetching } = useAuditLog({
     tableName: tableName === "all" ? undefined : tableName,
     operation: operation === "all" ? undefined : (operation as AuditOperation),
     userId: undefined,
@@ -52,6 +55,7 @@ export default function AuditLogPage() {
   });
 
   const items = data?.items ?? [];
+  const errorMsg = error instanceof Error ? error.message : null;
 
   const toggleExpand = (id: string) => {
     const next = new Set(expandedIds);
@@ -86,6 +90,15 @@ export default function AuditLogPage() {
         >
           <Download className="mr-2 h-4 w-4" />
           Xuất Excel
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => refetch()}
+          disabled={isRefetching}
+          aria-label="Làm mới"
+        >
+          <RefreshCw className={`h-4 w-4 ${isRefetching ? "animate-spin" : ""}`} />
         </Button>
       </div>
 
@@ -162,21 +175,30 @@ export default function AuditLogPage() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading && (
+          {errorMsg ? (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Lỗi</AlertTitle>
+              <AlertDescription>
+                {errorMsg}
+                <Button variant="outline" size="sm" className="ml-2" onClick={() => refetch()}>
+                  Thử lại
+                </Button>
+              </AlertDescription>
+            </Alert>
+          ) : isLoading ? (
             <div className="space-y-2">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Skeleton key={i} className="h-12" />
               ))}
             </div>
-          )}
-
-          {!isLoading && items.length === 0 && (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              📭 Không có bản ghi nào khớp filter
-            </p>
-          )}
-
-          {!isLoading && items.length > 0 && (
+          ) : items.length === 0 ? (
+            <EmptyState
+              icon="search"
+              title="Không có bản ghi nào"
+              description="Thử thay đổi bộ lọc hoặc mở rộng khoảng thời gian tra cứu."
+            />
+          ) : (
             <div className="space-y-1">
               {items.map((entry) => (
                 <AuditLogRow

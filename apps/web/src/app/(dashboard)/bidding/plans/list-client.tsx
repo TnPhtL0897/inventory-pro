@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search, CheckCircle2, Clock } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 
 interface BidPlan {
   id: string;
@@ -62,7 +63,11 @@ export function BidPlanListClient({ initialData }: Props) {
       </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">Chưa có KHĐT nào</div>
+        <EmptyState
+          icon="file"
+          title="Chưa có kế hoạch đấu thầu nào"
+          description="Tạo KHĐT đầu tiên để bắt đầu quy trình đấu thầu nội bộ."
+        />
       ) : (
         <div className="rounded-md border overflow-x-auto">
           <table className="w-full text-sm min-w-[700px]">

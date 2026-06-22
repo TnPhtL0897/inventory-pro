@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Search, Plus, Trash2, Edit, ChevronLeft, ChevronRight } from "lucide-react";
 import { WarehouseForm } from "./warehouse-form";
 
@@ -26,6 +27,7 @@ export function WarehouseTable({ initialData }: { initialData?: { items: Warehou
   const [type, setType] = useState<WarehouseType | "">("");
   const [editing, setEditing] = useState<Warehouse | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [closingTarget, setClosingTarget] = useState<Warehouse | null>(null);
 
   const params = {
     page,
@@ -139,9 +141,7 @@ export function WarehouseTable({ initialData }: { initialData?: { items: Warehou
                     {w.status !== "CLOSED" && (
                       <Button
                         size="sm" variant="ghost"
-                        onClick={() => {
-                          if (confirm(`Đóng kho "${w.name}"?`)) del.mutate(w.id);
-                        }}
+                        onClick={() => setClosingTarget(w)}
                       >
                         <Trash2 className="h-4 w-4 text-red-600" />
                       </Button>
@@ -167,6 +167,20 @@ export function WarehouseTable({ initialData }: { initialData?: { items: Warehou
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!closingTarget}
+        onOpenChange={(o) => !o && setClosingTarget(null)}
+        title={`Đóng kho "${closingTarget?.name}"?`}
+        description="Kho sẽ chuyển sang trạng thái đóng và không thể nhập/xuất. Hành động này có thể được hoàn tác bằng cách mở lại kho."
+        variant="destructive"
+        confirmLabel="Đóng kho"
+        onConfirm={async () => {
+          if (closingTarget) await del.mutateAsync(closingTarget.id);
+          setClosingTarget(null);
+        }}
+        isLoading={del.isPending}
+      />
     </div>
   );
 }

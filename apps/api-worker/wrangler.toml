@@ -1,0 +1,38 @@
+name = "quankho-api"
+main = "src/worker.ts"
+compatibility_date = "2024-12-18"
+compatibility_flags = ["nodejs_compat"]
+
+# Dev environment
+[env.dev]
+name = "quankho-api-dev"
+
+# Production environment
+[env.production]
+name = "quankho-api"
+
+# Secrets (set via: wrangler secret put SUPABASE_URL)
+# SUPABASE_URL
+# SUPABASE_ANON_KEY
+# SUPABASE_SERVICE_ROLE_KEY
+# SUPABASE_JWT_SECRET
+# DATABASE_URL (direct Postgres connection for Drizzle)
+
+# Cron triggers
+# - "0 2 25 * *" = 02:00 ngày 25 hàng tháng (chạy dự trù cuối tháng)
+# CF Cron không hỗ trợ day-of-week (chỉ day-of-month). Stock expiry check
+# sẽ dùng pg_cron trên Supabase thay thế.
+[triggers]
+crons = [
+  "0 2 25 * *",
+]
+
+# Vars (non-secret)
+[vars]
+LOG_LEVEL = "info"
+
+# KV namespace for rate limit (shared across isolates)
+[[kv_namespaces]]
+binding = "RATE_LIMIT"
+id = "fc6ab51600a94cfcb03c11f0fe093c86"
+preview_id = "479ab7fedd2b4b85ab5ffbfbe17d3e92"

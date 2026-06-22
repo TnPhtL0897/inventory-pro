@@ -9,9 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 
-// Force dynamic rendering - skip static gen (Vercel free 60s/lambda limit)
+// Force dynamic rendering - skip static gen (edge runtime)
 export const dynamic = "force-dynamic"
 
 export const runtime = "edge";
@@ -20,11 +21,18 @@ export default function StockIssuesPage() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const post = usePostIssue();
+  const confirmDialog = useConfirm();
 
   const handleNew = () => setOpen(true);
   const close = () => setOpen(false);
-  const handlePost = (i: StockIssue) => {
-    if (confirm(`Post phiểu xuất ${i.issueNumber}? Sế trá»« tá»“n kho.`)) {
+  const handlePost = async (i: StockIssue) => {
+    const ok = await confirmDialog.confirm({
+      title: `Post phiểu xuất ${i.issueNumber}?`,
+      description: "Sẽ trừ tồn kho và ghi stock_movements. Hành động này không thể hoàn tác.",
+      variant: "warning",
+      confirmLabel: "Post phiếu",
+    });
+    if (ok) {
       post.mutate(i.id, { onSuccess: () => router.push(`/stock-issues/${i.id}`) });
     }
   };
@@ -51,6 +59,8 @@ export default function StockIssuesPage() {
         <CardHeader><CardTitle>Danh sách</CardTitle></CardHeader>
         <CardContent><IssueTable onNew={handleNew} onPost={handlePost} /></CardContent>
       </Card>
+
+      <confirmDialog.ConfirmHost />
     </div>
   );
 }

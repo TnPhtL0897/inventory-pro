@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Plus, Trash2, Edit, ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { ProductForm } from "./product-form";
 
 export function ProductTable({
@@ -29,6 +30,7 @@ export function ProductTable({
   const [type, setType] = useState<ProductType | "">("");
   const [editing, setEditing] = useState<Product | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deletingTarget, setDeletingTarget] = useState<Product | null>(null);
 
   const params = {
     page,
@@ -146,9 +148,7 @@ export function ProductTable({
                     <Button
                       size="icon"
                       variant="ghost"
-                      onClick={() => {
-                        if (confirm(`Xóa/ngưng "${p.name}"?`)) del.mutate(p.id);
-                      }}
+                      onClick={() => setDeletingTarget(p)}
                     className="h-10 w-10 sm:h-8 sm:w-10"
                     aria-label="Xóa"
                     >
@@ -175,6 +175,20 @@ export function ProductTable({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!deletingTarget}
+        onOpenChange={(o) => !o && setDeletingTarget(null)}
+        title={`Xóa/ngưng "${deletingTarget?.name}"?`}
+        description="Vật tư sẽ được đánh dấu ngưng sử dụng. Lịch sử giao dịch được giữ nguyên để truy vết."
+        variant="destructive"
+        confirmLabel="Xóa/ngưng"
+        onConfirm={async () => {
+          if (deletingTarget) await del.mutateAsync(deletingTarget.id);
+          setDeletingTarget(null);
+        }}
+        isLoading={del.isPending}
+      />
     </div>
   );
 }

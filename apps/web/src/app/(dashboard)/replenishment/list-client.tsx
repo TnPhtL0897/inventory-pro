@@ -5,9 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, TrendingUp, Calendar, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Search, Calendar, CheckCircle2, XCircle } from "lucide-react";
 import { ForecastPreviewDialog } from "@/features/replenishment/forecast-preview-dialog";
 import { formatVND, type ReplenishmentRun } from "@/features/replenishment/api";
+import { EmptyState, EmptyStatePresets } from "@/components/ui/empty-state";
 
 interface Props {
   initialData?: { items: ReplenishmentRun[]; total: number };
@@ -87,11 +88,11 @@ export function ReplenishmentListClient({ initialData }: Props) {
       </div>
 
       {items.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <TrendingUp className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p>Chưa có lần chạy dự trù nào.</p>
-          <p className="text-xs mt-2">Bấm "Tạo dự trù tháng mới" để chạy lần đầu tiên.</p>
-        </div>
+        <EmptyState
+          {...EmptyStatePresets.noReplenishment}
+          actionLabel="Tạo dự trù tháng mới"
+          onAction={() => setOpenDialog(true)}
+        />
       ) : (
         <div className="rounded-md border overflow-x-auto">
           <table className="w-full text-sm min-w-[800px]">
